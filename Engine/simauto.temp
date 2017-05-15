@@ -23,35 +23,35 @@ template<> const std::unordered_map<std::string, std::unordered_map<std::string,
 	return unii;
 }
 void use(GLuint shaderID, const shaderIndexWrapper & si) const {
-	if (si.t == MAT4 ) {
+	if (si.data == MAT4 ) {
 		glm::mat4 t = this->get<glm::mat4>(si);
 		glUniformMatrix4fv(glGetUniformLocation(shaderID,si.loc.c_str()), 1, GL_FALSE, glm::value_ptr(t));
 	}
-	else if (si.t == MAT3 ) {
+	else if (si.data == MAT3 ) {
 		glm::mat3 t = this->get<glm::mat3>(si);
 		glUniformMatrix3fv(glGetUniformLocation(shaderID,si.loc.c_str()), 1, GL_FALSE, glm::value_ptr(t));
 	}
-	else if (si.t == MAT2 ) {
+	else if (si.data == MAT2 ) {
 		glm::mat2 t = this->get<glm::mat2>(si);
 		glUniformMatrix2fv(glGetUniformLocation(shaderID,si.loc.c_str()), 1, GL_FALSE, glm::value_ptr(t));
 	}
-	else if (si.t == VEC4 ) {
+	else if (si.data == VEC4 ) {
 		glm::vec4 t = this->get<glm::vec4>(si);
 		glUniform4f(glGetUniformLocation(shaderID,si.loc.c_str()), t.x, t.y, t.z, t.w);
 	}
-	else if (si.t == VEC3 ) {
+	else if (si.data == VEC3 ) {
 		glm::vec3 t = this->get<glm::vec3>(si);
 		glUniform3f(glGetUniformLocation(shaderID,si.loc.c_str()), t.x, t.y, t.z);
 	}
-	else if (si.t == VEC2 ) {
+	else if (si.data == VEC2 ) {
 		glm::vec2 t = this->get<glm::vec2>(si);
 		glUniform2f(glGetUniformLocation(shaderID,si.loc.c_str()), t.x, t.y);
 	}
-	else if (si.t == GFLT ) {
+	else if (si.data == GFLT ) {
 		GLfloat t = this->get<GLfloat>(si);
 		glUniform1f(glGetUniformLocation(shaderID,si.loc.c_str()), t);
 	}
-	else if (si.t == GINT ) {
+	else if (si.data == GINT ) {
 		GLint t = this->get<GLint>(si);
 		glUniform1i(glGetUniformLocation(shaderID,si.loc.c_str()), t);
 	}

@@ -9,15 +9,6 @@
 namespace doge {
 	enum type : unsigned int;
 
-	struct shaderIndexWrapper {
-		std::string loc, cls;
-		type t;
-		shaderIndexWrapper(const std::string & l, const std::string & c, type tp) :
-			loc(l), cls(c), t(tp) {
-			// Nothing here
-		}
-	};
-
 	template<typename T> struct shaderDataWrapper{
 		std::string loc, cls;
 		T data;
@@ -25,7 +16,17 @@ namespace doge {
 			loc(l), cls(c), data(d) {
 			// Nothing here
 		}
-	};
+
+		operator std::pair<std::string, std::string>() const {
+			return{ loc, cls };
+		}
+
+		operator std::pair<std::string, T>() const {
+			return{ loc, *this };
+		}
+ 	};
+
+	typedef shaderDataWrapper<type> shaderIndexWrapper;
 	
 	#include "enum.temp"
 	class shaderIndexManager {

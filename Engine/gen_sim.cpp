@@ -93,7 +93,7 @@ void tools::SIMGenerator::genSim(const std::string & outfile) {
 			ifs += "else if ";
 		}
 
-		ifs += "(si.t == " + enu + " ) {\n\t\t" +
+		ifs += "(si.data == " + enu + " ) {\n\t\t" +
 			type + " t = this->get<" + type + ">(si);\n\t\t" +
 			funcname + "(glGetUniformLocation(shaderID,si.loc.c_str())";
 		string param;

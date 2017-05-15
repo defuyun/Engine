@@ -47,6 +47,36 @@ void doge::baseObject::setLocs(const std::vector<std::string> & locs) {
 	this->locs = locs;
 }
 
-void setDefaultSims(const std::vector<std::string> & sim) {
+void doge::baseObject::setDefaultSims(const std::vector<doge::siw> & sims) {
+	this->defaultSims.clear();
+	this->defaultSims.emplace(this->defaultSims.end(), sims.begin(), sims.end());
+}
 
+void doge::baseObject::addSim(const siw & si) {
+	this->defaultSims.emplace(si);
+}
+
+void doge::baseObject::addSim(const std::vector<siw> & sims) {
+	this->defaultSims.emplace(this->defaultSims.end(), sims.begin(), sims.end());
+}
+
+void doge::baseObject::removeSim(const std::string & loc) {
+	this->defaultSims.erase(loc);
+}
+
+void doge::baseObject::removeSim(const siw & loc) {
+	this->defaultSims.erase(loc.loc);
+}
+
+void doge::baseObject::bind(std::vector<std::pair<int, int>> & sep, std::vector<std::string> & locs) {
+	glBindVertexArray(va); {
+		glBindBuffer(GL_ARRAY_BUFFER, vb);
+		int i = 0;
+		for (int i = 0; i < sep.size(); i++) {
+			GLuint loc = glGetAttribLocation(pid, locs[i].c_str());
+			glVertexAttribPointer(pid, sep[i].second - sep[i].first, GL_FLOAT, GL_FALSE, 
+				stride * sizeof(GLfloat), (void *)(sep[i].first * sizeof(GLfloat)));
+			glEnableVertexAttribArray(loc);
+		}
+	} glBindVertexArray(0);
 }

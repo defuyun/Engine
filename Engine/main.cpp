@@ -28,4 +28,5 @@ void adder(Args... args) {
 }
 
 int main() {
+	customGen();
 }

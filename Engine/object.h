@@ -30,6 +30,7 @@ namespace doge {
 		void setLocs(const std::vector<std::string> & locs);
 		void setDefaultSims(const std::vector<siw> & sims);
 		void addSim(const siw & si);
+		void addSim(const std::vector<siw> & sims);
 		void removeSim(const std::string & loc);
 		void removeSim(const siw & loc);
 		friend class object;
@@ -40,6 +41,8 @@ namespace doge {
 		std::unique_ptr<shaderIndexManager> & _sim;
 		std::shared_ptr<baseObject> _bo;
 		std::unordered_set<siw> overwriteSims;
+		std::unordered_set<siw> excludeSims;
+		
 		std::vector<int> overwriteSeps;
 		std::vector<std::string> overwriteLocs;
 	public:
@@ -48,4 +51,6 @@ namespace doge {
 			// Nothing here			
 		}
 	};
+
+	typedef std::pair<int, int> interval;
 };
