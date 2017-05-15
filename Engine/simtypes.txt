@@ -1,0 +1,8 @@
+MAT4 glm::mat4 unim4	glUniformMatrix4fv	1 GL_FALSE glm::value_ptr($)
+MAT3 glm::mat3 unim3	glUniformMatrix3fv	1 GL_FALSE glm::value_ptr($)
+MAT2 glm::mat2 unim2	glUniformMatrix2fv	1 GL_FALSE glm::value_ptr($)
+VEC4 glm::vec4 univ4	glUniform4f			$.x	$.y $.z	$.w
+VEC3 glm::vec3 univ3	glUniform3f			$.x	$.y $.z
+VEC2 glm::vec2 univ2	glUniform2f			$.x	$.y
+GFLT GLfloat   unif		glUniform1f			$
+GINT GLint	   unii		glUniform1i			$

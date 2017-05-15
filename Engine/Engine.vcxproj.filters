@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\doge">
+      <UniqueIdentifier>{b22402c6-e797-4891-8b1d-ff393c94c07e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\doge">
+      <UniqueIdentifier>{f5b328ff-da74-4f5a-85b3-ed0456aef4a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\tools">
+      <UniqueIdentifier>{64faf4a2-79cd-401b-8316-3770f29a5338}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\doge\sim">
+      <UniqueIdentifier>{d81bab37-560f-416c-8490-60b0d1fd8463}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\tools">
+      <UniqueIdentifier>{93a44747-865a-4a7f-a564-9350814a82e1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="header.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="display.h">
+      <Filter>Header Files\doge</Filter>
+    </ClInclude>
+    <ClInclude Include="engine.h">
+      <Filter>Header Files\doge</Filter>
+    </ClInclude>
+    <ClInclude Include="sim.h">
+      <Filter>Header Files\doge</Filter>
+    </ClInclude>
+    <ClInclude Include="gen_sim.h">
+      <Filter>Header Files\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.h">
+      <Filter>Header Files\doge</Filter>
+    </ClInclude>
+    <ClInclude Include="object.h">
+      <Filter>Header Files\doge</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="simtype.temp">
+      <Filter>Source Files\doge\sim</Filter>
+    </None>
+    <None Include="enum.temp">
+      <Filter>Source Files\doge\sim</Filter>
+    </None>
+    <None Include="simauto.temp">
+      <Filter>Source Files\doge\sim</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine.cpp">
+      <Filter>Source Files\doge</Filter>
+    </ClCompile>
+    <ClCompile Include="gen_sim.cpp">
+      <Filter>Source Files\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="shader.cpp">
+      <Filter>Source Files\doge</Filter>
+    </ClCompile>
+    <ClCompile Include="object.cpp">
+      <Filter>Source Files\doge</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="simtypes.txt">
+      <Filter>Source Files\doge\sim</Filter>
+    </Text>
+  </ItemGroup>
+</Project>
