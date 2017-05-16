@@ -1,5 +1,11 @@
 to do
 
-- read functions for object
+- create design for keyboard mouse interaction
+
+- write code for testing
+
+- create design doc
+
+- 
 
 - 
