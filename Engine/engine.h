@@ -13,6 +13,10 @@ namespace doge {
 		std::unique_ptr<display> _window;
 		std::unique_ptr<shader> _shader;
 		std::unique_ptr<shaderIndexManager> _sim;
+		std::unordered_set<std::shared_ptr<object>> _objs;
+		std::unordered_map<std::string, std::shared_ptr<baseObject>> _bobjs;
+		
+		std::shared_ptr<camera> cam;
 
 	public:
 		// constructor for the engine, 
@@ -30,6 +34,14 @@ namespace doge {
 		
 		// if the window is still running, other words we didn't close the window
 		bool isRunning();	
+		
+		void addTexture(const std::string & file, const siw & loc);
+		GLuint createVertexArrayObject() const;
+		std::shared_ptr<baseObject> createBaseObject(GLuint va,const std::string &);
+		std::shared_ptr<object> createObject(const std::shared_ptr<baseObject> &);
+		
+		std::shared_ptr<baseObject> getBaseObject() const;
+		std::shared_ptr<camera> getCamera() const;
 
 		// ==================== shader class functions ================== //
 		GLuint createProgram(const std::string & name, const std::vector<shfile> & files);

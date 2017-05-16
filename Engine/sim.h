@@ -31,8 +31,17 @@ namespace doge {
 	#include "enum.temp"
 	class shaderIndexManager {
 	private:
+		int textureCount = 0;
 		#include "simtype.temp"
 	public:
+		int getTextureCount() const {
+			return textureCount;
+		}
+
+		int addTextureCount() {
+			++textureCount;
+		}
+		
 		template<typename T> const std::unordered_map<std::string, std::unordered_map<std::string, T>> & getStorage() const {
 			std::runtime_error("[SIM] using the implicit template for getStorage, shouldn't happen\n");
 			return std::unordered_map<std::string, std::unordered_map<std::string, T>>();

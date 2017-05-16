@@ -2,6 +2,10 @@
 
 doge::baseObject::baseObject(GLuint a) : va(a) {}
 
+GLuint doge::baseObject::getVa() const {
+	return va;
+}
+
 void doge::baseObject::setMesh(const GLfloat * const mesh, int size) {
 	this->mesh = std::vector<GLfloat>(mesh, mesh + size);
 	glGenBuffers(1, &vb);
@@ -13,7 +17,12 @@ void doge::baseObject::setMesh(const GLfloat * const mesh, int size) {
 
 void doge::baseObject::setInterval(int start, int end) {
 	verticeStart = start;
-	verticeEnd = end;
+	verticeCount = end;
+}
+
+void doge::baseObject::setElementInterval(int start, int end) {
+	elementStart = start;
+	elementEnd = end;
 }
 
 void doge::baseObject::setElement(const GLshort * const elem, int size) {
@@ -49,15 +58,17 @@ void doge::baseObject::setLocs(const std::vector<std::string> & locs) {
 
 void doge::baseObject::setDefaultSims(const std::vector<doge::siw> & sims) {
 	this->defaultSims.clear();
-	this->defaultSims.emplace(this->defaultSims.end(), sims.begin(), sims.end());
+	this->addSim(sims);
 }
 
 void doge::baseObject::addSim(const siw & si) {
-	this->defaultSims.emplace(si);
+	this->defaultSims.emplace(si.loc, si);
 }
 
 void doge::baseObject::addSim(const std::vector<siw> & sims) {
-	this->defaultSims.emplace(this->defaultSims.end(), sims.begin(), sims.end());
+	for (auto & si : sims) {
+		this->addSim(si);
+	}
 }
 
 void doge::baseObject::removeSim(const std::string & loc) {
@@ -79,4 +90,173 @@ void doge::baseObject::bind(std::vector<std::pair<int, int>> & sep, std::vector<
 			glEnableVertexAttribArray(loc);
 		}
 	} glBindVertexArray(0);
+}
+
+doge::object * doge::object::setFront(const glm::vec3 & front) {
+	this->front = front;
+	return this;
+}
+
+doge::object * doge::object::setPos(const glm::vec3 & pos) {
+	this->pos = pos;
+	return this;
+}
+
+doge::object * doge::object::setUp(const glm::vec3 & up) {
+	this->up = up;
+	return this;
+}
+
+doge::object * doge::object::setRotate(const glm::vec3 & rotate) {
+	this->rotate = rotate;
+	return this;
+}
+
+doge::object * doge::object::setScale(const glm::vec3 & scale) {
+	this->scale = scale;
+	return this;
+}
+
+doge::object * doge::object::setAngle(GLfloat angle) {
+	this->angle = angle;
+	return this;
+}
+
+doge::object * doge::object::setDraw(bool draw) {
+	this->_draw = draw;
+	return this;
+}
+
+doge::object * doge::object::setAlive(bool alive) {
+	this->_alive = alive;
+	return this;
+}
+
+glm::vec3 doge::object::getFront() const {
+	return front;
+}
+
+glm::vec3 doge::object::getPos() const {
+	return pos;
+}
+
+glm::vec3 doge::object::getUp() const {
+	return up;
+}
+
+glm::vec3 doge::object::getRotate() const {
+	return rotate;
+}
+
+glm::vec3 doge::object::getScale() const {
+	return scale;
+}
+
+GLfloat doge::object::getAngle() const {
+	return angle;
+}
+
+bool doge::object::getDraw() const {
+	return _draw;
+}
+
+bool doge::object::getAlive() const {
+	return _alive;
+}
+
+glm::mat4 doge::object::getModel() const {
+	return glm::scale(glm::rotate(glm::translate(glm::mat4(), pos), angle, rotate), scale);
+}
+
+void doge::object::addSim(const doge::siw & si, doge::object::opt option) {
+	if (option == doge::object::EXC) {
+		excludeSims.emplace(si.loc, si);
+	} else {
+		overwriteSims.emplace(si.loc, si);
+	}
+}
+
+void doge::object::addSim(const std::vector<doge::siw> & sims, doge::object::opt option) {
+	for (auto & si : sims) {
+		this->addSim(si, option);
+	}
+}
+
+void doge::object::removeSim(const std::string & loc, doge::object::opt option) {
+	if (option == doge::object::EXC) {
+		excludeSims.erase(loc);
+	} else {
+		overwriteSims.erase(loc);
+	}
+}
+
+void doge::object::removeSim(const doge::siw & loc, doge::object::opt option) {
+	this->removeSim(loc.loc, option);
+}
+
+void doge::object::draw(const std::shared_ptr<camera> & cam) const {
+	GLuint pid = this->_bo->pid;
+	glBindVertexArray(this->_bo->va); {
+		glUseProgram(pid);
+		glBindBuffer(GL_ARRAY_BUFFER, this->_bo->vb);
+		if (this->_bo->hasElement) {
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_bo->ve);
+		}
+			
+		for (auto & p : this->_bo->defaultSims) {
+			if (overwriteSims.find(p.first) == overwriteSims.end() &&
+				excludeSims.find(p.first) == excludeSims.end()) {
+				this->_sim->use(this->_bo->pid, p.second);
+			}
+		}
+
+		for (auto & p : overwriteSims) {
+			this->_sim->use(pid, p.second);
+		}
+		
+		glUniformMatrix4fv(glGetUniformLocation(pid, "model"), 1, GL_FALSE, glm::value_ptr(getModel()));
+		glUniformMatrix4fv(glGetUniformLocation(pid, "project"), 1, GL_FALSE, glm::value_ptr(cam->getProject()));
+		glUniformMatrix4fv(glGetUniformLocation(pid, "view"), 1, GL_FALSE, glm::value_ptr(cam->getView()));
+
+		if (this->_bo->hasElement) {
+			glDrawElements(GL_TRIANGLES, this->_bo->elementEnd - this->_bo->elementStart,
+				GL_SHORT, (void *)(sizeof(GLshort) * this->_bo->elementStart));
+		} else {
+			glDrawArrays(GL_TRIANGLES, this->_bo->verticeStart, this->_bo->verticeCount);
+		}
+		glUseProgram(0);
+	} glBindVertexArray(0);
+}
+
+doge::camera::camera(std::unique_ptr<shaderIndexManager> & sim, const std::shared_ptr<baseObject> & bo) : object(sim,bo) {
+	this->setDraw(false);
+	this->setAlive(false);
+}
+
+doge::camera * doge::camera::setFov(GLfloat fov) {
+	this->fov = fov;
+	return this;
+}
+
+doge::camera * doge::camera::setAspect(GLfloat aspect) {
+	this->aspect = aspect;
+	return this;
+}
+
+doge::camera * doge::camera::setNear(GLfloat near) {
+	this->near = near;
+	return this;
+}
+
+doge::camera * doge::camera::setFar(GLfloat far) {
+	this->far = far;
+	return this;
+}
+
+glm::mat4 doge::camera::getProject() const{
+	return glm::perspective(fov, aspect, near, far);
+}
+
+glm::mat4 doge::camera::getView() const {
+	return glm::lookAt(getPos(), getPos() + getFront(), getUp());
 }
