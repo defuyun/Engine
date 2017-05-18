@@ -1,0 +1,8 @@
+std::unordered_map<std::string,std::unordered_map<std::string,glm::mat4>> unim4;
+std::unordered_map<std::string,std::unordered_map<std::string,glm::mat3>> unim3;
+std::unordered_map<std::string,std::unordered_map<std::string,glm::mat2>> unim2;
+std::unordered_map<std::string,std::unordered_map<std::string,glm::vec4>> univ4;
+std::unordered_map<std::string,std::unordered_map<std::string,glm::vec3>> univ3;
+std::unordered_map<std::string,std::unordered_map<std::string,glm::vec2>> univ2;
+std::unordered_map<std::string,std::unordered_map<std::string,GLfloat>> unif;
+std::unordered_map<std::string,std::unordered_map<std::string,GLint>> unii;

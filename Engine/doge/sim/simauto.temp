@@ -1,0 +1,82 @@
+template<> std::unordered_map<std::string, std::unordered_map<std::string,glm::mat4>> & getStorage<glm::mat4>() {
+	return unim4;
+}
+template<> const std::unordered_map<std::string, std::unordered_map<std::string,glm::mat4>> & getStorage<glm::mat4>() const {
+	return unim4;
+}
+template<> std::unordered_map<std::string, std::unordered_map<std::string,glm::mat3>> & getStorage<glm::mat3>() {
+	return unim3;
+}
+template<> const std::unordered_map<std::string, std::unordered_map<std::string,glm::mat3>> & getStorage<glm::mat3>() const {
+	return unim3;
+}
+template<> std::unordered_map<std::string, std::unordered_map<std::string,glm::mat2>> & getStorage<glm::mat2>() {
+	return unim2;
+}
+template<> const std::unordered_map<std::string, std::unordered_map<std::string,glm::mat2>> & getStorage<glm::mat2>() const {
+	return unim2;
+}
+template<> std::unordered_map<std::string, std::unordered_map<std::string,glm::vec4>> & getStorage<glm::vec4>() {
+	return univ4;
+}
+template<> const std::unordered_map<std::string, std::unordered_map<std::string,glm::vec4>> & getStorage<glm::vec4>() const {
+	return univ4;
+}
+template<> std::unordered_map<std::string, std::unordered_map<std::string,glm::vec3>> & getStorage<glm::vec3>() {
+	return univ3;
+}
+template<> const std::unordered_map<std::string, std::unordered_map<std::string,glm::vec3>> & getStorage<glm::vec3>() const {
+	return univ3;
+}
+template<> std::unordered_map<std::string, std::unordered_map<std::string,glm::vec2>> & getStorage<glm::vec2>() {
+	return univ2;
+}
+template<> const std::unordered_map<std::string, std::unordered_map<std::string,glm::vec2>> & getStorage<glm::vec2>() const {
+	return univ2;
+}
+template<> std::unordered_map<std::string, std::unordered_map<std::string,GLfloat>> & getStorage<GLfloat>() {
+	return unif;
+}
+template<> const std::unordered_map<std::string, std::unordered_map<std::string,GLfloat>> & getStorage<GLfloat>() const {
+	return unif;
+}
+template<> std::unordered_map<std::string, std::unordered_map<std::string,GLint>> & getStorage<GLint>() {
+	return unii;
+}
+template<> const std::unordered_map<std::string, std::unordered_map<std::string,GLint>> & getStorage<GLint>() const {
+	return unii;
+}
+void use(GLuint shaderID, const shaderIndexWrapper & si) const {
+	if (si.data == MAT4 ) {
+		glm::mat4 t = this->get<glm::mat4>(si);
+		glUniformMatrix4fv(glGetUniformLocation(shaderID,si.loc.c_str()), 1, GL_FALSE, glm::value_ptr(t));
+	}
+	else if (si.data == MAT3 ) {
+		glm::mat3 t = this->get<glm::mat3>(si);
+		glUniformMatrix3fv(glGetUniformLocation(shaderID,si.loc.c_str()), 1, GL_FALSE, glm::value_ptr(t));
+	}
+	else if (si.data == MAT2 ) {
+		glm::mat2 t = this->get<glm::mat2>(si);
+		glUniformMatrix2fv(glGetUniformLocation(shaderID,si.loc.c_str()), 1, GL_FALSE, glm::value_ptr(t));
+	}
+	else if (si.data == VEC4 ) {
+		glm::vec4 t = this->get<glm::vec4>(si);
+		glUniform4f(glGetUniformLocation(shaderID,si.loc.c_str()), t.x, t.y, t.z, t.w);
+	}
+	else if (si.data == VEC3 ) {
+		glm::vec3 t = this->get<glm::vec3>(si);
+		glUniform3f(glGetUniformLocation(shaderID,si.loc.c_str()), t.x, t.y, t.z);
+	}
+	else if (si.data == VEC2 ) {
+		glm::vec2 t = this->get<glm::vec2>(si);
+		glUniform2f(glGetUniformLocation(shaderID,si.loc.c_str()), t.x, t.y);
+	}
+	else if (si.data == GFLT ) {
+		GLfloat t = this->get<GLfloat>(si);
+		glUniform1f(glGetUniformLocation(shaderID,si.loc.c_str()), t);
+	}
+	else if (si.data == GINT ) {
+		GLint t = this->get<GLint>(si);
+		glUniform1i(glGetUniformLocation(shaderID,si.loc.c_str()), t);
+	}
+}

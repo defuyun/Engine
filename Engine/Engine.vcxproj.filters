@@ -13,54 +13,69 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\doge">
-      <UniqueIdentifier>{b22402c6-e797-4891-8b1d-ff393c94c07e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\doge">
-      <UniqueIdentifier>{f5b328ff-da74-4f5a-85b3-ed0456aef4a3}</UniqueIdentifier>
+      <UniqueIdentifier>{36791f7d-0040-439e-9002-e24fca7c4b4b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\tools">
-      <UniqueIdentifier>{64faf4a2-79cd-401b-8316-3770f29a5338}</UniqueIdentifier>
+    <Filter Include="Header Files\doge\sim">
+      <UniqueIdentifier>{92ea51c8-9082-4cc1-a202-185ae944c4bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\doge">
+      <UniqueIdentifier>{772d82b1-73a5-4586-9e90-2cd63393cf73}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\doge\sim">
-      <UniqueIdentifier>{d81bab37-560f-416c-8490-60b0d1fd8463}</UniqueIdentifier>
+      <UniqueIdentifier>{081b907a-4e6d-4779-b3dc-558537bef1c7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\tools">
-      <UniqueIdentifier>{93a44747-865a-4a7f-a564-9350814a82e1}</UniqueIdentifier>
+      <UniqueIdentifier>{bb9458e8-b32b-413c-b867-ddfa4c2a3f45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\tools">
+      <UniqueIdentifier>{3e458059-11e8-4eba-ae71-67f89a933a58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\tests">
+      <UniqueIdentifier>{6c90f9ef-8d97-448e-9eae-39a65c0f04d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\tests">
+      <UniqueIdentifier>{61986afe-5629-40eb-b074-4bfda2984501}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="display.h">
+    <ClInclude Include="doge\display.h">
       <Filter>Header Files\doge</Filter>
     </ClInclude>
-    <ClInclude Include="engine.h">
+    <ClInclude Include="doge\engine.h">
       <Filter>Header Files\doge</Filter>
     </ClInclude>
-    <ClInclude Include="sim.h">
+    <ClInclude Include="doge\object.h">
       <Filter>Header Files\doge</Filter>
     </ClInclude>
-    <ClInclude Include="gen_sim.h">
+    <ClInclude Include="doge\shader.h">
+      <Filter>Header Files\doge</Filter>
+    </ClInclude>
+    <ClInclude Include="doge\sim\sim.h">
+      <Filter>Header Files\doge\sim</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\gen_sim.h">
       <Filter>Header Files\tools</Filter>
     </ClInclude>
-    <ClInclude Include="shader.h">
-      <Filter>Header Files\doge</Filter>
+    <ClInclude Include="tests\tests.h">
+      <Filter>Header Files\tests</Filter>
     </ClInclude>
-    <ClInclude Include="object.h">
-      <Filter>Header Files\doge</Filter>
+    <ClInclude Include="tests\mesh.h">
+      <Filter>Header Files\tests</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="simtype.temp">
+    <None Include="doge\sim\enum.temp">
       <Filter>Source Files\doge\sim</Filter>
     </None>
-    <None Include="enum.temp">
+    <None Include="doge\sim\simauto.temp">
       <Filter>Source Files\doge\sim</Filter>
     </None>
-    <None Include="simauto.temp">
+    <None Include="doge\sim\simtype.temp">
       <Filter>Source Files\doge\sim</Filter>
     </None>
   </ItemGroup>
@@ -68,22 +83,23 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="engine.cpp">
+    <ClCompile Include="doge\engine.cpp">
       <Filter>Source Files\doge</Filter>
     </ClCompile>
-    <ClCompile Include="gen_sim.cpp">
+    <ClCompile Include="doge\object.cpp">
+      <Filter>Source Files\doge</Filter>
+    </ClCompile>
+    <ClCompile Include="doge\shader.cpp">
+      <Filter>Source Files\doge</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\gen_sim.cpp">
       <Filter>Source Files\tools</Filter>
     </ClCompile>
-    <ClCompile Include="shader.cpp">
-      <Filter>Source Files\doge</Filter>
+    <ClCompile Include="tests\test.cpp">
+      <Filter>Source Files\tests</Filter>
     </ClCompile>
-    <ClCompile Include="object.cpp">
-      <Filter>Source Files\doge</Filter>
+    <ClCompile Include="tests\mesh.cpp">
+      <Filter>Source Files\tests</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="simtypes.txt">
-      <Filter>Source Files\doge\sim</Filter>
-    </Text>
   </ItemGroup>
 </Project>

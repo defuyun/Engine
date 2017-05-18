@@ -115,29 +115,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="display.h" />
-    <ClInclude Include="engine.h" />
-    <ClInclude Include="gen_sim.h" />
+    <ClInclude Include="doge\display.h" />
+    <ClInclude Include="doge\engine.h" />
+    <ClInclude Include="doge\object.h" />
+    <ClInclude Include="doge\shader.h" />
+    <ClInclude Include="doge\sim\sim.h" />
     <ClInclude Include="header.h" />
-    <ClInclude Include="object.h" />
-    <ClInclude Include="shader.h" />
-    <ClInclude Include="sim.h" />
+    <ClInclude Include="tests\mesh.h" />
+    <ClInclude Include="tests\tests.h" />
+    <ClInclude Include="tools\gen_sim.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="enum.temp" />
+    <None Include="doge\sim\enum.temp" />
+    <None Include="doge\sim\simauto.temp" />
+    <None Include="doge\sim\simtype.temp" />
     <None Include="packages.config" />
-    <None Include="simauto.temp" />
-    <None Include="simtype.temp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="engine.cpp" />
-    <ClCompile Include="gen_sim.cpp" />
+    <ClCompile Include="doge\engine.cpp" />
+    <ClCompile Include="doge\object.cpp" />
+    <ClCompile Include="doge\shader.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="object.cpp" />
-    <ClCompile Include="shader.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="simtypes.txt" />
+    <ClCompile Include="tests\mesh.cpp" />
+    <ClCompile Include="tests\test.cpp" />
+    <ClCompile Include="tools\gen_sim.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
