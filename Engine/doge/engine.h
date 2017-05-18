@@ -66,5 +66,6 @@ typedef std::shared_ptr<doge::camera> camera;
 using doge::engine;
 using doge::siw;
 using doge::sdw;
+using doge::shfile;
 
 #endif
