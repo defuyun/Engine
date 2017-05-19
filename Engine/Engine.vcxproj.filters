@@ -84,6 +84,12 @@
     <None Include="tests\triangle_f.glsl">
       <Filter>Source Files\tests</Filter>
     </None>
+    <None Include="tests\square_texture_v.glsl">
+      <Filter>Source Files\tests</Filter>
+    </None>
+    <None Include="tests\square_texture_f.glsl">
+      <Filter>Source Files\tests</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -112,5 +118,13 @@
     <Text Include="simtypes.txt">
       <Filter>Source Files</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="container.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="container2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

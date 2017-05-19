@@ -3,6 +3,6 @@
 #include "tools/generator.h"
 
 int main() {
-	customGen();
+	drawTriangleUsingCombinedMesh();
 }
 

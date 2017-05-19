@@ -69,5 +69,6 @@ using doge::siw;
 using doge::sdw;
 using doge::shfile;
 using doge::interval;
+using doge::type;
 
 #endif

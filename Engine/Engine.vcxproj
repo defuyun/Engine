@@ -130,6 +130,8 @@
     <None Include="doge\sim\simauto.temp" />
     <None Include="doge\sim\simtype.temp" />
     <None Include="packages.config" />
+    <None Include="tests\square_texture_f.glsl" />
+    <None Include="tests\square_texture_v.glsl" />
     <None Include="tests\triangle_f.glsl" />
     <None Include="tests\triangle_v.glsl" />
   </ItemGroup>
@@ -144,6 +146,10 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="simtypes.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="container.jpg" />
+    <Image Include="container2.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

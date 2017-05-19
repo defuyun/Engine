@@ -4,3 +4,5 @@
 
 void drawTriangle();
 void drawTriangleElements();
+void drawSquareTexture();
+void drawTriangleUsingCombinedMesh();

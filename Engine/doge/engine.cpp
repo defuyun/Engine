@@ -44,10 +44,10 @@ bool doge::Engine::isRunning() {
 void doge::Engine::addTexture(const std::string & file, const siw & si) {
 	GLuint newt;
 	glGenTextures(1, &newt);
-	_sim->add(sdw<GLint>(si.loc, si.cls, newt));
+	_sim->add(sdw<GLint>(si.loc, si.cls, _sim->getTextureCount()));
 	int tw, th;
 	unsigned char * image = SOIL_load_image(file.c_str(), &tw, &th, 0, SOIL_LOAD_RGB);
-
+	
 	glActiveTexture(GL_TEXTURE0 + _sim->getTextureCount());
 	glBindTexture(GL_TEXTURE_2D, newt);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tw, th, 0, GL_RGB, GL_UNSIGNED_BYTE, image);

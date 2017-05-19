@@ -213,6 +213,10 @@ void doge::object::removeSim(const doge::siw & loc, doge::object::opt option) {
 	this->removeSim(loc.loc, option);
 }
 
+void doge::object::useSim(const siw & si) const {
+	this->_sim->use(this->_bo->pid, si);
+}
+
 void doge::object::draw(const std::shared_ptr<camera> & cam) const {
 	if (!this->getAlive() || !this->getDraw()) {
 		return;
@@ -229,12 +233,12 @@ void doge::object::draw(const std::shared_ptr<camera> & cam) const {
 		for (auto & p : this->_bo->defaultSims) {
 			if (overwriteSims.find(p.first) == overwriteSims.end() &&
 				excludeSims.find(p.first) == excludeSims.end()) {
-				this->_sim->use(this->_bo->pid, p.second);
+				this->useSim(p.second);
 			}
 		}
 
 		for (auto & p : overwriteSims) {
-			this->_sim->use(pid, p.second);
+			this->useSim(p.second);
 		}
 		
 		glUniformMatrix4fv(glGetUniformLocation(pid, "model"), 1, GL_FALSE, glm::value_ptr(getModel()));

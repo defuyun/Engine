@@ -56,6 +56,8 @@ namespace doge {
 		glm::vec3 front, pos, up, scale, rotate;
 		GLfloat angle;	
 
+		// I added a middle layer between sim use call in case I need to do checking on the siw in the future
+		void useSim(const siw &) const;
 	public:
 		enum opt {EXC, OWR};
 
