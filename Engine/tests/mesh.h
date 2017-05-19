@@ -2,4 +2,4 @@
 #include "../header.h"
 
 extern GLfloat indicesTriangle[36];
-extern GLshort indexesTriangles[6];
+extern GLshort indexesTriangle[6];

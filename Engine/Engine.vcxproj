@@ -123,7 +123,7 @@
     <ClInclude Include="header.h" />
     <ClInclude Include="tests\mesh.h" />
     <ClInclude Include="tests\tests.h" />
-    <ClInclude Include="tools\gen_sim.h" />
+    <ClInclude Include="tools\generator.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="doge\sim\enum.temp" />
@@ -140,7 +140,10 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="tests\mesh.cpp" />
     <ClCompile Include="tests\test.cpp" />
-    <ClCompile Include="tools\gen_sim.cpp" />
+    <ClCompile Include="tools\generator.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="simtypes.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

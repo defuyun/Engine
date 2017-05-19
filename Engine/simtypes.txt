@@ -6,3 +6,4 @@ VEC3 glm::vec3 univ3	glUniform3f			$.x	$.y $.z
 VEC2 glm::vec2 univ2	glUniform2f			$.x	$.y
 GFLT GLfloat   unif		glUniform1f			$
 GINT GLint	   unii		glUniform1i			$
+TEX2 GLint

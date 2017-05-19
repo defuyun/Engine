@@ -57,14 +57,14 @@
     <ClInclude Include="doge\sim\sim.h">
       <Filter>Header Files\doge\sim</Filter>
     </ClInclude>
-    <ClInclude Include="tools\gen_sim.h">
-      <Filter>Header Files\tools</Filter>
-    </ClInclude>
     <ClInclude Include="tests\tests.h">
       <Filter>Header Files\tests</Filter>
     </ClInclude>
     <ClInclude Include="tests\mesh.h">
       <Filter>Header Files\tests</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\generator.h">
+      <Filter>Header Files\tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -98,14 +98,19 @@
     <ClCompile Include="doge\shader.cpp">
       <Filter>Source Files\doge</Filter>
     </ClCompile>
-    <ClCompile Include="tools\gen_sim.cpp">
-      <Filter>Source Files\tools</Filter>
-    </ClCompile>
     <ClCompile Include="tests\test.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
     <ClCompile Include="tests\mesh.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
+    <ClCompile Include="tools\generator.cpp">
+      <Filter>Source Files\tools</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="simtypes.txt">
+      <Filter>Source Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

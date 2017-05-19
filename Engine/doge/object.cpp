@@ -46,11 +46,10 @@ void doge::baseObject::setElementInterval(int start, int end) {
 void doge::baseObject::setElement(const GLshort * const elem, int size) {
 	this->elements = std::vector<GLshort>(elem, elem + size);
 	this->totalElementSize = size;
+	this->hasElement = true;
 	glGenBuffers(1, &ve);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ve);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLshort) * this->elements.size()
-			, &this->elements[0], GL_STATIC_DRAW);
-	this->hasElement = true;
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLshort) * this->elements.size(), &this->elements[0], GL_STATIC_DRAW);
 }
 
 void doge::baseObject::shareMesh(const std::shared_ptr<doge::baseObject> & other) {
@@ -244,7 +243,7 @@ void doge::object::draw(const std::shared_ptr<camera> & cam) const {
 
 		if (this->_bo->hasElement) {
 			glDrawElements(GL_TRIANGLES, this->_bo->elementEnd - this->_bo->elementStart,
-				GL_SHORT, (void *)(sizeof(GLshort) * this->_bo->elementStart));
+				GL_UNSIGNED_SHORT, (void *)(sizeof(GLshort) * this->_bo->elementStart));
 		} else {
 			glDrawArrays(GL_TRIANGLES, this->_bo->verticeStart, this->_bo->verticeCount);
 		}
