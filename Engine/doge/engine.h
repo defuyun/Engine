@@ -44,7 +44,8 @@ namespace doge {
 		
 		std::shared_ptr<baseObject> & getBaseObject(const std::string & name);
 		std::shared_ptr<camera> & getCamera();
-
+		
+		void draw() const;
 		// ==================== shader class functions ================== //
 		GLuint createProgram(const std::string & name, const std::vector<shfile> & files);
 		GLuint getPid(const std::string &) const;
@@ -67,5 +68,6 @@ using doge::engine;
 using doge::siw;
 using doge::sdw;
 using doge::shfile;
+using doge::interval;
 
 #endif

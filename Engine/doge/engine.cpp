@@ -31,6 +31,7 @@ void doge::Engine::createWindow(const std::string & name, int w, int h) {
 	this->_cam = std::make_shared<camera>(this->_sim, it);
 	this->_cam->setAlive(false);
 	this->_cam->setDraw(false);
+	this->_cam->setFront(glm::vec3(0.0f, 0.0f, 1.0f))->setPos(glm::vec3(0.0f, 0.0f, -1.0f))->setUp(glm::vec3(0.0f,1.0f,0.0f));
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
@@ -98,4 +99,13 @@ std::shared_ptr<doge::baseObject> & doge::Engine::getBaseObject(const std::strin
 
 std::shared_ptr<doge::camera> & doge::Engine::getCamera() {
 	return this->_cam;
+}
+
+void doge::Engine::draw() const {
+	glfwSwapBuffers(this->_window->window);
+	glfwPollEvents();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	for (auto & it : this->_objs) {
+		it->draw(this->_cam);
+	}
 }

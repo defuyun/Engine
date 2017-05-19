@@ -130,6 +130,8 @@
     <None Include="doge\sim\simauto.temp" />
     <None Include="doge\sim\simtype.temp" />
     <None Include="packages.config" />
+    <None Include="tests\triangle_f.glsl" />
+    <None Include="tests\triangle_v.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="doge\engine.cpp" />

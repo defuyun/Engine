@@ -19,10 +19,11 @@ namespace doge {
 		std::vector<std::string> locs;
 	
 		std::unordered_map<std::string,siw> defaultSims;
-		void bind(std::vector<std::pair<int,int>> & seps, std::vector<std::string> & locs);
+		void bind(const std::vector<std::pair<int,int>> & seps, const std::vector<std::string> & locs) const;
 	public:
 		baseObject(GLuint a);
 		GLuint getVa() const;
+		void bind() const;
 		void setMesh(const GLfloat * mesh, int size);
 		void setVerticeStart(int start);
 		void setVerticeCount(int count);
@@ -33,6 +34,7 @@ namespace doge {
 		void setSeperator(const std::vector<std::pair<int,int>> & seps);
 		void setLocs(const std::vector<std::string> & locs);
 		void setDefaultSims(const std::vector<siw> & sims);
+		void setStride(int stride);
 		void addSim(const siw & si);
 		void addSim(const std::vector<siw> & sims);
 		void removeSim(const std::string & loc);
@@ -57,6 +59,8 @@ namespace doge {
 		object(std::unique_ptr<shaderIndexManager> & sim, const std::shared_ptr<baseObject> & bo) :
 			_sim(sim), _bo(bo) {
 			// Nothing here
+			this->setAlive(true);
+			this->setDraw(true);
 		}
 
 		object * setFront(const glm::vec3 &);

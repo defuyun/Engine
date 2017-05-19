@@ -2,6 +2,22 @@
 
 doge::baseObject::baseObject(GLuint a) : va(a) {}
 
+void doge::baseObject::bind() const {
+	if (this->seperator.empty()) {
+		std::runtime_error("[OBJ] you haven't specified a seperator for the base class, call obj->setSeperator()\n");
+	}
+
+	if (this->locs.empty()) {
+		std::runtime_error("[OBJ] you haven't specified the loc mapping for the base class, call obj->setLocs()\n");
+	}
+
+	if (this->seperator.size() != this->locs.size()) {
+		std::runtime_error("[OBJ] seperator does not match loc size\n");
+	}
+
+	this->bind(this->seperator, this->locs);
+}
+
 GLuint doge::baseObject::getVa() const {
 	return va;
 }
@@ -64,6 +80,10 @@ void doge::baseObject::setDefaultSims(const std::vector<doge::siw> & sims) {
 	this->addSim(sims);
 }
 
+void doge::baseObject::setStride(int stride) {
+	this->stride = stride;
+}
+
 void doge::baseObject::addSim(const siw & si) {
 	this->defaultSims.emplace(si.loc, si);
 }
@@ -82,14 +102,13 @@ void doge::baseObject::removeSim(const siw & loc) {
 	this->defaultSims.erase(loc.loc);
 }
 
-void doge::baseObject::bind(std::vector<std::pair<int, int>> & sep, std::vector<std::string> & locs) {
+void doge::baseObject::bind(const std::vector<std::pair<int, int>> & sep, const std::vector<std::string> & locs) const {
 	glBindVertexArray(va); {
 		glBindBuffer(GL_ARRAY_BUFFER, vb);
-		int i = 0;
 		for (size_t i = 0; i < sep.size(); i++) {
 			GLuint loc = glGetAttribLocation(pid, locs[i].c_str());
-			glVertexAttribPointer(pid, sep[i].second - sep[i].first, GL_FLOAT, GL_FALSE, 
-				stride * sizeof(GLfloat), (void *)(sep[i].first * sizeof(GLfloat)));
+			glVertexAttribPointer(loc, sep[i].second - sep[i].first, GL_FLOAT, GL_FALSE, 
+				this->stride * sizeof(GLfloat), (void *)(sep[i].first * sizeof(GLfloat)));
 			glEnableVertexAttribArray(loc);
 		}
 	} glBindVertexArray(0);
@@ -198,6 +217,10 @@ void doge::object::removeSim(const doge::siw & loc, doge::object::opt option) {
 }
 
 void doge::object::draw(const std::shared_ptr<camera> & cam) const {
+	if (!this->getAlive() || !this->getDraw()) {
+		return;
+	}
+
 	GLuint pid = this->_bo->pid;
 	glBindVertexArray(this->_bo->va); {
 		glUseProgram(pid);

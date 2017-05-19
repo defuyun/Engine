@@ -50,7 +50,7 @@ GLuint doge::shader::add(GLuint pid, const std::pair<std::string,GLenum> & file)
 	// address when we do c_str()
 	std::string str(buffer.str());
 	const GLchar * cstr = str.c_str();
-	glShaderSource(pid, 1, &cstr, 0);
+	glShaderSource(shaderID, 1, &cstr, 0);
 	glCompileShader(shaderID);
 	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
 	if (!success) {

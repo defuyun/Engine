@@ -78,6 +78,12 @@
     <None Include="doge\sim\simtype.temp">
       <Filter>Source Files\doge\sim</Filter>
     </None>
+    <None Include="tests\triangle_v.glsl">
+      <Filter>Source Files\tests</Filter>
+    </None>
+    <None Include="tests\triangle_f.glsl">
+      <Filter>Source Files\tests</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
