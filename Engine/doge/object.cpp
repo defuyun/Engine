@@ -55,9 +55,13 @@ void doge::baseObject::setElement(const GLshort * const elem, int size) {
 void doge::baseObject::shareMesh(const std::shared_ptr<doge::baseObject> & other) {
 	this->vb = other->vb;
 	this->ve = other->ve;
+	this->verticeStart = other->verticeStart;
+	this->verticeCount = other->verticeCount;
 	this->totalMeshSize = other->totalMeshSize;
 	this->totalElementSize = other->totalElementSize;
 	this->hasElement = other->hasElement;
+	this->elementStart= other->elementStart;
+	this->elementEnd = other->elementEnd;
 }
 
 void doge::baseObject::setShaderID(GLuint id) {

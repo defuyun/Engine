@@ -123,6 +123,7 @@
     <ClInclude Include="header.h" />
     <ClInclude Include="tests\mesh.h" />
     <ClInclude Include="tests\tests.h" />
+    <ClInclude Include="tools\builder.h" />
     <ClInclude Include="tools\generator.h" />
   </ItemGroup>
   <ItemGroup>
@@ -142,6 +143,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="tests\mesh.cpp" />
     <ClCompile Include="tests\test.cpp" />
+    <ClCompile Include="tools\builder.cpp" />
     <ClCompile Include="tools\generator.cpp" />
   </ItemGroup>
   <ItemGroup>

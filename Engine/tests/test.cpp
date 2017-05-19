@@ -133,3 +133,23 @@ void drawTriangleUsingCombinedMesh() {
 		engine->draw();
 	}
 }
+
+void testBuilder() {
+	engine->createWindow("drawTriangle", 400, 400);
+	GLuint va = engine->createVertexArrayObject();
+
+	shfile triangle_v = { "tests/triangle_v.glsl", GL_VERTEX_SHADER };
+	shfile triangle_f = { "tests/triangle_f.glsl", GL_FRAGMENT_SHADER };
+
+	GLuint sid = engine->createProgram("triangle", { triangle_v, triangle_f });
+	builder bd;
+
+	base ba = bd.build("triangle", va, sid, indicesTriangle, sizeof(indicesTriangle) / sizeof(GLfloat), 6, { {0,3},
+	{3,6} }, { "pos","col" });
+
+	object obj = engine->createObject(ba);
+
+	while (engine->isRunning()) {
+		engine->draw();
+	}
+}
