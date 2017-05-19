@@ -3,3 +3,4 @@
 #include "../doge/engine.h"
 
 void drawTriangle();
+void drawTriangleElements();

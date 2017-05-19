@@ -2,8 +2,8 @@
 #include "../../header.h"
 
 /*
-	shaderIndexManager is a linker between code and shader, all of the variables 
-	in the shader are stored in the shaderIndexManager
+	shaderIndexManager is a linker between code and shader so it's like a ORM for code variable
+	to uniform in shader, all of the variables in the shader are stored in the shaderIndexManager
 */
 
 namespace doge {

@@ -17,12 +17,15 @@ namespace doge {
 		std::vector<GLshort> elements;
 		std::vector<std::pair<int,int>> seperator;
 		std::vector<std::string> locs;
-	
+		
+		int totalMeshSize;
+		int totalElementSize;
+
 		std::unordered_map<std::string,siw> defaultSims;
 		void bind(const std::vector<std::pair<int,int>> & seps, const std::vector<std::string> & locs) const;
 	public:
 		baseObject(GLuint a);
-		GLuint getVa() const;
+		GLuint getVertexArrayObject() const;
 		void bind() const;
 		void setMesh(const GLfloat * mesh, int size);
 		void setVerticeStart(int start);

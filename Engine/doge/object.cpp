@@ -18,17 +18,16 @@ void doge::baseObject::bind() const {
 	this->bind(this->seperator, this->locs);
 }
 
-GLuint doge::baseObject::getVa() const {
+GLuint doge::baseObject::getVertexArrayObject() const {
 	return va;
 }
 
 void doge::baseObject::setMesh(const GLfloat * const mesh, int size) {
 	this->mesh = std::vector<GLfloat>(mesh, mesh + size);
+	this->totalMeshSize = size;
 	glGenBuffers(1, &vb);
-	glBindVertexArray(va); {
-		glBindBuffer(GL_ARRAY_BUFFER, vb);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->mesh.size(), &this->mesh[0], GL_STATIC_DRAW); 
-	} glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, vb);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->mesh.size(), &this->mesh[0], GL_STATIC_DRAW); 
 }
 
 void doge::baseObject::setVerticeStart(int start) {
@@ -46,20 +45,19 @@ void doge::baseObject::setElementInterval(int start, int end) {
 
 void doge::baseObject::setElement(const GLshort * const elem, int size) {
 	this->elements = std::vector<GLshort>(elem, elem + size);
+	this->totalElementSize = size;
 	glGenBuffers(1, &ve);
-	glBindVertexArray(va); {
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ve);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLshort) * this->elements.size()
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ve);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLshort) * this->elements.size()
 			, &this->elements[0], GL_STATIC_DRAW);
-	} glBindVertexArray(0);
 	this->hasElement = true;
 }
 
 void doge::baseObject::shareMesh(const std::shared_ptr<doge::baseObject> & other) {
-	this->va = other->va;
 	this->vb = other->vb;
 	this->ve = other->ve;
-	this->pid = other->pid;
+	this->totalMeshSize = other->totalMeshSize;
+	this->totalElementSize = other->totalElementSize;
 	this->hasElement = other->hasElement;
 }
 
