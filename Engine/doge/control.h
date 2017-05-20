@@ -33,4 +33,3 @@ namespace doge {
 	};
 };
 
-typedef std::unique_ptr<doge::mainEngineControl> mec;

@@ -79,6 +79,7 @@ namespace doge {
 
 typedef std::unique_ptr<doge::shader> shader;
 typedef std::unique_ptr<doge::shaderIndexManager> sim;
+typedef std::unique_ptr<doge::mainEngineControl> control;
 typedef std::shared_ptr<doge::baseObject> base;
 typedef std::shared_ptr<doge::object> object;
 typedef std::shared_ptr<doge::camera> camera;
