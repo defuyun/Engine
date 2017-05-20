@@ -4,6 +4,6 @@
 #include "tools/builder.h"
 
 int main() {
-	testBuilder();
+
 }
 

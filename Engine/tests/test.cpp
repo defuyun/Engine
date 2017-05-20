@@ -142,9 +142,8 @@ void testBuilder() {
 	shfile triangle_f = { "tests/triangle_f.glsl", GL_FRAGMENT_SHADER };
 
 	GLuint sid = engine->createProgram("triangle", { triangle_v, triangle_f });
-	builder bd;
 
-	base ba = bd.build("triangle", va, sid, indicesTriangle, sizeof(indicesTriangle) / sizeof(GLfloat), 6, { {0,3},
+	base ba = builder->build("triangle", va, sid, indicesTriangle, sizeof(indicesTriangle) / sizeof(GLfloat), 6, { {0,3},
 	{3,6} }, { "pos","col" });
 
 	object obj = engine->createObject(ba);

@@ -2,6 +2,7 @@
 #include "../doge/engine.h"
 
 namespace tools {
+	// I may have the builder contain some states in the future
 	class baseObjBuilder {
 	public:
 		base build(const std::string & name, GLuint va, GLuint shader, const base & other, int stride,
@@ -33,6 +34,8 @@ namespace tools {
 			int verticeStart, int verticeCount, const GLshort * const element, int elemSize, int elemStart, int elemEnd,
 			const std::vector<interval> & intervals, const std::vector<std::string> & locs) const;
 	};
+
+	extern std::unique_ptr<baseObjBuilder> builder;
 };
 
-typedef tools::baseObjBuilder builder;
+using tools::builder;

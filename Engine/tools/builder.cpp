@@ -1,5 +1,7 @@
 #include "builder.h"
 
+std::unique_ptr<tools::baseObjBuilder> builder = std::make_unique<tools::baseObjBuilder>();
+
 base tools::baseObjBuilder::build(const std::string & name, GLuint va, GLuint shader, const base & other, int stride,
 	const std::vector<interval> & intervals, const std::vector<std::string> & locs) const{	
 	base ba = engine->createBaseObject(va, name);

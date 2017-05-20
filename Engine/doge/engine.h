@@ -6,6 +6,7 @@
 #include "display.h"
 #include "sim/sim.h"
 #include "object.h"
+#include "control.h"
 
 namespace doge {
 	class Engine {
@@ -15,6 +16,7 @@ namespace doge {
 		std::unique_ptr<display> _window;
 		std::unique_ptr<shader> _shader;
 		std::unique_ptr<shaderIndexManager> _sim;
+		std::unique_ptr<mainEngineControl> _mec;
 		std::unordered_set<std::shared_ptr<object>> _objs;
 		std::unordered_map<std::string, std::shared_ptr<baseObject>> _bobjs;
 		std::unordered_set<GLuint> _vao;

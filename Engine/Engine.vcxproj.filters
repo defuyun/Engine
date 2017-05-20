@@ -69,6 +69,9 @@
     <ClInclude Include="tools\builder.h">
       <Filter>Header Files\tools</Filter>
     </ClInclude>
+    <ClInclude Include="doge\control.h">
+      <Filter>Header Files\doge</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -118,6 +121,9 @@
     </ClCompile>
     <ClCompile Include="tools\builder.cpp">
       <Filter>Source Files\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="doge\control.cpp">
+      <Filter>Source Files\doge</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

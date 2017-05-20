@@ -20,7 +20,7 @@ void doge::Engine::createWindow(const std::string & name, int w, int h) {
 	glfwMakeContextCurrent(this->_window->window);
 
 	glfwSetInputMode(this->_window->window, GLFW_STICKY_KEYS, GL_TRUE);
-	glfwSetInputMode(this->_window->window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	glfwSetInputMode(this->_window->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK) {
