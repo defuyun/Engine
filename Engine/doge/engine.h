@@ -7,6 +7,7 @@
 #include "sim/sim.h"
 #include "object.h"
 #include "control.h"
+#include "action.h"
 
 namespace doge {
 	class Engine {
@@ -18,6 +19,7 @@ namespace doge {
 		std::unique_ptr<shaderIndexManager> _sim;
 		std::unique_ptr<mainEngineControl> _mec;
 		std::unordered_set<std::shared_ptr<object>> _objs;
+		std::unordered_set<std::shared_ptr<action>> _act;
 		std::unordered_map<std::string, std::shared_ptr<baseObject>> _bobjs;
 		std::unordered_set<GLuint> _vao;
 		
@@ -39,15 +41,18 @@ namespace doge {
 		// if the window is still running, other words we didn't close the window
 		bool isRunning();	
 		
+		void update();
+		void draw() const;
 		void addTexture(const std::string & file, const siw & loc);
+		std::shared_ptr<camera> & getCamera();
+		
+		// ========================== object class funcionts ==================== //
 		GLuint createVertexArrayObject();
 		std::shared_ptr<baseObject> createBaseObject(GLuint va,const std::string &);
 		std::shared_ptr<object> createObject(const std::shared_ptr<baseObject> &);
 		
 		std::shared_ptr<baseObject> & getBaseObject(const std::string & name);
-		std::shared_ptr<camera> & getCamera();
 		
-		void draw() const;
 		// ==================== shader class functions ================== //
 		GLuint createProgram(const std::string & name, const std::vector<shfile> & files);
 		GLuint getPid(const std::string &) const;
@@ -55,6 +60,18 @@ namespace doge {
 		// ==================== sim class functions ===================== //
 		template<typename T> T getSim(const siw & key) const { return _sim->get<T>(siw); }
 		template<typename... T> void addSim(T... keyvalPair) { _sim->add(keyvalPair...);  }
+	
+		// =========================== engine control ======================== //
+		void setControlPitchInterval(double pitchMin, double pitchMax);
+		void setControlYawInterval(double yawMin, double yawMax);
+		void setControlSensitivity(double sensitivity);
+
+		// ============================= actions ================================= //
+		template<typename T> std::shared_ptr<doge::action> createAction();
+		
+		static void key_callback(GLFWwindow * window, int key, int scancode, int action, int mode);
+		static void cursor_callback(GLFWwindow * window, double posx, double posy);
+		static void scroll_callback(GLFWwindow * window, double offx, double offy);
 	};
 
 	extern std::unique_ptr<Engine> engine;

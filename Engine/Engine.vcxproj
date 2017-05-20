@@ -115,6 +115,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="doge\action.h" />
     <ClInclude Include="doge\control.h" />
     <ClInclude Include="doge\display.h" />
     <ClInclude Include="doge\engine.h" />
@@ -138,6 +139,7 @@
     <None Include="tests\triangle_v.glsl" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="doge\action.cpp" />
     <ClCompile Include="doge\control.cpp" />
     <ClCompile Include="doge\engine.cpp" />
     <ClCompile Include="doge\object.cpp" />

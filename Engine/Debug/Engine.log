@@ -1,3 +1,19 @@
-﻿  main.cpp
+﻿  engine.cpp
+  control.cpp
+  Generating Code...
+  Compiling...
+  generator.cpp
+  builder.cpp
+  test.cpp
+  mesh.cpp
+  main.cpp
+  shader.cpp
+  object.cpp
+  action.cpp
+  Generating Code...
+soil.lib(image_DXT.obj) : warning LNK4099: PDB 'SOIL.pdb' was not found with 'soil.lib(image_DXT.obj)' or at 'D:\Documents\Projects\opengl\Engine\Debug\SOIL.pdb'; linking object as if no debug info
+soil.lib(image_helper.obj) : warning LNK4099: PDB 'SOIL.pdb' was not found with 'soil.lib(image_helper.obj)' or at 'D:\Documents\Projects\opengl\Engine\Debug\SOIL.pdb'; linking object as if no debug info
+soil.lib(SOIL.obj) : warning LNK4099: PDB 'SOIL.pdb' was not found with 'soil.lib(SOIL.obj)' or at 'D:\Documents\Projects\opengl\Engine\Debug\SOIL.pdb'; linking object as if no debug info
+soil.lib(stb_image_aug.obj) : warning LNK4099: PDB 'SOIL.pdb' was not found with 'soil.lib(stb_image_aug.obj)' or at 'D:\Documents\Projects\opengl\Engine\Debug\SOIL.pdb'; linking object as if no debug info
   Engine.vcxproj -> D:\Documents\Projects\opengl\Engine\Debug\Engine.exe
   Engine.vcxproj -> D:\Documents\Projects\opengl\Engine\Debug\Engine.pdb (Partial PDB)

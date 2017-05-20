@@ -2,6 +2,18 @@
 
 std::unique_ptr<doge::Engine> doge::engine = std::make_unique<doge::Engine>();
 
+void doge::Engine::key_callback(GLFWwindow * window, int key, int scancode, int action, int mode) {
+	engine->_mec->setKeyPressed(key, action);
+}
+
+void doge::Engine::cursor_callback(GLFWwindow * window, double posx, double posy) {
+	engine->_mec->setCursorPos(posx, posy);
+}
+
+void doge::Engine::scroll_callback(GLFWwindow * window, double offx, double offy) {
+	engine->_mec->setScroll(offx, offy);
+}
+
 doge::Engine::Engine() {
 	if (!glfwInit()) {
 		std::runtime_error("[ENG] Can't init glfw\n");
@@ -13,6 +25,10 @@ doge::Engine::Engine() {
 
 	this->_shader = std::make_unique<shader>();
 	this->_sim = std::make_unique<shaderIndexManager>();
+	this->_mec = std::make_unique<mainEngineControl>();
+	this->_mec->setPitchInterval(-89.0, 89.0);
+	this->_mec->setYawInterval(-360.0, 360.0);
+	this->_mec->setSensitivity(0.5);
 }
 
 void doge::Engine::createWindow(const std::string & name, int w, int h) {
@@ -21,6 +37,10 @@ void doge::Engine::createWindow(const std::string & name, int w, int h) {
 
 	glfwSetInputMode(this->_window->window, GLFW_STICKY_KEYS, GL_TRUE);
 	glfwSetInputMode(this->_window->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	
+	glfwSetKeyCallback(this->_window->window, key_callback);
+	glfwSetCursorPosCallback(this->_window->window, cursor_callback);
+	glfwSetScrollCallback(this->_window->window, scroll_callback);
 
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK) {
@@ -101,11 +121,41 @@ std::shared_ptr<doge::camera> & doge::Engine::getCamera() {
 	return this->_cam;
 }
 
+void doge::Engine::update() {
+	glfwPollEvents();
+	for (auto & actions : this->_act) {
+		// can't use a reference because values in set are read only, because if you modify the
+		// value the indexing has to change
+		for (auto object : actions->getBoundObjs()) {
+			if (actions->check(_mec, object)) {
+				actions->execute(_mec, object);
+			}
+		}
+	}
+}
+
 void doge::Engine::draw() const {
 	glfwSwapBuffers(this->_window->window);
-	glfwPollEvents();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	for (auto & it : this->_objs) {
 		it->draw(this->_cam);
 	}
+}
+
+void doge::Engine::setControlPitchInterval(double pitchMin, double pitchMax) {
+	this->_mec->setPitchInterval(pitchMin,pitchMax);
+}
+
+void doge::Engine::setControlYawInterval(double yawMin, double yawMax) {
+	this->_mec->setYawInterval(yawMin, yawMax);
+}
+
+void doge::Engine::setControlSensitivity(double sensitivity) {
+	this->_mec->setSensitivity(sensitivity);
+}
+
+template<typename T> std::shared_ptr<doge::action> doge::Engine::createAction() {
+	std::shared_ptr<action> newAct = std::make_shared<T>();
+	this->_act.insert(newAct);
+	return newAct;
 }

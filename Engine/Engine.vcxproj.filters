@@ -66,10 +66,13 @@
     <ClInclude Include="tools\generator.h">
       <Filter>Header Files\tools</Filter>
     </ClInclude>
+    <ClInclude Include="doge\control.h">
+      <Filter>Header Files\doge</Filter>
+    </ClInclude>
     <ClInclude Include="tools\builder.h">
       <Filter>Header Files\tools</Filter>
     </ClInclude>
-    <ClInclude Include="doge\control.h">
+    <ClInclude Include="doge\action.h">
       <Filter>Header Files\doge</Filter>
     </ClInclude>
   </ItemGroup>
@@ -119,10 +122,13 @@
     <ClCompile Include="tools\generator.cpp">
       <Filter>Source Files\tools</Filter>
     </ClCompile>
+    <ClCompile Include="doge\control.cpp">
+      <Filter>Source Files\doge</Filter>
+    </ClCompile>
     <ClCompile Include="tools\builder.cpp">
       <Filter>Source Files\tools</Filter>
     </ClCompile>
-    <ClCompile Include="doge\control.cpp">
+    <ClCompile Include="doge\action.cpp">
       <Filter>Source Files\doge</Filter>
     </ClCompile>
   </ItemGroup>

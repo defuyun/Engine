@@ -1,7 +1,7 @@
 #pragma once
 #include "../doge/engine.h"
 
-namespace tools {
+namespace tools{
 	// I may have the builder contain some states in the future
 	class baseObjBuilder {
 	public:
