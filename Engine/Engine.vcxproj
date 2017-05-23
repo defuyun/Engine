@@ -133,10 +133,12 @@
     <None Include="doge\sim\simauto.temp" />
     <None Include="doge\sim\simtype.temp" />
     <None Include="packages.config" />
-    <None Include="tests\square_texture_f.glsl" />
-    <None Include="tests\square_texture_v.glsl" />
-    <None Include="tests\triangle_f.glsl" />
-    <None Include="tests\triangle_v.glsl" />
+    <None Include="shaders\cube_f.glsl" />
+    <None Include="shaders\cube_v.glsl" />
+    <None Include="shaders\square_texture_f.glsl" />
+    <None Include="shaders\square_texture_v.glsl" />
+    <None Include="shaders\triangle_f.glsl" />
+    <None Include="shaders\triangle_v.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="doge\action.cpp" />
@@ -146,7 +148,8 @@
     <ClCompile Include="doge\shader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="tests\mesh.cpp" />
-    <ClCompile Include="tests\test.cpp" />
+    <ClCompile Include="tests\testDraw.cpp" />
+    <ClCompile Include="tests\testMove.cpp" />
     <ClCompile Include="tools\builder.cpp" />
     <ClCompile Include="tools\generator.cpp" />
   </ItemGroup>
@@ -154,8 +157,8 @@
     <Text Include="simtypes.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="container.jpg" />
-    <Image Include="container2.png" />
+    <Image Include="images\container.jpg" />
+    <Image Include="images\container2.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

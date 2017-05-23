@@ -8,3 +8,5 @@ void drawTriangleElements();
 void drawSquareTexture();
 void drawTriangleUsingCombinedMesh();
 void testBuilder();
+
+void moveAround();

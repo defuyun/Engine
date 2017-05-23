@@ -34,3 +34,17 @@ void doge::move::setKeyBinding(int front, int back, int left, int right) {
 	this->_left = left;
 	this->_right = right;
 }
+
+void doge::lookAround::execute(std::unique_ptr<mainEngineControl> & mec, std::shared_ptr<doge::object> & obj) {
+	glm::vec3 front = obj->getFront();
+
+	front.y = glm::sin(glm::radians(mec->getPitch()));
+	front.x = glm::cos(glm::radians(mec->getPitch())) * glm::cos(glm::radians(mec->getYaw()));
+	front.z = glm::cos(glm::radians(mec->getPitch())) * glm::sin(glm::radians(mec->getYaw()));
+
+	obj->setFront(front);
+}
+
+bool doge::lookAround::check(std::unique_ptr<mainEngineControl> & mec, const std::shared_ptr<doge::object> & obj) const {
+	return true;
+}

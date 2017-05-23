@@ -37,6 +37,12 @@
     <Filter Include="Source Files\tests">
       <UniqueIdentifier>{61986afe-5629-40eb-b074-4bfda2984501}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\shaders">
+      <UniqueIdentifier>{b2117b57-c2ab-438e-9c1e-c1ee05ec1cf5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\images">
+      <UniqueIdentifier>{117996e9-3d39-47fc-baf6-070ec3e7a891}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header.h">
@@ -87,17 +93,23 @@
     <None Include="doge\sim\simtype.temp">
       <Filter>Source Files\doge\sim</Filter>
     </None>
-    <None Include="tests\triangle_v.glsl">
-      <Filter>Source Files\tests</Filter>
+    <None Include="shaders\square_texture_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
     </None>
-    <None Include="tests\triangle_f.glsl">
-      <Filter>Source Files\tests</Filter>
+    <None Include="shaders\square_texture_v.glsl">
+      <Filter>Resource Files\shaders</Filter>
     </None>
-    <None Include="tests\square_texture_v.glsl">
-      <Filter>Source Files\tests</Filter>
+    <None Include="shaders\triangle_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
     </None>
-    <None Include="tests\square_texture_f.glsl">
-      <Filter>Source Files\tests</Filter>
+    <None Include="shaders\triangle_v.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\cube_v.glsl">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\cube_f.glsl">
+      <Filter>Resource Files\shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -112,9 +124,6 @@
     </ClCompile>
     <ClCompile Include="doge\shader.cpp">
       <Filter>Source Files\doge</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\test.cpp">
-      <Filter>Source Files\tests</Filter>
     </ClCompile>
     <ClCompile Include="tests\mesh.cpp">
       <Filter>Source Files\tests</Filter>
@@ -131,6 +140,12 @@
     <ClCompile Include="doge\action.cpp">
       <Filter>Source Files\doge</Filter>
     </ClCompile>
+    <ClCompile Include="tests\testDraw.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\testMove.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="simtypes.txt">
@@ -138,11 +153,11 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="container.jpg">
-      <Filter>Resource Files</Filter>
+    <Image Include="images\container.jpg">
+      <Filter>Resource Files\images</Filter>
     </Image>
-    <Image Include="container2.png">
-      <Filter>Resource Files</Filter>
+    <Image Include="images\container2.png">
+      <Filter>Resource Files\images</Filter>
     </Image>
   </ItemGroup>
 </Project>

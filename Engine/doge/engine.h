@@ -69,6 +69,8 @@ namespace doge {
 		// ============================= actions ================================= //
 		template<typename T> std::shared_ptr<doge::action> createAction();
 		
+
+		// ============================ key call backs ========================== //
 		static void key_callback(GLFWwindow * window, int key, int scancode, int action, int mode);
 		static void cursor_callback(GLFWwindow * window, double posx, double posy);
 		static void scroll_callback(GLFWwindow * window, double offx, double offy);

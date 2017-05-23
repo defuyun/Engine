@@ -4,8 +4,8 @@ void drawTriangle() {
 	engine->createWindow("drawTriangle", 400, 400);	
 	GLuint va = engine->createVertexArrayObject();
 
-	shfile triangle_v = { "tests/triangle_v.glsl", GL_VERTEX_SHADER };
-	shfile triangle_f = { "tests/triangle_f.glsl", GL_FRAGMENT_SHADER };
+	shfile triangle_v = { "shaders/triangle_v.glsl", GL_VERTEX_SHADER };
+	shfile triangle_f = { "shaders/triangle_f.glsl", GL_FRAGMENT_SHADER };
 
 	GLuint sid = engine->createProgram("triangle", { triangle_v, triangle_f });
 
@@ -30,8 +30,8 @@ void drawTriangleElements() {
 	engine->createWindow("drawTriangle", 400, 400);
 	GLuint va = engine->createVertexArrayObject();
 
-	shfile triangle_v = { "tests/triangle_v.glsl", GL_VERTEX_SHADER };
-	shfile triangle_f = { "tests/triangle_f.glsl", GL_FRAGMENT_SHADER };
+	shfile triangle_v = { "shaders/triangle_v.glsl", GL_VERTEX_SHADER };
+	shfile triangle_f = { "shaders/triangle_f.glsl", GL_FRAGMENT_SHADER };
 
 	GLuint sid = engine->createProgram("triangle", { triangle_v, triangle_f });
 
@@ -56,8 +56,8 @@ void drawSquareTexture() {
 	engine->createWindow("drawSquare", 400, 400);
 	GLuint va = engine->createVertexArrayObject();
 
-	shfile square_v = { "tests/square_texture_v.glsl", GL_VERTEX_SHADER };
-	shfile square_f = { "tests/square_texture_f.glsl", GL_FRAGMENT_SHADER };
+	shfile square_v = { "shaders/square_texture_v.glsl", GL_VERTEX_SHADER };
+	shfile square_f = { "shaders/square_texture_f.glsl", GL_FRAGMENT_SHADER };
 	
 	GLuint sid = engine->createProgram("square", {square_v, square_f });
 	engine->addTexture("container.jpg", { "testTexture","default",doge::type::TEX2 });
@@ -90,11 +90,11 @@ void drawTriangleUsingCombinedMesh() {
 	GLuint tri = engine->createVertexArrayObject();
 	GLuint sq = engine->createVertexArrayObject();
 
-	shfile triangle_v = { "tests/triangle_v.glsl", GL_VERTEX_SHADER };
-	shfile triangle_f = { "tests/triangle_f.glsl", GL_FRAGMENT_SHADER };
+	shfile triangle_v = { "shaders/triangle_v.glsl", GL_VERTEX_SHADER };
+	shfile triangle_f = { "shaders/triangle_f.glsl", GL_FRAGMENT_SHADER };
 
-	shfile square_v = { "tests/square_texture_v.glsl", GL_VERTEX_SHADER };
-	shfile square_f = { "tests/square_texture_f.glsl", GL_FRAGMENT_SHADER };
+	shfile square_v = { "shaders/square_texture_v.glsl", GL_VERTEX_SHADER };
+	shfile square_f = { "shaders/square_texture_f.glsl", GL_FRAGMENT_SHADER };
 	
 	GLuint trsid = engine->createProgram("triangle", { triangle_v, triangle_f });
 	GLuint sqsid = engine->createProgram("square", {square_v, square_f });
@@ -138,8 +138,8 @@ void testBuilder() {
 	engine->createWindow("drawTriangle", 400, 400);
 	GLuint va = engine->createVertexArrayObject();
 
-	shfile triangle_v = { "tests/triangle_v.glsl", GL_VERTEX_SHADER };
-	shfile triangle_f = { "tests/triangle_f.glsl", GL_FRAGMENT_SHADER };
+	shfile triangle_v = { "shaders/triangle_v.glsl", GL_VERTEX_SHADER };
+	shfile triangle_f = { "shaders/triangle_f.glsl", GL_FRAGMENT_SHADER };
 
 	GLuint sid = engine->createProgram("triangle", { triangle_v, triangle_f });
 
