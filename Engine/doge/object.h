@@ -62,7 +62,9 @@ namespace doge {
 		enum opt {EXC, OWR};
 
 		object(std::unique_ptr<shaderIndexManager> & sim, const std::shared_ptr<baseObject> & bo) :
-			_sim(sim), _bo(bo) {
+			_sim(sim), _bo(bo), front(glm::vec3(0.0f,0.0f,0.0f)), pos(glm::vec3(0.0f,0.0f,0.0f)), 
+			up(glm::vec3(0.0f,1.0f,0.0f)), scale(glm::vec3(1.0f,1.0f,1.0f)), rotate(glm::vec3(1.0f,0.0f,0.0f)),
+			angle(0.0f){
 			// Nothing here
 			this->setAlive(true);
 			this->setDraw(true);
@@ -102,7 +104,11 @@ namespace doge {
 	private:
 		GLfloat fov, aspect, near, far;
 	public:
-		camera(std::unique_ptr<shaderIndexManager> & sim, const std::shared_ptr<baseObject> & bo);
+		camera(std::unique_ptr<shaderIndexManager> & sim, const std::shared_ptr<baseObject> & bo) : object(sim, bo), 
+		fov(45.0f), aspect(1.0f), near(0.1f), far(100.0f){
+			this->setAlive(false);
+			this->setDraw(false);
+		}
 		camera * setFov(GLfloat fov);
 		camera * setAspect(GLfloat aspect);
 		camera * setNear(GLfloat near);

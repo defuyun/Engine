@@ -67,15 +67,18 @@ namespace doge {
 		void setControlSensitivity(double sensitivity);
 
 		// ============================= actions ================================= //
-		template<typename T> std::shared_ptr<doge::action> createAction();
-		
-
+		template<typename T> std::shared_ptr<T> createAction() {	
+			std::shared_ptr<T> newAct = std::make_shared<T>();
+			this->_act.insert(newAct);
+			return newAct;
+		}
+	
 		// ============================ key call backs ========================== //
 		static void key_callback(GLFWwindow * window, int key, int scancode, int action, int mode);
 		static void cursor_callback(GLFWwindow * window, double posx, double posy);
 		static void scroll_callback(GLFWwindow * window, double offx, double offy);
 	};
-
+	
 	extern std::unique_ptr<Engine> engine;
 };
 
@@ -85,6 +88,7 @@ typedef std::unique_ptr<doge::mainEngineControl> control;
 typedef std::shared_ptr<doge::baseObject> base;
 typedef std::shared_ptr<doge::object> object;
 typedef std::shared_ptr<doge::camera> camera;
+typedef std::shared_ptr<doge::action> action;
 
 using doge::engine;
 using doge::siw;

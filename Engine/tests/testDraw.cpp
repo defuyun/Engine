@@ -22,6 +22,7 @@ void drawTriangle() {
 	object obj = engine->createObject(ba);
 	
 	while (engine->isRunning()) {
+		engine->update();
 		engine->draw();
 	}
 }
@@ -48,6 +49,7 @@ void drawTriangleElements() {
 	object obj = engine->createObject(ba);
 
 	while (engine->isRunning()) {
+		engine->update();
 		engine->draw();
 	}
 }
@@ -60,8 +62,8 @@ void drawSquareTexture() {
 	shfile square_f = { "shaders/square_texture_f.glsl", GL_FRAGMENT_SHADER };
 	
 	GLuint sid = engine->createProgram("square", {square_v, square_f });
-	engine->addTexture("container.jpg", { "testTexture","default",doge::type::TEX2 });
-	engine->addTexture("container2.png", { "testTexture","box", doge::type::TEX2 });
+	engine->addTexture("images/container.jpg", { "testTexture","default",doge::type::TEX2 });
+	engine->addTexture("images/container2.png", { "testTexture","box", doge::type::TEX2 });
 
 	base ba = engine->createBaseObject(va, "square");
 	ba->setShaderID(sid);
@@ -80,6 +82,7 @@ void drawSquareTexture() {
 	obj2->addSim({ "testTexture","default",doge::type::TEX2 }, doge::option::OWR);
 
 	while (engine->isRunning()) {
+		engine->update();
 		engine->draw();
 	}
 }
@@ -99,8 +102,8 @@ void drawTriangleUsingCombinedMesh() {
 	GLuint trsid = engine->createProgram("triangle", { triangle_v, triangle_f });
 	GLuint sqsid = engine->createProgram("square", {square_v, square_f });
 	
-	engine->addTexture("container.jpg", { "testTexture","default",doge::type::TEX2 });
-	engine->addTexture("container2.png", { "testTexture","box", doge::type::TEX2 });
+	engine->addTexture("iamges/container.jpg", { "testTexture","default",doge::type::TEX2 });
+	engine->addTexture("images/container2.png", { "testTexture","box", doge::type::TEX2 });
 
 	base sqba = engine->createBaseObject(sq, "square");
 	base trba = engine->createBaseObject(tri, "triangle");
@@ -130,6 +133,7 @@ void drawTriangleUsingCombinedMesh() {
 	object trobj = engine->createObject(trba);
 	
 	while (engine->isRunning()) {
+		engine->update();
 		engine->draw();
 	}
 }
@@ -149,6 +153,7 @@ void testBuilder() {
 	object obj = engine->createObject(ba);
 
 	while (engine->isRunning()) {
+		engine->update();
 		engine->draw();
 	}
 }

@@ -14,9 +14,9 @@ void doge::move::execute(std::unique_ptr<doge::mainEngineControl> & mec, std::sh
 	} else if (mec->isKeyPressed(_back)) {
 		obj->setPos(obj->getPos() - obj->getFront() * this->_moveSpeed);
 	} else if (mec->isKeyPressed(_right)) {
-		obj->setPos(obj->getPos() + glm::normalize(glm::cross(obj->getFront(), obj->getUp()) * this->_moveSpeed));
+		obj->setPos(obj->getPos() + glm::normalize(glm::cross(obj->getFront(), obj->getUp())) * this->_moveSpeed);
 	} else {
-		obj->setPos(obj->getPos() - glm::normalize(glm::cross(obj->getFront(), obj->getUp()) * this->_moveSpeed));
+		obj->setPos(obj->getPos() - glm::normalize(glm::cross(obj->getFront(), obj->getUp())) * this->_moveSpeed);
 	}
 }
 

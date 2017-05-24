@@ -49,9 +49,8 @@ void doge::Engine::createWindow(const std::string & name, int w, int h) {
 	
 	auto it = this->createBaseObject(_camva, "baseCamera");
 	this->_cam = std::make_shared<camera>(this->_sim, it);
-	this->_cam->setAlive(false);
-	this->_cam->setDraw(false);
-	this->_cam->setFront(glm::vec3(0.0f, 0.0f, 1.0f))->setPos(glm::vec3(0.0f, 0.0f, -1.0f))->setUp(glm::vec3(0.0f,1.0f,0.0f));
+	this->_cam->setFront(glm::vec3(0.0f, 0.0f, -1.0f))->setPos(glm::vec3(0.0f, 0.0f, 3.0f))->setUp(glm::vec3(0.0f,1.0f,0.0f));
+
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
@@ -152,10 +151,4 @@ void doge::Engine::setControlYawInterval(double yawMin, double yawMax) {
 
 void doge::Engine::setControlSensitivity(double sensitivity) {
 	this->_mec->setSensitivity(sensitivity);
-}
-
-template<typename T> std::shared_ptr<doge::action> doge::Engine::createAction() {
-	std::shared_ptr<action> newAct = std::make_shared<T>();
-	this->_act.insert(newAct);
-	return newAct;
 }

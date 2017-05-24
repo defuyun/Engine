@@ -4,6 +4,7 @@
 #include "tools/builder.h"
 
 int main() {
-
+	moveAround();
+	// testBuilder();
 }
 

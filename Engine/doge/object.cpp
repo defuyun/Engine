@@ -233,7 +233,7 @@ void doge::object::draw(const std::shared_ptr<camera> & cam) const {
 		if (this->_bo->hasElement) {
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_bo->ve);
 		}
-			
+
 		for (auto & p : this->_bo->defaultSims) {
 			if (overwriteSims.find(p.first) == overwriteSims.end() &&
 				excludeSims.find(p.first) == excludeSims.end()) {
@@ -244,7 +244,24 @@ void doge::object::draw(const std::shared_ptr<camera> & cam) const {
 		for (auto & p : overwriteSims) {
 			this->useSim(p.second);
 		}
-		
+
+
+		auto model = getModel();
+		auto view = cam->getView();
+		auto project = cam->getProject();
+		int i = 0;
+
+		//for (auto & mat : { model, view, project }) {
+		//	std::cout << "#" << i << '\n';
+		//	for (int i = 0; i < 3; i++) {
+		//		for (int j = 0; j < 3; j++) {
+		//			std::cout << mat[i][j] << ' ';
+		//		}
+		//		std::cout << '\n';
+		//	}
+		//	i++;
+		//}
+
 		glUniformMatrix4fv(glGetUniformLocation(pid, "model"), 1, GL_FALSE, glm::value_ptr(getModel()));
 		glUniformMatrix4fv(glGetUniformLocation(pid, "project"), 1, GL_FALSE, glm::value_ptr(cam->getProject()));
 		glUniformMatrix4fv(glGetUniformLocation(pid, "view"), 1, GL_FALSE, glm::value_ptr(cam->getView()));
@@ -257,11 +274,6 @@ void doge::object::draw(const std::shared_ptr<camera> & cam) const {
 		}
 		glUseProgram(0);
 	} glBindVertexArray(0);
-}
-
-doge::camera::camera(std::unique_ptr<shaderIndexManager> & sim, const std::shared_ptr<baseObject> & bo) : object(sim,bo) {
-	this->setDraw(false);
-	this->setAlive(false);
 }
 
 doge::camera * doge::camera::setFov(GLfloat fov) {
