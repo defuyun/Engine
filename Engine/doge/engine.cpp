@@ -101,12 +101,6 @@ std::shared_ptr<doge::baseObject> doge::Engine::createBaseObject(GLuint va, cons
 	return newbobj;
 }
 
-std::shared_ptr<doge::object> doge::Engine::createObject(const std::shared_ptr<baseObject> & bobj) {
-	std::shared_ptr<doge::object> newobj(new object(this->_sim, bobj));
-	this->_objs.insert(newobj);
-	return newobj;
-}
-
 std::shared_ptr<doge::baseObject> & doge::Engine::getBaseObject(const std::string & name) {
 	auto it = this->_bobjs.find(name);
 	if (it == this->_bobjs.end()) {

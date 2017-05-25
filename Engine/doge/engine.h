@@ -49,7 +49,11 @@ namespace doge {
 		// ========================== object class funcionts ==================== //
 		GLuint createVertexArrayObject();
 		std::shared_ptr<baseObject> createBaseObject(GLuint va,const std::string &);
-		std::shared_ptr<object> createObject(const std::shared_ptr<baseObject> &);
+		template<typename T> std::shared_ptr<T> createObject(const std::shared_ptr<baseObject> & bobj) {
+			std::shared_ptr<T> newobj(new T(this->_sim, bobj));
+			this->_objs.insert(newobj);
+			return newobj;
+		}
 		
 		std::shared_ptr<baseObject> & getBaseObject(const std::string & name);
 		

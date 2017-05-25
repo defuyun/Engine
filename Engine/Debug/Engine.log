@@ -1,6 +1,3 @@
-﻿  action.cpp
-d:\documents\projects\opengl\engine\engine\doge\action.cpp(42): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\documents\projects\opengl\engine\engine\doge\action.cpp(43): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\documents\projects\opengl\engine\engine\doge\action.cpp(44): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+﻿  control.cpp
   Engine.vcxproj -> D:\Documents\Projects\opengl\Engine\Debug\Engine.exe
   Engine.vcxproj -> D:\Documents\Projects\opengl\Engine\Debug\Engine.pdb (Partial PDB)

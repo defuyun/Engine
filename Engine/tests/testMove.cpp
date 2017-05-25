@@ -13,14 +13,14 @@ void moveAround() {
 	base ba = builder->build("triangle", cube, sid, indicesCube, sizeof(indicesCube) / sizeof(GLfloat), 8,
 	{ {0,3}, {6,8} }, { "pos", "tex" });
 
-	object obj = engine->createObject(ba);
+	object obj = engine->createObject<doge::object>(ba);
 	obj->addSim({"testTexture","default", doge::type::TEX2}, doge::option::OWR);
 
-	move m = engine->createAction<doge::move>();
-	look l = engine->createAction<doge::lookAround>();
+	action m = engine->createAction<doge::default_move>();
+	action l = engine->createAction<doge::default_lookAround>();
 
-	m->addObj(obj);
-	l->addObj(obj);
+	m->addObj(engine->getCamera());
+	l->addObj(engine->getCamera());
 
 	while (engine->isRunning()) {
 		engine->update();

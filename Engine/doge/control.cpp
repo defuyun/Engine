@@ -3,6 +3,7 @@
 doge::mainEngineControl::mainEngineControl(int keySize, int mouseSize) 
 	: _keyPressed(keySize, false), _mouseClicked(mouseSize, false) {
 	_cursorX = _cursorY = _scrollOffsetX = _scrollOffsetY = 0.0;
+	_sensitivity = 0.5f;
 	_firstRunFlag = true;
 }
 

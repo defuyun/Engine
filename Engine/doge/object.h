@@ -94,7 +94,7 @@ namespace doge {
 		void removeSim(const std::string & loc, opt);
 		void removeSim(const siw & loc, opt);
 	
-		void draw(const std::shared_ptr<camera> & cam) const;
+		virtual void draw(const std::shared_ptr<camera> & cam) const;
 		template<typename T> void setSim(const sdw<T> & sd) {
 			this->_sim->add(sd);
 		}
@@ -109,6 +109,7 @@ namespace doge {
 			this->setAlive(false);
 			this->setDraw(false);
 		}
+
 		camera * setFov(GLfloat fov);
 		camera * setAspect(GLfloat aspect);
 		camera * setNear(GLfloat near);

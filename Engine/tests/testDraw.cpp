@@ -19,7 +19,7 @@ void drawTriangle() {
 	ba->setStride(6);
 	ba->bind();
 
-	object obj = engine->createObject(ba);
+	object obj = engine->createObject<doge::object>(ba);
 	
 	while (engine->isRunning()) {
 		engine->update();
@@ -46,7 +46,7 @@ void drawTriangleElements() {
 	ba->setStride(6);
 	ba->bind();
 	
-	object obj = engine->createObject(ba);
+	object obj = engine->createObject<doge::object>(ba);
 
 	while (engine->isRunning()) {
 		engine->update();
@@ -75,8 +75,8 @@ void drawSquareTexture() {
 	ba->setStride(5);
 	ba->bind();
 	
-	object obj = engine->createObject(ba);
-	object obj2 = engine->createObject(ba);
+	object obj = engine->createObject<doge::object>(ba);
+	object obj2 = engine->createObject<doge::object>(ba);
 
 	obj->addSim({ "testTexture","box",doge::type::TEX2 }, doge::option::OWR);
 	obj2->addSim({ "testTexture","default",doge::type::TEX2 }, doge::option::OWR);
@@ -118,7 +118,7 @@ void drawTriangleUsingCombinedMesh() {
 	sqba->setStride(5);
 	sqba->bind();
 
-	object sqobj = engine->createObject(sqba);
+	object sqobj = engine->createObject<doge::object>(sqba);
 	sqobj->addSim({ "testTexture","default",doge::type::TEX2 }, doge::option::OWR);
 
 	trba->shareMesh(sqba);
@@ -130,7 +130,7 @@ void drawTriangleUsingCombinedMesh() {
 	trba->setStride(6);
 	trba->bind();
 
-	object trobj = engine->createObject(trba);
+	object trobj = engine->createObject<doge::object>(trba);
 	
 	while (engine->isRunning()) {
 		engine->update();
@@ -150,7 +150,7 @@ void testBuilder() {
 	base ba = builder->build("triangle", va, sid, indicesTriangle, sizeof(indicesTriangle) / sizeof(GLfloat), 6, { {0,3},
 	{3,6} }, { "pos","col" });
 
-	object obj = engine->createObject(ba);
+	object obj = engine->createObject<doge::object>(ba);
 
 	while (engine->isRunning()) {
 		engine->update();

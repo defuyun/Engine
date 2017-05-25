@@ -13,9 +13,9 @@ namespace doge {
 		std::unordered_set<std::shared_ptr<doge::object>> & getBoundObjs();
 	};
 
-	class move : public action {
+	class default_move : public action {
 	private:
-		float _moveSpeed = 0.5f;
+		float _moveSpeed = 0.1f;
 		int _front = GLFW_KEY_W, _back = GLFW_KEY_S, _left = GLFW_KEY_A, _right = GLFW_KEY_D;
 	public:
 		virtual void execute(std::unique_ptr<mainEngineControl> & mec, std::shared_ptr<doge::object> & obj);
@@ -24,12 +24,13 @@ namespace doge {
 		void setKeyBinding(int front,int back,int left,int right);
 	};
 
-	class lookAround : public action {	
+	class default_lookAround : public action {	
+	public:
 		virtual void execute(std::unique_ptr<mainEngineControl> & mec, std::shared_ptr<doge::object> & obj);
 		virtual bool check(std::unique_ptr<mainEngineControl> & mec, const std::shared_ptr<doge::object> & obj) const;
 	};
 
 };
 
-typedef std::shared_ptr<doge::lookAround> look;
-typedef std::shared_ptr<doge::move> move;
+typedef std::shared_ptr<doge::default_lookAround> look;
+typedef std::shared_ptr<doge::default_move> move;
