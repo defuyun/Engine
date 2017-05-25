@@ -1,3 +1,5 @@
 .vs/*
 Debug
 Engine.*
+Engine/Debug
+Engine/Engine.*
