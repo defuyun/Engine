@@ -30,7 +30,15 @@ namespace doge {
 		virtual bool check(std::unique_ptr<mainEngineControl> & mec, const std::shared_ptr<doge::object> & obj) const;
 	};
 
+	class default_scroll : public action {
+	public:
+		virtual void execute(std::unique_ptr<mainEngineControl> & mec, std::shared_ptr<doge::object> & obj);
+		virtual bool check(std::unique_ptr<mainEngineControl> & mec, const std::shared_ptr<doge::object> & obj) const;
+	};
+
 };
 
 typedef std::shared_ptr<doge::default_lookAround> look;
 typedef std::shared_ptr<doge::default_move> move;
+typedef std::shared_ptr<doge::default_scroll> zoom;
+
