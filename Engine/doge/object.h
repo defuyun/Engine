@@ -40,8 +40,8 @@ namespace doge {
 		void setStride(int stride);
 		void addSim(const siw & si);
 		void addSim(const std::vector<siw> & sims);
-		void removeSim(const std::string & loc);
-		void removeSim(const siw & loc);
+		void removeSim(const std::string & loc_);
+		void removeSim(const siw & loc_);
 		friend class object;
 	};
 
@@ -55,7 +55,6 @@ namespace doge {
 		bool _draw, _alive;
 		glm::vec3 front, pos, up, scale, rotate;
 		GLfloat angle;	
-
 		// I added a middle layer between sim use call in case I need to do checking on the siw in the future
 		void useSim(const siw &) const;
 	public:
@@ -89,15 +88,17 @@ namespace doge {
 		bool getAlive() const;
 		glm::mat4 getModel() const;
 
-		void addSim(const siw & si, opt);
+		void addSim(const siw & si, opt = OWR);
 		void addSim(const std::vector<siw> & sims, opt);
-		void removeSim(const std::string & loc, opt);
-		void removeSim(const siw & loc, opt);
+		void removeSim(const std::string & loc_, opt);
+		void removeSim(const siw & loc_, opt);
 	
 		virtual void draw(const std::shared_ptr<camera> & cam) const;
 		template<typename T> void setSim(const sdw<T> & sd) {
 			this->_sim->add(sd);
 		}
+		
+		bool sanityCheck(std::stringstream & log) const;
 	};
 
 	class camera : public object {

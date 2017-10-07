@@ -12,7 +12,7 @@
 
 GLuint doge::shader::createProgram(const std::string & name) {
 	if (map.find(name) != map.end()) {
-		std::runtime_error("[SHA] creating program with name already exist: " + name + "\n");
+		Logger->log("[SHA] creating program with name already exist: " + name + "\n");
 	}
 	GLuint pid = glCreateProgram();
 	map[name] = pid;
@@ -27,7 +27,7 @@ GLuint doge::shader::createProgram(const std::string & name, const std::vector<s
 GLuint doge::shader::getPid(const std::string & name) const {
 	auto it = map.find(name);
 	if (it == map.end()) {
-		std::runtime_error("[SHA] Can't find shader program with name " + name + "\n");
+		Logger->log("[SHA] Can't find shader program with name " + name + "\n");
 	}
 	return it->second;
 }

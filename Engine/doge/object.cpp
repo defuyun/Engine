@@ -1,18 +1,39 @@
 #include "object.h"
 
-doge::baseObject::baseObject(GLuint a) : va(a) {}
+static bool checkSim(const doge::siw & si)
+{
+	auto sim = doge::getSimInstance();
+	if (sim)
+	{
+		return true;
+	}
+	return false;
+}
+
+doge::baseObject::baseObject(GLuint a) {
+	va = a;
+	stride = vb = ve = pid = -1;
+	hasElement = false;
+	elementStart = elementEnd = -1;
+	totalElementSize = totalMeshSize = -1;
+}
 
 void doge::baseObject::bind() const {
 	if (this->seperator.empty()) {
-		std::runtime_error("[OBJ] you haven't specified a seperator for the base class, call obj->setSeperator()\n");
+		Logger->log("[OBJ] you haven't specified a seperator for the base class, call obj->setSeperator()\n");
 	}
 
 	if (this->locs.empty()) {
-		std::runtime_error("[OBJ] you haven't specified the loc mapping for the base class, call obj->setLocs()\n");
+		Logger->log("[OBJ] you haven't specified the loc_ mapping for the base class, call obj->setLocs()\n");
 	}
 
 	if (this->seperator.size() != this->locs.size()) {
-		std::runtime_error("[OBJ] seperator does not match loc size\n");
+		Logger->log("[OBJ] seperator does not match loc_ size\n");
+	}
+
+	if (stride == -1)
+	{
+		Logger->log("[OBJ] stride for the mesh has not been set\n");
 	}
 
 	this->bind(this->seperator, this->locs);
@@ -62,6 +83,9 @@ void doge::baseObject::shareMesh(const std::shared_ptr<doge::baseObject> & other
 	this->hasElement = other->hasElement;
 	this->elementStart= other->elementStart;
 	this->elementEnd = other->elementEnd;
+	this->stride = other->stride;
+	this->seperator = other->seperator;
+	this->locs = other->locs;
 }
 
 void doge::baseObject::setShaderID(GLuint id) {
@@ -86,7 +110,8 @@ void doge::baseObject::setStride(int stride) {
 }
 
 void doge::baseObject::addSim(const siw & si) {
-	this->defaultSims.emplace(si.loc, si);
+	getSimInstance()->sanityCheck(si);
+	this->defaultSims.emplace(si.loc_, si);
 }
 
 void doge::baseObject::addSim(const std::vector<siw> & sims) {
@@ -95,22 +120,22 @@ void doge::baseObject::addSim(const std::vector<siw> & sims) {
 	}
 }
 
-void doge::baseObject::removeSim(const std::string & loc) {
-	this->defaultSims.erase(loc);
+void doge::baseObject::removeSim(const std::string & loc_) {
+	this->defaultSims.erase(loc_);
 }
 
-void doge::baseObject::removeSim(const siw & loc) {
-	this->defaultSims.erase(loc.loc);
+void doge::baseObject::removeSim(const siw & loc_) {
+	this->defaultSims.erase(loc_.loc_);
 }
 
 void doge::baseObject::bind(const std::vector<std::pair<int, int>> & sep, const std::vector<std::string> & locs) const {
 	glBindVertexArray(va); {
 		glBindBuffer(GL_ARRAY_BUFFER, vb);
 		for (size_t i = 0; i < sep.size(); i++) {
-			GLuint loc = glGetAttribLocation(pid, locs[i].c_str());
-			glVertexAttribPointer(loc, sep[i].second - sep[i].first, GL_FLOAT, GL_FALSE, 
+			GLuint loc_ = glGetAttribLocation(pid, locs[i].c_str());
+			glVertexAttribPointer(loc_, sep[i].second - sep[i].first, GL_FLOAT, GL_FALSE, 
 				this->stride * sizeof(GLfloat), (void *)(sep[i].first * sizeof(GLfloat)));
-			glEnableVertexAttribArray(loc);
+			glEnableVertexAttribArray(loc_);
 		}
 	} glBindVertexArray(0);
 }
@@ -191,11 +216,12 @@ glm::mat4 doge::object::getModel() const {
 	return glm::scale(glm::rotate(glm::translate(glm::mat4(), pos), angle, rotate), scale);
 }
 
-void doge::object::addSim(const doge::siw & si, doge::object::opt option) {
+void doge::object::addSim(const doge::siw & si, doge::object::opt option/* = OWR */) {
+	getSimInstance()->sanityCheck(si);
 	if (option == doge::object::EXC) {
-		excludeSims.emplace(si.loc, si);
+		excludeSims.emplace(si.loc_, si);
 	} else {
-		overwriteSims.emplace(si.loc, si);
+		overwriteSims.emplace(si.loc_, si);
 	}
 }
 
@@ -205,25 +231,75 @@ void doge::object::addSim(const std::vector<doge::siw> & sims, doge::object::opt
 	}
 }
 
-void doge::object::removeSim(const std::string & loc, doge::object::opt option) {
+void doge::object::removeSim(const std::string & loc_, doge::object::opt option) {
 	if (option == doge::object::EXC) {
-		excludeSims.erase(loc);
+		excludeSims.erase(loc_);
 	} else {
-		overwriteSims.erase(loc);
+		overwriteSims.erase(loc_);
 	}
 }
 
-void doge::object::removeSim(const doge::siw & loc, doge::object::opt option) {
-	this->removeSim(loc.loc, option);
+void doge::object::removeSim(const doge::siw & loc_, doge::object::opt option) {
+	this->removeSim(loc_.loc_, option);
 }
 
 void doge::object::useSim(const siw & si) const {
 	this->_sim->use(this->_bo->pid, si);
 }
 
+bool doge::object::sanityCheck(std::stringstream & log) const
+{
+	bool sane = true;
+	if (!getAlive() || !getDraw())
+	{
+		return sane;
+	}
+
+	if (_bo->pid == -1)
+	{
+		log << "[OBJ] shaderID has not been set\n";
+		sane = false;
+	}
+
+	if (_bo->va == -1)
+	{
+		log << "[OBJ] vertex array has not been set\n";
+		sane = false;
+	}
+
+	if (_bo->vb == -1)
+	{
+		log << "[OBJ] there is no buffer binded to this object\n";
+		sane = false;
+	}
+
+	if (_bo->hasElement)
+	{
+		if (_bo->elementStart == -1 || _bo->elementEnd == -1)
+		{
+			log << "[OBJ] element buffer start and end index has not been set\n";
+			sane = false;
+		}
+	}
+
+	if (_bo->verticeStart == -1 || _bo->verticeCount == -1)
+	{
+		log << "[OBJ] vertice buffer start and end index has not been set\n";
+		sane = false;
+	}
+
+	return sane;
+}
+
 void doge::object::draw(const std::shared_ptr<camera> & cam) const {
 	if (!this->getAlive() || !this->getDraw()) {
 		return;
+	}
+	
+	std::stringstream stream;
+	if (!sanityCheck(stream))
+	{
+		Logger->log(stream.str());
 	}
 
 	GLuint pid = this->_bo->pid;
@@ -245,22 +321,9 @@ void doge::object::draw(const std::shared_ptr<camera> & cam) const {
 			this->useSim(p.second);
 		}
 
-
 		auto model = getModel();
 		auto view = cam->getView();
 		auto project = cam->getProject();
-		int i = 0;
-
-		//for (auto & mat : { model, view, project }) {
-		//	std::cout << "#" << i << '\n';
-		//	for (int i = 0; i < 3; i++) {
-		//		for (int j = 0; j < 3; j++) {
-		//			std::cout << mat[i][j] << ' ';
-		//		}
-		//		std::cout << '\n';
-		//	}
-		//	i++;
-		//}
 
 		glUniformMatrix4fv(glGetUniformLocation(pid, "model"), 1, GL_FALSE, glm::value_ptr(getModel()));
 		glUniformMatrix4fv(glGetUniformLocation(pid, "project"), 1, GL_FALSE, glm::value_ptr(cam->getProject()));

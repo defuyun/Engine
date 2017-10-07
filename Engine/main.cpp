@@ -4,7 +4,7 @@
 #include "tools/builder.h"
 
 int main() {
-	moveAround();
-	// testBuilder();
+	run();
+	// tools::customGen();
 }
 

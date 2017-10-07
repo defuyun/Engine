@@ -1,13 +1,5 @@
 #include "generator.h"
 
-std::string toup(const std::string & str) {
-	std::string cpy = str;
-	for (auto & c : cpy) {
-		c = toupper(c);
-	}
-	return cpy;
-}
-
 std::string joinEnum(std::unordered_set<std::string> & types) {
 	std::string str = "enum type : unsigned int {\n\t";
 	for (auto & s : types) {
@@ -18,23 +10,104 @@ std::string joinEnum(std::unordered_set<std::string> & types) {
 }
 
 std::string joinVar(const std::string & type, const std::string & varname) {
-	return "std::unordered_map<std::string,std::unordered_map<std::string," + type + ">> " + varname + ";\n";
+	return "std::unordered_map<shaderIndexWrapper, std::shared_ptr<" + type + ">> " + varname + ";\n";
 }
 
 std::string joinGetStorage(const std::string & type, const std::string & varname) {
-	return "template<> std::unordered_map<std::string, std::unordered_map<std::string," + type + ">>"
+	return "template<> std::unordered_map<shaderIndexWrapper, std::shared_ptr<" + type + ">>"
 		+ " & getStorage<" + type + ">() {\n" +
 		"\treturn " + varname + ";\n" +
 		"}\n";
 }
 
 std::string joinConstGetStorage(const std::string & type, const std::string & varname) {
-	return "template<> const std::unordered_map<std::string, std::unordered_map<std::string," + type + ">>"
+	return "template<> const std::unordered_map<shaderIndexWrapper,std::shared_ptr<" + type + ">>"
 		+ " & getStorage<" + type + ">() const {\n" +
 		"\treturn " + varname + ";\n" +
 		"}\n";
 }
 
+std::string genUse(const tools::SIMGenerator & generator)
+{
+	std::string fundec = "void use(GLuint shaderID, const shaderIndexWrapper & si) {\n";
+	bool first = true;
+	for (auto & p : generator.enums) {
+		std::string enu = p;
+		std::string type = generator.enu2type.find(p)->second;
+		std::string funcname = generator.type2func.find(type)->second;
+		std::vector<std::string> params = generator.func2param.find(funcname)->second;
+		std::string ifs = "\t";
+		if (first) {
+			ifs += "if ";
+			first = false;
+		}
+		else {
+			ifs += "else if ";
+		}
+
+		ifs += "(si.type_ == " + enu + " ) {\n\t\t" +
+			type + "& t = *(this->get<" + type + ">(si).lock());\n\t\t" +
+			funcname + "(glGetUniformLocation(shaderID,si.loc_.c_str())";
+		for (auto & param : params) {
+			ifs += ", " + param;	
+		}
+		ifs += ");\n\t}\n";
+		fundec += ifs;
+	}
+	fundec += "}\n";
+	return fundec;
+}
+
+std::string genGetData(const tools::SIMGenerator & generator)
+{
+	std::string fundec = "void addData(const shaderIndexWrapper & si, shaderDataWrapperT & data) {\n";
+	bool first = true;
+	for (auto & p : generator.enums) {
+		std::string enu = p;
+		std::string type = generator.enu2type.find(p)->second;
+		std::string ifs = "\t";
+		if (first) {
+			ifs += "if ";
+			first = false;
+		}
+		else {
+			ifs += "else if ";
+		}
+
+		ifs += "(si.type_ == " + enu + " ) {\n\t\t" +
+			"add(converter::get<" + type + ">(data.get()));\n";
+		ifs += "\t}\n";
+		fundec += ifs;
+	}
+	fundec += "}\n";
+	return fundec;
+}
+
+std::string genSanityCheck(const tools::SIMGenerator & generator)
+{
+	std::string fundec = "bool sanityCheck(const shaderIndexWrapper & si) {\n";
+	bool first = true;
+	for (auto & p : generator.enums) {
+		std::string enu = p;
+		std::string type = generator.enu2type.find(p)->second;
+		std::string ifs = "\t";
+		if (first) {
+			ifs += "if ";
+			first = false;
+		}
+		else {
+			ifs += "else if ";
+		}
+
+		ifs += "(si.type_ == " + enu + " ) {\n\t\t" +
+			"return getStorage<" + type + ">().find(si) != getStorage<"
+			+ type + ">().end();";
+		ifs += "\n\t}\n";
+		fundec += ifs;
+	}
+	fundec += "\treturn false\n}\n";
+	return fundec;
+}
 void replace(std::string & str, char from, char to) {
 	for (auto & c : str) {
 		if (c == from) 
@@ -89,35 +162,9 @@ void tools::SIMGenerator::genSim(const std::string & outfile) {
 	fstream out(outfile, std::fstream::out);
 	for (auto & p : types) {
 		out << joinGetStorage(p, type2var[p]);
-		out << joinConstGetStorage(p, type2var[p]);
 	}
-	std::string fundec = "void use(GLuint shaderID, const shaderIndexWrapper & si) const {\n";
-	bool first = true;
-	for (auto & p : enums) {
-		string enu = p;
-		string type = enu2type[p];
-		string funcname = type2func[type];
-		vector<string> params = func2param[funcname];
-		string ifs = "\t";
-		if (first) {
-			ifs += "if ";
-			first = false;
-		}
-		else {
-			ifs += "else if ";
-		}
-
-		ifs += "(si.data == " + enu + " ) {\n\t\t" +
-			type + " t = this->get<" + type + ">(si);\n\t\t" +
-			funcname + "(glGetUniformLocation(shaderID,si.loc.c_str())";
-		for (auto & param : params) {
-			ifs += ", " + param;	
-		}
-		ifs += ");\n\t}\n";
-		fundec += ifs;
-	}
-	fundec += "}\n";
-	out << fundec;
+	out << genUse(*this);
+	out << genSanityCheck(*this);
 	out.close();
 }
 

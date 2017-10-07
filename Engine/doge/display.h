@@ -11,7 +11,7 @@ namespace doge {
 		display(const std::string & name, int w, int h) {
 			window = glfwCreateWindow(w, h, name.c_str(), NULL, NULL);
 			if (!window) {
-				std::runtime_error("failed to create window\n");
+				Logger->log("failed to create window\n");
 			}
 		}
 

@@ -9,93 +9,126 @@
 namespace doge {
 	enum type : unsigned int;
 
-	template<typename T> struct shaderDataWrapper{
-		std::string loc, cls;
+	struct shaderDataWrapperT
+	{
+		virtual void * get() = 0;
+	};
+
+	struct shaderDataWrapperBase : public shaderDataWrapperT
+	{
+		std::string loc_, cls_;
+		type type_;
+
+		shaderDataWrapperBase(std::string loc, std::string cls, type id) :
+			loc_(loc),
+			cls_(cls),
+			type_(id) {}
+
+		shaderDataWrapperBase(const shaderDataWrapperBase & copy) :
+			loc_(copy.loc_),
+			cls_(copy.cls_),
+			type_(copy.type_) {}
+		
+		bool operator==(const shaderDataWrapperBase & rhs) const
+		{
+			return loc_ == rhs.loc_ && cls_ == rhs.cls_;
+		}
+		
+		virtual void * get() override
+		{
+			return nullptr;
+		}
+	};
+
+	template<typename T>
+	struct shaderDataWrapper : public shaderDataWrapperBase
+	{
 		T data;
-		shaderDataWrapper(const std::string & l, const std::string & c, const T & d) :
-			loc(l), cls(c), data(d) {
+		shaderDataWrapper(const std::string & l, const std::string & c, type t, const T & d) :
+			shaderDataWrapperBase(l, c, t), data(d) {
 			// Nothing here
 		}
 
-		operator std::pair<std::string, std::string>() const {
-			return{ loc, cls };
+		virtual void * get() override
+		{
+			return static_cast<void *>(this);
 		}
-
-		operator std::pair<std::string, T>() const {
-			return{ loc, *this };
-		}
- 	};
-
-	typedef shaderDataWrapper<type> shaderIndexWrapper;
+	};
 	
+	namespace converter
+	{
+		template<typename T>
+		shaderDataWrapper<T> * get(void * data)
+		{
+			return static_cast<shaderDataWrapper<T> *>(data);
+		}
+	}
+}
+
+namespace std
+{
+	template<>
+	struct hash<doge::shaderDataWrapperBase>
+	{
+		std::size_t operator()(const doge::shaderDataWrapperBase & key) const
+		{
+			return hash<string>()(key.loc_ + "#" + key.cls_);
+		}
+	};
+}
+
+namespace doge {
+
+	typedef shaderDataWrapperBase shaderIndexWrapper;
+
 	#include "enum.temp"
 	class shaderIndexManager {
 	private:
 		int textureCount = 0;
 		#include "simtype.temp"
 	public:
-		int getTextureCount() const {
-			return textureCount;
-		}
+		int getTextureCount() const;
+		int addTextureCount();
+		void addTexture(const std::string & file, const shaderIndexWrapper & si);
 
-		int addTextureCount() {
-			++textureCount;
-			return textureCount;
-		}
-		
-		template<typename T> std::unordered_map<std::string, std::unordered_map<std::string, T>> & getStorage() {
-			std::runtime_error("[SIM] should not call implicit template getStorage\n");
-			return *(new std::unordered_map<std::string, std::unordered_map<std::string, T>>());
-		}
-
-		template<typename T> const std::unordered_map<std::string, std::unordered_map<std::string, T>> & getStorage() const {
-			std::runtime_error("[SIM] should not call implicit template const getStorage\n");
+		template<typename T> std::unordered_map<shaderIndexWrapper, std::shared_ptr<T>> & getStorage() {
+			Logger->log("[SIM] should not call implicit template getStorage\n");
 			return *(new std::unordered_map<std::string, std::unordered_map<std::string, T>>());
 		}
 
 		#include "simauto.temp"
-		
-		template<typename T> void setInput(const std::string & loc, const std::string & cls, const T & vec) {
-			this->getStorage<T>()[loc][cls] = vec;
-		}
 
-		template<typename T> T get(const shaderIndexWrapper & siw) const{
+		template<typename T> std::weak_ptr<T> get(const shaderIndexWrapper & si) {
 			const auto & map = this->getStorage<T>();
-			auto it = map.find(siw.loc);
+			auto it = map.find(si);
 			if (it == map.end()) {
-				std::runtime_error("[SIM] trying to get an unkown location in get: " + siw.loc + "\n");
+				Logger->log("[SIM] trying to get an unknown location in get: " + si.loc_ + "\n");
 			}
-
-			auto it2 = it->second.find(siw.cls);
-			if (it2 == it->second.end()) {
-				std::runtime_error("[SIM] trying to get an unkown clas under loc: " + siw.loc + " which is: " + siw.cls + "\n");
-			}
-
-			return it2->second;
+			return it->second;
 		}
 
 		template<typename T>
-		void add(const shaderDataWrapper<T> & sd) {
-			this->setInput(sd.loc, sd.cls, sd.data);
-		}
-
-		template<typename T, typename... Args> 
-		void add(const shaderDataWrapper<T> & sd, Args... args) {
-			this->add(sd);
-			this->add(args...);
+		void set(const shaderIndexWrapper & si, const T & data)
+		{
+			this->setInput(si.loc_, si.cls_, si.type_, data);
 		}
 
 		template<typename T>
-		void add(const std::vector<shaderDataWrapper<T>> & sd) {
-			for (auto & sds : sd) {
-				this->setInput(sds.loc, sds.cls, sds.data);
-			}
+		void set(const std::string & loc_, const std::string & cls_, type t, const T & data)
+		{
+			this->setInput(loc_, cls_, t, data);
 		}
 
-		template<typename T, typename... Args> 
-		void add(const std::vector<shaderDataWrapper<T>> & sd, Args... args) {
-			this->add(sd);
-			this->add(args...);
+		template<typename T, typename... Args>
+		void set(const std::string & loc_, const std::string & cls_, type t, const T & data, Args... args) {
+			this->set(loc_,cls_,t,data);
+			this->set(args...);
+		}
+
+	private:
+		template<typename T>
+		void setInput(const std::string & loc_, const std::string & cls_, type t, const T & vec) {
+			this->getStorage<T>()[shaderDataWrapperBase(loc_,cls_,t)] = std::make_shared<T>(vec);
 		}
 	};
 
@@ -103,10 +136,3 @@ namespace doge {
 	template<typename T> using sdw = shaderDataWrapper<T>;
 };
 
-namespace std {	
-	template<> struct std::hash<doge::shaderIndexWrapper> {
-		std::size_t operator()(const doge::shaderIndexWrapper & si) const {
-			return std::hash<string>{}(si.loc + "#" + si.cls);
-		}
-	};
-}

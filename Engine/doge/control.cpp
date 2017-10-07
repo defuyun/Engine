@@ -5,6 +5,8 @@ doge::mainEngineControl::mainEngineControl(int keySize, int mouseSize)
 	_cursorX = _cursorY = _scrollOffsetX = _scrollOffsetY = 0.0;
 	_sensitivity = 0.5f;
 	_firstRunFlag = true;
+	_pitch = 0;
+	_yaw = -90;
 }
 
 void doge::mainEngineControl::setSensitivity(double sensitivity) {

@@ -13,7 +13,12 @@
 #include<glm\gtc\type_ptr.hpp>
 #include<glm\gtc\matrix_transform.hpp>
 #include<soil.h>
+#include "tools/logger.h"
 
 namespace doge {
 	class Engine;
+	class shaderIndexManager;
+
+	Engine * getEngineInstance();
+	shaderIndexManager * getSimInstance();
 }

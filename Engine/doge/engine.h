@@ -41,9 +41,13 @@ namespace doge {
 		// if the window is still running, other words we didn't close the window
 		bool isRunning();	
 		
+		// poll for new events, then for each action in the act set execute the action
 		void update();
 		void draw() const;
-		void addTexture(const std::string & file, const siw & loc);
+
+		shaderIndexManager * getSim();
+		mainEngineControl * getMec();
+
 		std::shared_ptr<camera> & getCamera();
 		
 		// ========================== object class funcionts ==================== //

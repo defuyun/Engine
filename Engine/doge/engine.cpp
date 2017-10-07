@@ -16,7 +16,7 @@ void doge::Engine::scroll_callback(GLFWwindow * window, double offx, double offy
 
 doge::Engine::Engine() {
 	if (!glfwInit()) {
-		std::runtime_error("[ENG] Can't init glfw\n");
+		Logger->log("[ENG] Can't init glfw\n");
 	}
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -36,7 +36,7 @@ void doge::Engine::createWindow(const std::string & name, int w, int h) {
 	glfwMakeContextCurrent(this->_window->window);
 
 	glfwSetInputMode(this->_window->window, GLFW_STICKY_KEYS, GL_TRUE);
-	glfwSetInputMode(this->_window->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	glfwSetInputMode(this->_window->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	
 	glfwSetKeyCallback(this->_window->window, key_callback);
 	glfwSetCursorPosCallback(this->_window->window, cursor_callback);
@@ -44,7 +44,7 @@ void doge::Engine::createWindow(const std::string & name, int w, int h) {
 
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK) {
-		std::runtime_error("[ENG] Can't initialize glew\n");
+		Logger->log("[ENG] Can't initialize glew\n");
 	}
 	
 	auto it = this->createBaseObject(_camva, "baseCamera");
@@ -60,20 +60,14 @@ bool doge::Engine::isRunning() {
 	return !glfwWindowShouldClose(this->_window->window);
 }
 
-void doge::Engine::addTexture(const std::string & file, const siw & si) {
-	GLuint newt;
-	glGenTextures(1, &newt);
-	_sim->add(sdw<GLint>(si.loc, si.cls, _sim->getTextureCount()));
-	int tw, th;
-	unsigned char * image = SOIL_load_image(file.c_str(), &tw, &th, 0, SOIL_LOAD_RGB);
-	
-	glActiveTexture(GL_TEXTURE0 + _sim->getTextureCount());
-	glBindTexture(GL_TEXTURE_2D, newt);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tw, th, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	_sim->addTextureCount();
+doge::shaderIndexManager * doge::Engine::getSim()
+{
+	return _sim.get();
+}
 
-	SOIL_free_image_data(image);
+doge::mainEngineControl * doge::Engine::getMec()
+{
+	return _mec.get();
 }
 
 GLuint doge::Engine::createProgram(const std::string & name, const std::vector<shfile> & files) {
@@ -93,7 +87,7 @@ GLuint doge::Engine::createVertexArrayObject() {
 
 std::shared_ptr<doge::baseObject> doge::Engine::createBaseObject(GLuint va, const std::string & name) {
 	if (_bobjs.find(name) != _bobjs.end()) {
-		std::runtime_error("[ENG] creating duplicate base object: " + name + '\n');
+		Logger->log("[ENG] creating duplicate base object: " + name + '\n');
 	}
 
 	std::shared_ptr<doge::baseObject> newbobj(new baseObject(va));
@@ -104,7 +98,7 @@ std::shared_ptr<doge::baseObject> doge::Engine::createBaseObject(GLuint va, cons
 std::shared_ptr<doge::baseObject> & doge::Engine::getBaseObject(const std::string & name) {
 	auto it = this->_bobjs.find(name);
 	if (it == this->_bobjs.end()) {
-		std::runtime_error("[ENG] trying to get non-exist base object: " + name + '\n');
+		Logger->log("[ENG] trying to get non-exist base object: " + name + '\n');
 	}
 
 	return it->second;
