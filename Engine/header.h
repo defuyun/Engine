@@ -18,7 +18,4 @@
 namespace doge {
 	class Engine;
 	class shaderIndexManager;
-
-	Engine * getEngineInstance();
-	shaderIndexManager * getSimInstance();
 }

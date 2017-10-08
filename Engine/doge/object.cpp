@@ -1,15 +1,5 @@
 #include "object.h"
 
-static bool checkSim(const doge::siw & si)
-{
-	auto sim = doge::getSimInstance();
-	if (sim)
-	{
-		return true;
-	}
-	return false;
-}
-
 doge::baseObject::baseObject(GLuint a) {
 	va = a;
 	stride = vb = ve = pid = -1;
@@ -110,8 +100,14 @@ void doge::baseObject::setStride(int stride) {
 }
 
 void doge::baseObject::addSim(const siw & si) {
-	getSimInstance()->sanityCheck(si);
-	this->defaultSims.emplace(si.loc_, si);
+	if (getSimInstance()->sanityCheck(si))
+	{
+		this->defaultSims.emplace(si.loc_, si);
+	}
+	else
+	{
+		Logger->log("[SIM] error when adding sim to obj, sim location is " + si.loc_ + '\n');
+	}
 }
 
 void doge::baseObject::addSim(const std::vector<siw> & sims) {
@@ -217,11 +213,18 @@ glm::mat4 doge::object::getModel() const {
 }
 
 void doge::object::addSim(const doge::siw & si, doge::object::opt option/* = OWR */) {
-	getSimInstance()->sanityCheck(si);
-	if (option == doge::object::EXC) {
-		excludeSims.emplace(si.loc_, si);
-	} else {
-		overwriteSims.emplace(si.loc_, si);
+	if (getSimInstance()->sanityCheck(si))
+	{
+		if (option == doge::object::EXC) {
+			excludeSims.emplace(si.loc_, si);
+		}
+		else {
+			overwriteSims.emplace(si.loc_, si);
+		}
+	}
+	else
+	{
+		Logger->log("[SIM] error when adding sim to obj, sim location is " + si.loc_ + '\n');
 	}
 }
 

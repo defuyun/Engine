@@ -1,5 +1,7 @@
 #include "sim.h"
 
+doge::shaderIndexManager * SIMInstance = nullptr;
+
 int doge::shaderIndexManager::getTextureCount() const
 {
 	return textureCount;

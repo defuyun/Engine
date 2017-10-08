@@ -1,4 +1,5 @@
 #include "tests.h"
+#include "../user/uaction.h"
 
 void testLighting()
 {
@@ -15,11 +16,11 @@ void testLighting()
 	shfile lampVShader = getShader(shaderIndex::V_LAMP);
 	shfile lampFShader = getShader(shaderIndex::F_LAMP);
 
-	GLuint sid = engine->createProgram("cube", {cubeVShader, cubeFShader});
-	GLuint lampID = engine->createProgram("lamp", {lampVShader, lampFShader});
+	GLuint sid = engine->createProgram("cube", { cubeVShader, cubeFShader });
+	GLuint lampID = engine->createProgram("lamp", { lampVShader, lampFShader });
 
 	int stride = 8;
-	
+
 	base baseObject = engine->createBaseObject(cube, "lightingObject");
 	base baseLamp = engine->createBaseObject(lamp, "lamp");
 
@@ -55,27 +56,32 @@ void testLighting()
 
 	auto sim = engine->getSim();
 	auto mec = engine->getMec();
-	
+
 	mec->setSensitivity(0.2);
 	tools::fillTutData(sim);
 
 	action move = engine->createAction<doge::default_move>();
 	action look = engine->createAction<doge::default_lookAround>();
+	action lmove = engine->createAction<doge::lamp_move>();
 
 	auto lightColor = siw{ "lightColor_","default", doge::type::VEC3 };
 	auto lightPos = siw{ "lightPos_","default",doge::type::VEC3 };
 	auto objectColor = siw{ "objectColor_","default", doge::type::VEC3 };
+	auto cameraPos = siw{ "cameraPos_", "default", doge::type::VEC3 };
 
 	cubeObj->addSim(lightColor);
 	cubeObj->addSim(objectColor);
 	cubeObj->addSim(lightPos);
+	cubeObj->addSim(cameraPos);
 
-	lampObj->setPos({1.0,1.0,0.0});
+	lampObj->setPos({ 1.0f,1.0f,0.0f })->setFront({ 0.0f,0.0f,-1.0f })->setUp({ 0.0f,1.0f,0.0f });
 	lampObj->setScale({ 0.2,0.2,0.2 });
 	sim->set(lightPos, lampObj->getPos());
+	sim->set(cameraPos, engine->getCamera()->getPos());
 
 	move->addObj(engine->getCamera());
 	look->addObj(engine->getCamera());
+	lmove->addObj(lampObj);
 
 	while (engine->isRunning())
 	{

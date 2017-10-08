@@ -14,7 +14,7 @@ void doge::Engine::scroll_callback(GLFWwindow * window, double offx, double offy
 	engine->_mec->setScroll(offx, offy);
 }
 
-doge::Engine::Engine() {
+doge::Engine::Engine():_sim(getSimInstance()) {
 	if (!glfwInit()) {
 		Logger->log("[ENG] Can't init glfw\n");
 	}
@@ -24,8 +24,8 @@ doge::Engine::Engine() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	this->_shader = std::make_unique<shader>();
-	this->_sim = std::make_unique<shaderIndexManager>();
 	this->_mec = std::make_unique<mainEngineControl>();
+
 	this->_mec->setPitchInterval(-89.0, 89.0);
 	this->_mec->setYawInterval(-360.0, 360.0);
 	this->_mec->setSensitivity(0.5);
@@ -50,7 +50,6 @@ void doge::Engine::createWindow(const std::string & name, int w, int h) {
 	auto it = this->createBaseObject(_camva, "baseCamera");
 	this->_cam = std::make_shared<camera>(this->_sim, it);
 	this->_cam->setFront(glm::vec3(0.0f, 0.0f, -1.0f))->setPos(glm::vec3(0.0f, 0.0f, 3.0f))->setUp(glm::vec3(0.0f,1.0f,0.0f));
-
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);

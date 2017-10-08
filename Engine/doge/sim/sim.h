@@ -134,5 +134,10 @@ namespace doge {
 
 	typedef shaderIndexWrapper siw;
 	template<typename T> using sdw = shaderDataWrapper<T>;
+	inline std::unique_ptr<shaderIndexManager> & getSimInstance()
+	{
+		static std::unique_ptr<shaderIndexManager> sim = std::make_unique<shaderIndexManager>();
+		return sim;
+	}
 };
 

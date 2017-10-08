@@ -16,7 +16,7 @@ namespace doge {
 
 		std::unique_ptr<display> _window;
 		std::unique_ptr<shader> _shader;
-		std::unique_ptr<shaderIndexManager> _sim;
+		std::unique_ptr<shaderIndexManager> & _sim;
 		std::unique_ptr<mainEngineControl> _mec;
 		std::unordered_set<std::shared_ptr<object>> _objs;
 		std::unordered_set<std::shared_ptr<action>> _act;

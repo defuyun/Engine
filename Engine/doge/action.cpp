@@ -18,6 +18,8 @@ void doge::default_move::execute(std::unique_ptr<doge::mainEngineControl> & mec,
 	} else {
 		obj->setPos(obj->getPos() - glm::normalize(glm::cross(obj->getFront(), obj->getUp())) * this->_moveSpeed);
 	}
+	auto cameraPos = siw{ "cameraPos_", "default", doge::type::VEC3 };
+	getSimInstance()->set(cameraPos, obj->getPos());
 }
 
 bool doge::default_move::check(std::unique_ptr<mainEngineControl> & mec, const std::shared_ptr<doge::object> & obj) const {
