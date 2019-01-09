@@ -1,0 +1,8 @@
+std::unordered_map<shaderIndexWrapper, std::shared_ptr<GLint>> unii;
+std::unordered_map<shaderIndexWrapper, std::shared_ptr<glm::vec4>> univ4;
+std::unordered_map<shaderIndexWrapper, std::shared_ptr<glm::mat4>> unim4;
+std::unordered_map<shaderIndexWrapper, std::shared_ptr<glm::vec3>> univ3;
+std::unordered_map<shaderIndexWrapper, std::shared_ptr<glm::mat3>> unim3;
+std::unordered_map<shaderIndexWrapper, std::shared_ptr<glm::vec2>> univ2;
+std::unordered_map<shaderIndexWrapper, std::shared_ptr<glm::mat2>> unim2;
+std::unordered_map<shaderIndexWrapper, std::shared_ptr<GLfloat>> unif;

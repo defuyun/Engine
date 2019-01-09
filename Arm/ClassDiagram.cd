@@ -1,0 +1,214 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="doge::Engine" Collapsed="true">
+    <Position X="7" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>hkAEAAAAAgpKAgBgABIAAAAIAABEEAiFBAAAAAQGSAA=</HashCode>
+      <FileName>doge\engine.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="doge::action" Collapsed="true">
+    <Position X="7" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAABIAAAAAAAEAAAAAgACAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>doge\action.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="doge::default_move" Collapsed="true">
+    <Position X="8.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAEIAAAIBAAAAAAEAAAIAAAAAQgAAAAAAAAAAAE=</HashCode>
+      <FileName>doge\action.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="doge::default_lookAround" Collapsed="true">
+    <Position X="7" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAIAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>doge\action.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="doge::default_scroll" Collapsed="true">
+    <Position X="10.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAIAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>doge\action.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="doge::mainEngineControl" Collapsed="true">
+    <Position X="8.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>UAAICIEAAEAADIAABABAABBAAAAAIcCAAAEhgIACABA=</HashCode>
+      <FileName>doge\control.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="doge::display" Collapsed="true">
+    <Position X="12.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAQAAAAAAAAAEEAAAIAAAAAACAAAA=</HashCode>
+      <FileName>doge\display.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="doge::object" Collapsed="true">
+    <Position X="10.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQQMCADDwCAABAEEKUIYBCAIAoCAACgAEQAgBACAA=</HashCode>
+      <FileName>doge\object.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="doge::camera" Collapsed="true">
+    <Position X="12.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQAAAAAAAAAAgAAAAAIAAAAAAAAAAAIAAAAA=</HashCode>
+      <FileName>doge\object.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="doge::baseObject" Collapsed="true">
+    <Position X="10.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAYAIkIQCEFJAGLiQAAQBAAJBiAAAAAEAAAAARBA=</HashCode>
+      <FileName>doge\object.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="doge::shader" Collapsed="true">
+    <Position X="12.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAEAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAACAAA=</HashCode>
+      <FileName>doge\shader.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="doge::shaderIndexManager" Collapsed="true">
+    <Position X="7" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAAAAAACQAAAACAAAAAAASAAAAACAAA=</HashCode>
+      <FileName>doge\sim\sim.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tools::baseObjBuilder" Collapsed="true">
+    <Position X="8.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAA=</HashCode>
+      <FileName>tools\builder.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="tools::SIMGenerator" Collapsed="true">
+    <Position X="4.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAABAAAAAAAQAAQAAAAAAAAAAAoCAAAAEgAAAAIAAAA=</HashCode>
+      <FileName>tools\generator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="doge::shaderDataWrapper&lt;T&gt;" Collapsed="true">
+    <Position X="0.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQAAAAAAAAAAACAAAAAAAAAAAAgASAAAgAAA=</HashCode>
+      <FileName>doge\sim\sim.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Typedef Name="look" Collapsed="true">
+    <Position X="7" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>doge\action.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="move" Collapsed="true">
+    <Position X="8.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>doge\action.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="zoom" Collapsed="true">
+    <Position X="8.75" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>doge\action.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="sim" Collapsed="true">
+    <Position X="7" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>doge\engine.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="control" Collapsed="true">
+    <Position X="8.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>doge\engine.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="base" Collapsed="true">
+    <Position X="7" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>doge\engine.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="interval" Collapsed="true">
+    <Position X="10.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>doge\object.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="ipair" Collapsed="true">
+    <Position X="12.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>doge\object.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="option" Collapsed="true">
+    <Position X="10.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>doge\object.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="doge::shfile" Collapsed="true">
+    <Position X="12.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>doge\shader.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="doge::shaderIndexWrapper" Collapsed="true">
+    <Position X="0.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>doge\sim\sim.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="doge::siw" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>doge\sim\sim.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="generator" Collapsed="true">
+    <Position X="4.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>tools\generator.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="object" Collapsed="true">
+    <Position X="14.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>doge\engine.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="action" Collapsed="true">
+    <Position X="2.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>doge\engine.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
