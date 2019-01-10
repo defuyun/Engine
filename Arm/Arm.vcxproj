@@ -130,11 +130,13 @@
     <ClCompile Include="doge\shader.cpp" />
     <ClCompile Include="doge\sim\sim.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="tests\logger.cpp" />
     <ClCompile Include="tests\mesh.cpp" />
     <ClCompile Include="tests\run.cpp" />
     <ClCompile Include="tests\testDraw.cpp" />
     <ClCompile Include="tests\testLighting.cpp" />
     <ClCompile Include="tests\testMove.cpp" />
+    <ClCompile Include="tests\testTexture.cpp" />
     <ClCompile Include="tools\builder.cpp" />
     <ClCompile Include="tools\generator.cpp" />
     <ClCompile Include="tools\logger.cpp" />
@@ -157,6 +159,8 @@
     <None Include="shaders\triangle_v.glsl" />
     <None Include="shaders\v_lamp.glsl" />
     <None Include="shaders\v_lightingCube.glsl" />
+    <None Include="tests\textureShader.frag" />
+    <None Include="tests\textureShader.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="doge\action.h" />
@@ -166,7 +170,10 @@
     <ClInclude Include="doge\object.h" />
     <ClInclude Include="doge\shader.h" />
     <ClInclude Include="doge\sim\sim.h" />
+    <ClInclude Include="doge\stb_image.h" />
     <ClInclude Include="header.h" />
+    <ClInclude Include="shader.h" />
+    <ClInclude Include="tests\logger.h" />
     <ClInclude Include="tests\mesh.h" />
     <ClInclude Include="tests\tests.h" />
     <ClInclude Include="tools\builder.h" />
@@ -178,6 +185,10 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="simtypes.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="images\container.jpg" />
+    <Image Include="images\container2.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
