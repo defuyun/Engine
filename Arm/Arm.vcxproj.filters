@@ -75,18 +75,6 @@
     <ClCompile Include="tests\run.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
-    <ClCompile Include="tests\testDraw.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\testLighting.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\testMove.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\mesh.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
     <ClCompile Include="tools\builder.cpp">
       <Filter>Source Files\tools</Filter>
     </ClCompile>
@@ -112,6 +100,12 @@
       <Filter>Source Files\tests</Filter>
     </ClCompile>
     <ClCompile Include="tests\logger.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\camera.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\testLighting.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
   </ItemGroup>
@@ -162,6 +156,12 @@
     <None Include="tests\textureShader.vert">
       <Filter>Source Files\tests</Filter>
     </None>
+    <None Include="tests\lightShader.frag">
+      <Filter>Source Files\tests</Filter>
+    </None>
+    <None Include="tests\lightShader.vert">
+      <Filter>Source Files\tests</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="doge\sim\sim.h">
@@ -184,9 +184,6 @@
     </ClInclude>
     <ClInclude Include="doge\shader.h">
       <Filter>Header Files\doge</Filter>
-    </ClInclude>
-    <ClInclude Include="tests\mesh.h">
-      <Filter>Header Files\tests</Filter>
     </ClInclude>
     <ClInclude Include="tests\tests.h">
       <Filter>Header Files\tests</Filter>
@@ -219,6 +216,9 @@
       <Filter>Header Files\tests</Filter>
     </ClInclude>
     <ClInclude Include="tests\logger.h">
+      <Filter>Header Files\tests</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\camera.h">
       <Filter>Header Files\tests</Filter>
     </ClInclude>
   </ItemGroup>

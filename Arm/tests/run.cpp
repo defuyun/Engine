@@ -2,5 +2,5 @@
 
 void run()
 {
-	testTexture();
+	testLighting();
 }

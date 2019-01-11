@@ -130,12 +130,10 @@
     <ClCompile Include="doge\shader.cpp" />
     <ClCompile Include="doge\sim\sim.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="tests\camera.cpp" />
     <ClCompile Include="tests\logger.cpp" />
-    <ClCompile Include="tests\mesh.cpp" />
     <ClCompile Include="tests\run.cpp" />
-    <ClCompile Include="tests\testDraw.cpp" />
     <ClCompile Include="tests\testLighting.cpp" />
-    <ClCompile Include="tests\testMove.cpp" />
     <ClCompile Include="tests\testTexture.cpp" />
     <ClCompile Include="tools\builder.cpp" />
     <ClCompile Include="tools\generator.cpp" />
@@ -159,6 +157,8 @@
     <None Include="shaders\triangle_v.glsl" />
     <None Include="shaders\v_lamp.glsl" />
     <None Include="shaders\v_lightingCube.glsl" />
+    <None Include="tests\lightShader.frag" />
+    <None Include="tests\lightShader.vert" />
     <None Include="tests\textureShader.frag" />
     <None Include="tests\textureShader.vert" />
   </ItemGroup>
@@ -173,8 +173,8 @@
     <ClInclude Include="doge\stb_image.h" />
     <ClInclude Include="header.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="tests\camera.h" />
     <ClInclude Include="tests\logger.h" />
-    <ClInclude Include="tests\mesh.h" />
     <ClInclude Include="tests\tests.h" />
     <ClInclude Include="tools\builder.h" />
     <ClInclude Include="tools\generator.h" />

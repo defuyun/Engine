@@ -2,12 +2,26 @@
 #include "shader.h"
 #include "stb_image.h"
 #include "logger.h"
+#include "camera.h"
+
 #include <GL/glew.h>
 #include<GLFW\glfw3.h>
+#include<glm\gtc\type_ptr.hpp>
+#include<glm\gtc\matrix_transform.hpp>
 
-void processInput(GLFWwindow *window);
+namespace TTexture{
+	void processInput(GLFWwindow *window);
+	void mouseCallback(GLFWwindow * window, double xpos, double ypos);
+
+	float currentFrame = 0.0f;
+	float lastFrame = 0.0f;
+
+	Camera * cam = nullptr;
+}
 
 void testTexture() {
+	using namespace TTexture;
+
 	if (!glfwInit()) {
 		Logger->log("[ENG] Can't init glfw\n");
 	}
@@ -15,7 +29,6 @@ void testTexture() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
 	GLFWwindow * window = glfwCreateWindow(800, 640, "texture", NULL, NULL);
 
 	if (!window) {
@@ -26,38 +39,69 @@ void testTexture() {
 
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouseCallback);
 	
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK) {
 		Logger->log("[ENG] Can't initialize glew\n");
 	}
 
+	glEnable(GL_DEPTH_TEST);
+
 	GLfloat vertices[] = {
-		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-		0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-		-0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-		0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
-	GLuint indices[] = {
-		0,1,2,
-		1,2,3
-	};
-
-	GLuint vao, vbo, ebo;
+	GLuint vao, vbo;
 	Shader textureShader("tests/textureShader.vert", "tests/textureShader.frag");
 
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo);
-	glGenBuffers(1, &ebo);
 
 	glBindVertexArray(vao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 	
 	GLuint posId = glGetAttribLocation(textureShader.ID, "aPos");
 	GLuint texCoordId = glGetAttribLocation(textureShader.ID, "aTexCoord");
@@ -83,7 +127,6 @@ void testTexture() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
 	
 	if (data) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -92,25 +135,56 @@ void testTexture() {
 	
 	glActiveTexture(GL_TEXTURE1);
 
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 2.0f));;
+	glm::vec3 camPos = glm::vec3(0.0f, 1.0f, -1.0f);
+	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)(800) / 640, 0.1f, 10.f);
+
+	cam = new Camera(camPos);
+
+	textureShader.use();
+	glUniform1i(glGetUniformLocation(textureShader.ID, "texture1"), 0);
+	glUniformMatrix4fv(glGetUniformLocation(textureShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+	glUniformMatrix4fv(glGetUniformLocation(textureShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
+
+	lastFrame = glfwGetTime();
+
 	while (!glfwWindowShouldClose(window)) {
+		currentFrame = glfwGetTime();
+
 		processInput(window);
 
+		glm::mat4 view = cam->getView();
+		glUniformMatrix4fv(glGetUniformLocation(textureShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		textureShader.use();
-		glUniform1i(glGetUniformLocation(textureShader.ID, "texture1"), 0);
-
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
 		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+
+		lastFrame = currentFrame;
 	}
 }
 
-void processInput(GLFWwindow *window)
+void TTexture::processInput(GLFWwindow *window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+	
+	float delta = currentFrame - lastFrame;
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		cam->processKeyPress(CameraDirection::front, delta);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		cam->processKeyPress(CameraDirection::back, delta);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		cam->processKeyPress(CameraDirection::left, delta);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		cam->processKeyPress(CameraDirection::right, delta);
+}
+
+void TTexture::mouseCallback(GLFWwindow * window, double xpos, double ypos) {
+	cam->processMouseMovement(xpos, ypos, currentFrame - lastFrame);
 }
