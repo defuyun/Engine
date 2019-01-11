@@ -150,16 +150,16 @@
       <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="packages.config" />
-    <None Include="tests\textureShader.frag">
-      <Filter>Source Files\tests</Filter>
-    </None>
-    <None Include="tests\textureShader.vert">
-      <Filter>Source Files\tests</Filter>
-    </None>
     <None Include="tests\lightShader.frag">
       <Filter>Source Files\tests</Filter>
     </None>
     <None Include="tests\lightShader.vert">
+      <Filter>Source Files\tests</Filter>
+    </None>
+    <None Include="tests\objectShader.frag">
+      <Filter>Source Files\tests</Filter>
+    </None>
+    <None Include="tests\objectShader.vert">
       <Filter>Source Files\tests</Filter>
     </None>
   </ItemGroup>
@@ -232,6 +232,12 @@
       <Filter>Resource Files\images</Filter>
     </Image>
     <Image Include="images\container2.png">
+      <Filter>Resource Files\images</Filter>
+    </Image>
+    <Image Include="images\container2_specular.png">
+      <Filter>Resource Files\images</Filter>
+    </Image>
+    <Image Include="images\container2.jpg">
       <Filter>Resource Files\images</Filter>
     </Image>
   </ItemGroup>

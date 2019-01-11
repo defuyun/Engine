@@ -6,7 +6,7 @@
 const float YAW = 90.0f;
 const float PITCH = 0.0f;
 const float SPEED = 2.5f;
-const float SENSITIVITY = 100.0f;
+const float SENSITIVITY = 50.0f;
 
 enum CameraDirection {
 	front,
@@ -40,6 +40,7 @@ public:
 	void processKeyPress(CameraDirection dir, float delta);
 	void processMouseMovement(double xpos, double ypos, float delta);
 
+	const glm::vec3 & getPos() const;
 	glm::mat4 getView() const;
 
 private:

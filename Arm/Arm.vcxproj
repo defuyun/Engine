@@ -159,8 +159,8 @@
     <None Include="shaders\v_lightingCube.glsl" />
     <None Include="tests\lightShader.frag" />
     <None Include="tests\lightShader.vert" />
-    <None Include="tests\textureShader.frag" />
-    <None Include="tests\textureShader.vert" />
+    <None Include="tests\objectShader.frag" />
+    <None Include="tests\objectShader.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="doge\action.h" />
@@ -188,7 +188,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="images\container.jpg" />
+    <Image Include="images\container2.jpg" />
     <Image Include="images\container2.png" />
+    <Image Include="images\container2_specular.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
