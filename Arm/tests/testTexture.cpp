@@ -93,7 +93,7 @@ void testTexture() {
 	};
 
 	GLuint vao, vbo;
-	Shader textureShader("tests/textureShader.vert", "tests/textureShader.frag");
+	Shader textureShader("shaders/textureShader.vert", "shaders/textureShader.frag");
 
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo);

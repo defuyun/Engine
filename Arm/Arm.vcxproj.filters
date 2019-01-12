@@ -13,85 +13,22 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\doge">
-      <UniqueIdentifier>{5141cac0-8727-47d4-a1e7-1ec337e35c44}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\shaders">
-      <UniqueIdentifier>{debbe63a-c08a-4d37-adef-ce1e123a2e4e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\tests">
       <UniqueIdentifier>{9fb6db65-04b4-4f03-98fe-4509c4c8386c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\tools">
-      <UniqueIdentifier>{f009b521-00ac-455f-b2cc-a52932c85819}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\user">
-      <UniqueIdentifier>{830509d6-c4f9-4649-a99a-4d717674fcb4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\doge">
-      <UniqueIdentifier>{d04c9d82-cd2b-4d88-aeb2-0785102f62a9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\shaders">
-      <UniqueIdentifier>{ab15a18b-0880-4aa0-8f0f-3947caab51e5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\tests">
       <UniqueIdentifier>{2f793dac-9ff8-4eff-845a-ec3098ca21b6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\tools">
-      <UniqueIdentifier>{6f78491c-cebc-4c91-9687-2d03251bf4b1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\user">
-      <UniqueIdentifier>{f68d3507-0efb-4983-b794-08870c65db02}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\doge\sim">
-      <UniqueIdentifier>{49e5407e-c572-414a-abb5-9990dd68d8f1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\doge\sim">
-      <UniqueIdentifier>{9514b37c-4ace-46bc-b59f-dd28ac8a1e06}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\images">
       <UniqueIdentifier>{64478248-15ba-4748-ad88-a214967c8c8b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\shaders">
+      <UniqueIdentifier>{5b83b8cc-b4cc-41c5-8a00-0dee0e8c91ac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="doge\shader.cpp">
-      <Filter>Source Files\doge</Filter>
-    </ClCompile>
-    <ClCompile Include="doge\object.cpp">
-      <Filter>Source Files\doge</Filter>
-    </ClCompile>
-    <ClCompile Include="doge\engine.cpp">
-      <Filter>Source Files\doge</Filter>
-    </ClCompile>
-    <ClCompile Include="doge\control.cpp">
-      <Filter>Source Files\doge</Filter>
-    </ClCompile>
-    <ClCompile Include="doge\action.cpp">
-      <Filter>Source Files\doge</Filter>
-    </ClCompile>
-    <ClCompile Include="doge\sim\sim.cpp">
-      <Filter>Source Files\doge\sim</Filter>
-    </ClCompile>
     <ClCompile Include="tests\run.cpp">
       <Filter>Source Files\tests</Filter>
-    </ClCompile>
-    <ClCompile Include="tools\builder.cpp">
-      <Filter>Source Files\tools</Filter>
-    </ClCompile>
-    <ClCompile Include="tools\generator.cpp">
-      <Filter>Source Files\tools</Filter>
-    </ClCompile>
-    <ClCompile Include="tools\logger.cpp">
-      <Filter>Source Files\tools</Filter>
-    </ClCompile>
-    <ClCompile Include="tools\tut_tools.cpp">
-      <Filter>Source Files\tools</Filter>
-    </ClCompile>
-    <ClCompile Include="user\uaction.cpp">
-      <Filter>Source Files\user</Filter>
-    </ClCompile>
-    <ClCompile Include="user\uobject.cpp">
-      <Filter>Source Files\user</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
@@ -108,103 +45,31 @@
     <ClCompile Include="tests\testLighting.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
+    <ClCompile Include="tests\testModel.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\model.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="doge\sim\simauto.temp">
-      <Filter>Source Files\doge\sim</Filter>
-    </None>
-    <None Include="doge\sim\simtype.temp">
-      <Filter>Source Files\doge\sim</Filter>
-    </None>
-    <None Include="doge\sim\enum.temp">
-      <Filter>Source Files\doge\sim</Filter>
-    </None>
-    <None Include="shaders\cube_f.glsl">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="shaders\cube_v.glsl">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="shaders\f_lamp.glsl">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="shaders\f_lightingCube.glsl">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="shaders\square_texture_f.glsl">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="shaders\square_texture_v.glsl">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="shaders\triangle_f.glsl">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="shaders\triangle_v.glsl">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="shaders\v_lamp.glsl">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="shaders\v_lightingCube.glsl">
-      <Filter>Source Files\shaders</Filter>
-    </None>
     <None Include="packages.config" />
-    <None Include="tests\lightShader.frag">
-      <Filter>Source Files\tests</Filter>
+    <None Include="shaders\lightShader.frag">
+      <Filter>Resource Files\shaders</Filter>
     </None>
-    <None Include="tests\lightShader.vert">
-      <Filter>Source Files\tests</Filter>
+    <None Include="shaders\lightShader.vert">
+      <Filter>Resource Files\shaders</Filter>
     </None>
-    <None Include="tests\objectShader.frag">
-      <Filter>Source Files\tests</Filter>
+    <None Include="shaders\objectShader.frag">
+      <Filter>Resource Files\shaders</Filter>
     </None>
-    <None Include="tests\objectShader.vert">
-      <Filter>Source Files\tests</Filter>
+    <None Include="shaders\objectShader.vert">
+      <Filter>Resource Files\shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="doge\sim\sim.h">
-      <Filter>Header Files\doge\sim</Filter>
-    </ClInclude>
-    <ClInclude Include="doge\action.h">
-      <Filter>Header Files\doge</Filter>
-    </ClInclude>
-    <ClInclude Include="doge\display.h">
-      <Filter>Header Files\doge</Filter>
-    </ClInclude>
-    <ClInclude Include="doge\control.h">
-      <Filter>Header Files\doge</Filter>
-    </ClInclude>
-    <ClInclude Include="doge\engine.h">
-      <Filter>Header Files\doge</Filter>
-    </ClInclude>
-    <ClInclude Include="doge\object.h">
-      <Filter>Header Files\doge</Filter>
-    </ClInclude>
-    <ClInclude Include="doge\shader.h">
-      <Filter>Header Files\doge</Filter>
-    </ClInclude>
     <ClInclude Include="tests\tests.h">
       <Filter>Header Files\tests</Filter>
-    </ClInclude>
-    <ClInclude Include="tools\builder.h">
-      <Filter>Header Files\tools</Filter>
-    </ClInclude>
-    <ClInclude Include="tools\generator.h">
-      <Filter>Header Files\tools</Filter>
-    </ClInclude>
-    <ClInclude Include="tools\logger.h">
-      <Filter>Header Files\tools</Filter>
-    </ClInclude>
-    <ClInclude Include="tools\tut_tools.hpp">
-      <Filter>Header Files\tools</Filter>
-    </ClInclude>
-    <ClInclude Include="user\uobject.h">
-      <Filter>Header Files\user</Filter>
-    </ClInclude>
-    <ClInclude Include="user\uaction.h">
-      <Filter>Header Files\user</Filter>
     </ClInclude>
     <ClInclude Include="header.h">
       <Filter>Header Files</Filter>
@@ -212,32 +77,24 @@
     <ClInclude Include="doge\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="shader.h">
-      <Filter>Header Files\tests</Filter>
-    </ClInclude>
     <ClInclude Include="tests\logger.h">
       <Filter>Header Files\tests</Filter>
     </ClInclude>
     <ClInclude Include="tests\camera.h">
       <Filter>Header Files\tests</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="simtypes.txt">
-      <Filter>Source Files</Filter>
-    </Text>
+    <ClInclude Include="tests\model.h">
+      <Filter>Header Files\tests</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\shader.h">
+      <Filter>Header Files\tests</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="images\container.jpg">
       <Filter>Resource Files\images</Filter>
     </Image>
-    <Image Include="images\container2.png">
-      <Filter>Resource Files\images</Filter>
-    </Image>
-    <Image Include="images\container2_specular.png">
-      <Filter>Resource Files\images</Filter>
-    </Image>
-    <Image Include="images\container2.jpg">
+    <Image Include="images\rock.jpg">
       <Filter>Resource Files\images</Filter>
     </Image>
   </ItemGroup>

@@ -10,7 +10,11 @@
 #include <glm\gtc\matrix_transform.hpp>
 #include <vector>
 
-namespace TLighting {
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+namespace TModel {
 	void processInput(GLFWwindow *window);
 	void mouseCallback(GLFWwindow * window, double xpos, double ypos);
 
@@ -63,10 +67,12 @@ namespace TLighting {
 }
 
 
-
-void testLighting() {
-	using namespace TLighting;
+void testModel() {
+	using namespace TModel;
 	GLFWwindow * window = nullptr;
+
+	Assimp::Importer importer;
+	const aiScene * scene = importer.ReadFile("resources/nanosuit/nanosuit.obj", aiProcess_Triangulate | aiProcess_FlipUVs);
 
 	// initialize sector
 	{
@@ -98,50 +104,6 @@ void testLighting() {
 	}
 
 	// vertices
-	float vertices[] = {
-		// positions          // normals           // texture coords
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
-	};
 	GLuint vao, vbo, lightVao;
 
 	Shader objectShader("shaders/objectShader.vert", "shaders/objectShader.frag");
@@ -186,14 +148,14 @@ void testLighting() {
 	GLuint diffuseMap;
 	{
 		glGenTextures(1, &diffuseMap);
-
+		
 		glBindTexture(GL_TEXTURE_2D, diffuseMap);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	
+
 		int width, height, nrChannel;
 		auto data = stbi_load("images/rock.jpg", &width, &height, &nrChannel, 0);
 
@@ -234,96 +196,75 @@ void testLighting() {
 
 	cam = new Camera(camPos);
 
-	std::vector<Object> objects = {
-		Object(glm::vec3(1.0f, 2.0f, 3.0f), glm::vec3(1.0f), glm::vec3(1.0f,0.0f, 0.0f), 30.0f),
-		Object(glm::vec3(0.0f, 5.0f, 4.0f), glm::vec3(1.0f), glm::vec3(0.0f,1.0f, 0.0f), 45.0f),
-		Object(glm::vec3(3.0f, -2.0f, 5.0f), glm::vec3(1.0f), glm::vec3(0.0f,0.0f, 1.0f), 60.0f),
-		Object(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(1.0f), glm::vec3(1.0f,1.0f, 1.0f), 120.0f),
-	};
-
-	std::vector<PointLight> pointLights = {
-		PointLight(glm::vec3(0.1f,0.1f, 0.4f), glm::vec3(0.4f, 0.4f, 0.4f), glm::vec3(0.2f, 0.2f, 0.2f), 1.0f, 0.3f, 0.8f, glm::vec3()),
-		PointLight(glm::vec3(0.1f,0.1f, 0.4f), glm::vec3(0.4f, 0.4f, 0.4f), glm::vec3(0.2f, 0.2f, 0.2f), 1.0f, 0.3f, 0.8f, glm::vec3()),
-		PointLight(glm::vec3(0.1f,0.1f, 0.4f), glm::vec3(0.4f, 0.4f, 0.4f), glm::vec3(0.2f, 0.2f, 0.2f), 1.0f, 0.3f, 0.8f, glm::vec3()),
-		PointLight(glm::vec3(0.1f,0.1f, 0.4f), glm::vec3(0.4f, 0.4f, 0.4f), glm::vec3(0.2f, 0.2f, 0.2f), 1.0f, 0.3f, 0.8f, glm::vec3()),
-	};
-
+	PointLight pointLight(glm::vec3(0.1f, 0.1f, 0.4f), glm::vec3(0.4f, 0.4f, 0.4f), glm::vec3(0.2f, 0.2f, 0.2f), 1.0f, 0.3f, 0.8f, glm::vec3());
 	DirectionLight directionLight(glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.0f, -1.0f, 0.0f));
 	SpotLight spotLight(glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(0.7f, 0.6f, 0.4f), glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, 0.1f, 0.1f, glm::vec3(), glm::vec3(), glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(30.0f)));
 
-	objectShader.use();
-	glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
-	glUniform1i(glGetUniformLocation(objectShader.ID, "material.diffuse"), 0);
-	glUniform1i(glGetUniformLocation(objectShader.ID, "material.specular"), 1);
-	glUniform1f(glGetUniformLocation(objectShader.ID, "material.shininess"), 16.0f);
-	
-	glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.diffuse"), 1, glm::value_ptr(directionLight.diffuse));
-	glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.specular"), 1, glm::value_ptr(directionLight.specular));
-	glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.ambient"), 1, glm::value_ptr(directionLight.ambient));
-	glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.direction"), 1, glm::value_ptr(directionLight.direction));
-	
-	glUniform3fv(glGetUniformLocation(objectShader.ID, "spotLight.diffuse"), 1, glm::value_ptr(spotLight.diffuse));
-	glUniform3fv(glGetUniformLocation(objectShader.ID, "spotLight.specular"), 1, glm::value_ptr(spotLight.specular));
-	glUniform3fv(glGetUniformLocation(objectShader.ID, "spotLight.ambient"), 1, glm::value_ptr(spotLight.ambient));
-	glUniform1f(glGetUniformLocation(objectShader.ID, "spotLight.innerCutOff"), spotLight.innerCutOff);
-	glUniform1f(glGetUniformLocation(objectShader.ID, "spotLight.outerCutOff"), spotLight.outerCutOff);
-	glUniform1f(glGetUniformLocation(objectShader.ID, "spotLight.constant"), spotLight.constant);
-	glUniform1f(glGetUniformLocation(objectShader.ID, "spotLight.linear"), spotLight.linear);
-	glUniform1f(glGetUniformLocation(objectShader.ID, "spotLight.quadratic"), spotLight.quadratic);
-	
-	lightShader.use();
-	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
-	
-	TLighting::lastFrame = glfwGetTime();
+	// setting shader uniforms for object
+	{
+		objectShader.use();
+		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
+		glUniform1i(glGetUniformLocation(objectShader.ID, "material.diffuse"), 0);
+		glUniform1i(glGetUniformLocation(objectShader.ID, "material.specular"), 1);
+		glUniform1f(glGetUniformLocation(objectShader.ID, "material.shininess"), 16.0f);
+
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.diffuse"), 1, glm::value_ptr(directionLight.diffuse));
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.specular"), 1, glm::value_ptr(directionLight.specular));
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.ambient"), 1, glm::value_ptr(directionLight.ambient));
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.direction"), 1, glm::value_ptr(directionLight.direction));
+
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "spotLight.diffuse"), 1, glm::value_ptr(spotLight.diffuse));
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "spotLight.specular"), 1, glm::value_ptr(spotLight.specular));
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "spotLight.ambient"), 1, glm::value_ptr(spotLight.ambient));
+		glUniform1f(glGetUniformLocation(objectShader.ID, "spotLight.innerCutOff"), spotLight.innerCutOff);
+		glUniform1f(glGetUniformLocation(objectShader.ID, "spotLight.outerCutOff"), spotLight.outerCutOff);
+		glUniform1f(glGetUniformLocation(objectShader.ID, "spotLight.constant"), spotLight.constant);
+		glUniform1f(glGetUniformLocation(objectShader.ID, "spotLight.linear"), spotLight.linear);
+		glUniform1f(glGetUniformLocation(objectShader.ID, "spotLight.quadratic"), spotLight.quadratic);
+
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "pointLight.diffuse"), 1, glm::value_ptr(pointLight.diffuse));
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "pointLight.specular"), 1, glm::value_ptr(pointLight.specular));
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "pointLight.ambient"), 1, glm::value_ptr(pointLight.ambient));
+		glUniform1f(glGetUniformLocation(objectShader.ID, "pointLight.constant"), pointLight.constant);
+		glUniform1f(glGetUniformLocation(objectShader.ID, "pointLight.linear"), pointLight.linear);
+		glUniform1f(glGetUniformLocation(objectShader.ID, "pointLight.quadratic"), pointLight.quadratic);
+	}
+
+	// setting shader uniform for light
+	{
+		lightShader.use();
+		glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
+	}
+
+	lastFrame = (float)glfwGetTime();
 
 	while (!glfwWindowShouldClose(window)) {
-		currentFrame = glfwGetTime();
+		currentFrame = (float)glfwGetTime();
 
 		processInput(window);
 		view = cam->getView();
 
-		glm::vec3 lightCirculation = glm::vec3(glm::cos(currentFrame), glm::sin(currentFrame), glm::cos(currentFrame) * glm::sin(currentFrame));
+		glm::vec3 lightCirculation = glm::vec3(glm::cos(currentFrame), glm::sin(currentFrame), glm::cos(currentFrame) * glm::sin(currentFrame)) * 5.0f;
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glBindVertexArray(vao);
 		objectShader.use();
-		
-		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
+		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "camPos"), 1, glm::value_ptr(cam->getPos()));
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "spotLight.position"), 1, glm::value_ptr(cam->getPos()));
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "spotLight.direction"), 1, glm::value_ptr(cam->getFront()));
-
-		for (size_t i = 0; i < objects.size(); i++) {
-			const auto & obj = objects[i];
-			glm::mat4 model = glm::rotate(glm::scale(glm::translate(glm::mat4(1.0f), obj.position), obj.scale), glm::radians(obj.rotateAngle), obj.rotateAxis);
-			
-			glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
-			for (size_t i = 0; i < pointLights.size(); i++) {
-				const auto & light = pointLights[i];
-				glm::vec3 lightPos = (float)std::pow(-1, i) * lightCirculation + objects[i].position;
-				glUniform3fv(glGetUniformLocation(objectShader.ID, std::string("pointLights[" + std::to_string(i) + "].diffuse").c_str()), 1, glm::value_ptr(light.diffuse));
-				glUniform3fv(glGetUniformLocation(objectShader.ID, std::string("pointLights[" + std::to_string(i) + "].specular").c_str()), 1, glm::value_ptr(light.specular));
-				glUniform3fv(glGetUniformLocation(objectShader.ID, std::string("pointLights[" + std::to_string(i) + "].ambient").c_str()), 1, glm::value_ptr(light.ambient));
-				glUniform3fv(glGetUniformLocation(objectShader.ID, std::string("pointLights[" + std::to_string(i) + "].position").c_str()), 1, glm::value_ptr(lightPos));
-				glUniform1f(glGetUniformLocation(objectShader.ID, std::string("pointLights[" + std::to_string(i) + "].constant").c_str()), light.constant);
-				glUniform1f(glGetUniformLocation(objectShader.ID, std::string("pointLights[" + std::to_string(i) + "].linear").c_str()), light.linear);
-				glUniform1f(glGetUniformLocation(objectShader.ID, std::string("pointLights[" + std::to_string(i) + "].quadratic").c_str()), light.quadratic);
-			}
-
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "pointLight.position"), 1, glm::value_ptr(lightCirculation));
+	
 		glBindVertexArray(lightVao);
+	
 		lightShader.use();
 		glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		for (size_t i = 0; i < pointLights.size(); i++) {
-			glm::mat4 model = glm::rotate(glm::scale(glm::translate(glm::mat4(1.0f), (float)std::pow(-1, i) * lightCirculation + objects[i].position), glm::vec3(0.3f,0.3f,0.3f)), currentFrame, glm::vec3(1.0f, 1.0f, 1.0f));
-			glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+		glm::mat4 model = glm::rotate(glm::scale(glm::translate(glm::mat4(1.0f), lightCirculation), glm::vec3(0.3f, 0.3f, 0.3f)), currentFrame, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
@@ -333,13 +274,11 @@ void testLighting() {
 	glDeleteVertexArrays(1, &vao);
 	glDeleteVertexArrays(1, &lightVao);
 	glDeleteBuffers(1, &vbo);
-	glDeleteTextures(1, &diffuseMap);
-	glDeleteTextures(1, &specularMap);
 
 	glfwTerminate();
 }
 
-void TLighting::processInput(GLFWwindow *window)
+void TModel::processInput(GLFWwindow *window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
@@ -355,6 +294,6 @@ void TLighting::processInput(GLFWwindow *window)
 		cam->processKeyPress(CameraDirection::right, delta);
 }
 
-void TLighting::mouseCallback(GLFWwindow * window, double xpos, double ypos) {
+void TModel::mouseCallback(GLFWwindow * window, double xpos, double ypos) {
 	cam->processMouseMovement(xpos, ypos, currentFrame - lastFrame);
 }
