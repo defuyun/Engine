@@ -1,6 +1,4 @@
 #include "tests.h"
-
-#include "tests.h"
 #include "shader.h"
 #include "stb_image.h"
 #include "logger.h"
