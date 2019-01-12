@@ -3,16 +3,13 @@
 #include "stb_image.h"
 #include "logger.h"
 #include "camera.h"
+#include "model.h"
 
 #include <GL/glew.h>
 #include <GLFW\glfw3.h>
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 #include <vector>
-
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
 
 namespace TModel {
 	void processInput(GLFWwindow *window);
@@ -71,9 +68,6 @@ void testModel() {
 	using namespace TModel;
 	GLFWwindow * window = nullptr;
 
-	Assimp::Importer importer;
-	const aiScene * scene = importer.ReadFile("resources/nanosuit/nanosuit.obj", aiProcess_Triangulate | aiProcess_FlipUVs);
-
 	// initialize sector
 	{
 		if (!glfwInit()) {
@@ -103,95 +97,10 @@ void testModel() {
 		glEnable(GL_DEPTH_TEST);
 	}
 
-	// vertices
-	GLuint vao, vbo, lightVao;
-
 	Shader objectShader("shaders/objectShader.vert", "shaders/objectShader.frag");
-	Shader lightShader("shaders/lightShader.vert", "shaders/lightShader.frag");
-	// binding and interpreting vertices
-	{
-		glGenVertexArrays(1, &vao);
-		glGenBuffers(1, &vbo);
-
-		glBindVertexArray(vao);
-
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-		GLuint posId = glGetAttribLocation(objectShader.ID, "aPos");
-		GLuint normalId = glGetAttribLocation(objectShader.ID, "aNormal");
-		GLuint texCoordId = glGetAttribLocation(objectShader.ID, "aTexCoord");
-
-		glVertexAttribPointer(posId, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)0);
-		glEnableVertexAttribArray(posId);
-
-		glVertexAttribPointer(normalId, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)(sizeof(GLfloat) * 3));
-		glEnableVertexAttribArray(normalId);
-
-		glVertexAttribPointer(texCoordId, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)(sizeof(GLfloat) * 6));
-		glEnableVertexAttribArray(texCoordId);
-
-		glGenVertexArrays(1, &lightVao);
-		glBindVertexArray(lightVao);
-
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-		posId = glGetAttribLocation(lightShader.ID, "aPos");
-		glVertexAttribPointer(posId, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)0);
-		glEnableVertexAttribArray(posId);
-
-		glBindVertexArray(0);
-	}
-
-	// load diffuse map
-	glActiveTexture(GL_TEXTURE0);
-	GLuint diffuseMap;
-	{
-		glGenTextures(1, &diffuseMap);
-		
-		glBindTexture(GL_TEXTURE_2D, diffuseMap);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-		int width, height, nrChannel;
-		auto data = stbi_load("images/rock.jpg", &width, &height, &nrChannel, 0);
-
-		if (data) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			glGenerateMipmap(GL_TEXTURE_2D);
-		}
-
-		stbi_image_free(data);
-	}
-
-	// load specular map
-	glActiveTexture(GL_TEXTURE1);
-	GLuint specularMap;
-	{
-		glGenTextures(1, &specularMap);
-
-		glBindTexture(GL_TEXTURE_2D, specularMap);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-		int width, height, nrChannel;
-		auto data = stbi_load("images/rock.jpg", &width, &height, &nrChannel, 0);
-
-		if (data) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			glGenerateMipmap(GL_TEXTURE_2D);
-		}
-		stbi_image_free(data);
-	}
 
 	glm::vec3 camPos = glm::vec3(0.0f, 1.0f, -1.0f);
-	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)(800) / 640, 0.1f, 100.f);
+	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)(800) / 640, 0.1f, 100.0f);
 	glm::mat4 view;
 
 	cam = new Camera(camPos);
@@ -199,13 +108,16 @@ void testModel() {
 	PointLight pointLight(glm::vec3(0.1f, 0.1f, 0.4f), glm::vec3(0.4f, 0.4f, 0.4f), glm::vec3(0.2f, 0.2f, 0.2f), 1.0f, 0.3f, 0.8f, glm::vec3());
 	DirectionLight directionLight(glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.0f, -1.0f, 0.0f));
 	SpotLight spotLight(glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(0.7f, 0.6f, 0.4f), glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, 0.1f, 0.1f, glm::vec3(), glm::vec3(), glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(30.0f)));
+	
+	Model object("resources/nanosuit/nanosuit.obj");
 
-	// setting shader uniforms for object
+	// setting constant shader uniforms for object
+	objectShader.use();
 	{
-		objectShader.use();
+		glm::mat4 model = glm::rotate(glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 3.0f)), glm::vec3(0.1, 0.1, 0.1)), glm::radians(180.0f), glm::vec3(0.0f,1.0f,.0f));
+		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
-		glUniform1i(glGetUniformLocation(objectShader.ID, "material.diffuse"), 0);
-		glUniform1i(glGetUniformLocation(objectShader.ID, "material.specular"), 1);
+
 		glUniform1f(glGetUniformLocation(objectShader.ID, "material.shininess"), 16.0f);
 
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.diffuse"), 1, glm::value_ptr(directionLight.diffuse));
@@ -222,18 +134,12 @@ void testModel() {
 		glUniform1f(glGetUniformLocation(objectShader.ID, "spotLight.linear"), spotLight.linear);
 		glUniform1f(glGetUniformLocation(objectShader.ID, "spotLight.quadratic"), spotLight.quadratic);
 
-		glUniform3fv(glGetUniformLocation(objectShader.ID, "pointLight.diffuse"), 1, glm::value_ptr(pointLight.diffuse));
-		glUniform3fv(glGetUniformLocation(objectShader.ID, "pointLight.specular"), 1, glm::value_ptr(pointLight.specular));
-		glUniform3fv(glGetUniformLocation(objectShader.ID, "pointLight.ambient"), 1, glm::value_ptr(pointLight.ambient));
-		glUniform1f(glGetUniformLocation(objectShader.ID, "pointLight.constant"), pointLight.constant);
-		glUniform1f(glGetUniformLocation(objectShader.ID, "pointLight.linear"), pointLight.linear);
-		glUniform1f(glGetUniformLocation(objectShader.ID, "pointLight.quadratic"), pointLight.quadratic);
-	}
-
-	// setting shader uniform for light
-	{
-		lightShader.use();
-		glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
+		//glUniform3fv(glGetUniformLocation(objectShader.ID, "pointLight.diffuse"), 1, glm::value_ptr(pointLight.diffuse));
+		//glUniform3fv(glGetUniformLocation(objectShader.ID, "pointLight.specular"), 1, glm::value_ptr(pointLight.specular));
+		//glUniform3fv(glGetUniformLocation(objectShader.ID, "pointLight.ambient"), 1, glm::value_ptr(pointLight.ambient));
+		//glUniform1f(glGetUniformLocation(objectShader.ID, "pointLight.constant"), pointLight.constant);
+		//glUniform1f(glGetUniformLocation(objectShader.ID, "pointLight.linear"), pointLight.linear);
+		//glUniform1f(glGetUniformLocation(objectShader.ID, "pointLight.quadratic"), pointLight.quadratic);
 	}
 
 	lastFrame = (float)glfwGetTime();
@@ -244,36 +150,23 @@ void testModel() {
 		processInput(window);
 		view = cam->getView();
 
-		glm::vec3 lightCirculation = glm::vec3(glm::cos(currentFrame), glm::sin(currentFrame), glm::cos(currentFrame) * glm::sin(currentFrame)) * 5.0f;
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glBindVertexArray(vao);
 		objectShader.use();
 
 		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "camPos"), 1, glm::value_ptr(cam->getPos()));
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "spotLight.position"), 1, glm::value_ptr(cam->getPos()));
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "spotLight.direction"), 1, glm::value_ptr(cam->getFront()));
-		glUniform3fv(glGetUniformLocation(objectShader.ID, "pointLight.position"), 1, glm::value_ptr(lightCirculation));
-	
-		glBindVertexArray(lightVao);
-	
-		lightShader.use();
-		glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glm::mat4 model = glm::rotate(glm::scale(glm::translate(glm::mat4(1.0f), lightCirculation), glm::vec3(0.3f, 0.3f, 0.3f)), currentFrame, glm::vec3(1.0f, 1.0f, 1.0f));
-		glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-	
+		
+		object.draw(objectShader);
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
 		lastFrame = currentFrame;
 	}
-
-	glDeleteVertexArrays(1, &vao);
-	glDeleteVertexArrays(1, &lightVao);
-	glDeleteBuffers(1, &vbo);
 
 	glfwTerminate();
 }
