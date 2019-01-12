@@ -4,6 +4,10 @@ const glm::vec3 & Camera::getPos() const {
 	return this->pos;
 }
 
+const glm::vec3  & Camera::getFront() const {
+	return this->front;
+}
+
 void Camera::processKeyPress(CameraDirection dir, float delta) {
 	if (dir == CameraDirection::front)
 		this->pos += this->front * this->speed * delta;

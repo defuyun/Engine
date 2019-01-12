@@ -41,8 +41,8 @@ public:
 	void processMouseMovement(double xpos, double ypos, float delta);
 
 	const glm::vec3 & getPos() const;
+	const glm::vec3 & getFront() const;
 	glm::mat4 getView() const;
-
 private:
 	void update();
 };
