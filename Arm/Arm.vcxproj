@@ -129,15 +129,15 @@
     <ClCompile Include="tests\model.cpp" />
     <ClCompile Include="tests\run.cpp" />
     <ClCompile Include="tests\testLighting.cpp" />
+    <ClCompile Include="tests\testMisc.cpp" />
     <ClCompile Include="tests\testModel.cpp" />
     <ClCompile Include="tests\testTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="shaders\lightShader.frag" />
-    <None Include="shaders\lightShader.vert" />
-    <None Include="shaders\objectShader.frag" />
-    <None Include="shaders\objectShader.vert" />
+    <None Include="shaders\object.frag" />
+    <None Include="shaders\object.vert" />
+    <None Include="shaders\outline.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="doge\stb_image.h" />
@@ -147,10 +147,6 @@
     <ClInclude Include="tests\model.h" />
     <ClInclude Include="tests\shader.h" />
     <ClInclude Include="tests\tests.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="images\container.jpg" />
-    <Image Include="images\rock.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -28,7 +28,7 @@ public:
 	std::vector<Vertex> vertices;
 	std::vector<Texture> textures;
 	std::vector<GLuint> indices;
-	Mesh(const std::vector<Vertex> & vertices, const std::vector<GLuint> & indices, const std::vector<Texture> & textures) :vertices(vertices), textures(textures), indices(indices) {
+	explicit Mesh(const std::vector<Vertex> & vertices, const std::vector<GLuint> & indices, const std::vector<Texture> & textures) :vertices(vertices), textures(textures), indices(indices) {
 		this->init();
 	}
 
@@ -40,21 +40,28 @@ private:
 
 class Model {
 public:
-	Model(const std::string & filename) :path(filename.substr(0, filename.find_last_of('/'))), filename(filename) {
-		this->loadModel();
+	Model(const std::string & filename) :
+		path(filename.substr(0, filename.find_last_of('/'))),
+		postfix(filename.substr(filename.find_last_of('.') + 1, filename.size())), 
+		filename(filename) {
+		this->load();
 	}
 
 	void draw(const Shader & shader) const;
 private:
+	std::string postfix;
 	std::string path;
 	std::string filename;
 	std::unordered_map<std::string, GLuint> loadedTexture;
 	std::vector<Mesh> meshes;
 
+	void load();
 	void loadModel();
+	void loadFile();
 
 	void processNode(aiNode * node, const aiScene * scene);
 	Mesh processMesh(aiMesh * mesh, const aiScene * scene);
 
 	std::vector<Texture> loadTexture(aiMaterial * materials, aiTextureType type, const std::string & typeName);
+	GLuint loadTextureFromFile(const std::string & filename);
 };

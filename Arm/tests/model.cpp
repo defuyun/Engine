@@ -8,6 +8,59 @@
 
 GLuint loadTextureFromFile(const std::string & path, const std::string & filename);
 
+void Model::load() {
+	if (postfix == "vertices") {
+		loadFile();
+	}
+	else {
+		loadModel();
+	}
+}
+
+void Model::loadFile() {
+	std::ifstream file(filename);
+	std::string line;
+	enum Section {
+		vertices,
+		indices,
+		textures
+	};
+
+	Section current;
+	std::vector<Vertex> vertex;
+	std::vector<GLuint> indice;
+	std::vector<Texture> texture;
+
+	while (std::getline(file, line)) {
+		if (line == "vertices")
+			current = Section::vertices;
+		else if (line == "indices")
+			current = Section::indices;
+		else if (line == "textures")
+			current = Section::textures;
+		else {
+			std::stringstream streamer(line);
+			if (current == Section::textures) {
+				std::string filename, type;
+				streamer >> filename >> type;
+				texture.push_back({loadTextureFromFile(filename), type});
+			}
+			else if (current == Section::indices) {
+				GLuint i;
+				streamer >> i;
+				indice.push_back(i);
+			}
+			else if (current == Section::vertices) {
+				Vertex v;
+				streamer >> v.pos.x >> v.pos.y >> v.pos.z >> v.normal.x >> v.normal.y >> v.normal.z >> v.texCoord.x >> v.texCoord.y;
+				vertex.push_back(v);
+			}
+		}
+	}
+
+	this->meshes.push_back(Mesh(vertex,indice,texture));
+}
+
 void Model::loadModel() {
 	Assimp::Importer importer;
 	
@@ -62,7 +115,16 @@ Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene) {
 	auto specularTextures = loadTexture(materials, aiTextureType_SPECULAR, "specular");
 	textures.insert(textures.end(),specularTextures.begin(),specularTextures.end());
 	
-	return { vertex, indices, textures };
+	return Mesh{ vertex, indices, textures };
+}
+
+GLuint Model::loadTextureFromFile(const std::string & filename) {
+	if (this->loadedTexture.count(filename.c_str())) {
+		return loadedTexture[filename];
+	}
+	else {
+		return loadedTexture[filename] = ::loadTextureFromFile(path, filename);
+	}
 }
 
 std::vector<Texture> Model::loadTexture(aiMaterial * materials, aiTextureType type, const std::string & typeName) {
@@ -70,17 +132,18 @@ std::vector<Texture> Model::loadTexture(aiMaterial * materials, aiTextureType ty
 	for (auto i = 0u; i < materials->GetTextureCount(type); i++) {
 		aiString filename;
 		materials->GetTexture(type, i, &filename);
-
-		if (this->loadedTexture.count(filename.C_Str())) {
-			textures.push_back({ loadedTexture[filename.C_Str()], typeName});
-		} else {
-			GLuint textureId = loadTextureFromFile(path, filename.C_Str());
-			textures.push_back({ textureId, typeName });
-			loadedTexture[filename.C_Str()] = textureId;
-		}
+		
+		GLuint textureId = this->loadTextureFromFile(filename.C_Str());
+		textures.push_back({ textureId, typeName });
 	}
 
 	return textures;
+}
+
+void Model::draw(const Shader & shader) const {
+	for (const auto & mesh : meshes) {
+		mesh.draw(shader);
+	}
 }
 
 void Mesh::init() {
@@ -135,12 +198,6 @@ void Mesh::draw(const Shader & shader) const {
 	glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	glActiveTexture(0);
-}
-
-void Model::draw(const Shader & shader) const {
-	for (const auto & mesh : meshes) {
-		mesh.draw(shader);
-	}
 }
 
 GLuint loadTextureFromFile(const std::string & path, const std::string & filename) {
