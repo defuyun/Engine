@@ -1,23 +1,24 @@
-#include "model.h"
+#include "Scene.h"
 #include "logger.h"
 #include "stb_image.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <glm\gtc\matrix_transform.hpp>
 
 GLuint loadTextureFromFile(const std::string & path, const std::string & filename);
 
-void Model::load() {
+void Scene::load() {
 	if (postfix == "vertices") {
 		loadFile();
 	}
 	else {
-		loadModel();
+		loadScene();
 	}
 }
 
-void Model::loadFile() {
+void Scene::loadFile() {
 	std::ifstream file(filename);
 	std::string line;
 	enum Section {
@@ -58,10 +59,12 @@ void Model::loadFile() {
 		}
 	}
 
-	this->meshes.push_back(Mesh(vertex,indice,texture));
+	auto ptr = std::make_shared<Object>(filename);
+
+	this->objects.push_back(ptr);
 }
 
-void Model::loadModel() {
+void Scene::loadScene() {
 	Assimp::Importer importer;
 	
 	const auto * scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -72,21 +75,30 @@ void Model::loadModel() {
 		return;
 	}
 
-	processNode(scene->mRootNode, scene);
+	processNode(nullptr, scene->mRootNode, scene);
 }
 
-void Model::processNode(aiNode * node, const aiScene * scene) {
+void Scene::processNode(const std::shared_ptr<Object> & parent, aiNode * node, const aiScene * scene) {
+	auto ptr = std::make_shared<Object>(node->mName.C_Str());
 	for (auto i = 0u; i < node->mNumMeshes; i++) {
 		auto mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(processMesh(mesh, scene));
+		ptr->addMesh(processMesh(mesh, scene));
+	}
+
+
+	if (parent == nullptr) {
+		objects.push_back(ptr);
+	}
+	else {
+		parent->addChild(ptr);
 	}
 
 	for (auto i = 0u; i < node->mNumChildren; i++) {
-		processNode(node->mChildren[i], scene);
+		processNode(ptr, node->mChildren[i], scene);
 	}
 }
 
-Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene) {
+Mesh Scene::processMesh(aiMesh * mesh, const aiScene * scene) {
 	std::vector<Vertex> vertex;
 	for (auto i = 0u; i < mesh->mNumVertices; i++) {
 		glm::vec3 position{ mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z };
@@ -118,7 +130,7 @@ Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene) {
 	return Mesh{ vertex, indices, textures };
 }
 
-GLuint Model::loadTextureFromFile(const std::string & filename) {
+GLuint Scene::loadTextureFromFile(const std::string & filename) {
 	if (this->loadedTexture.count(filename.c_str())) {
 		return loadedTexture[filename];
 	}
@@ -127,7 +139,7 @@ GLuint Model::loadTextureFromFile(const std::string & filename) {
 	}
 }
 
-std::vector<Texture> Model::loadTexture(aiMaterial * materials, aiTextureType type, const std::string & typeName) {
+std::vector<Texture> Scene::loadTexture(aiMaterial * materials, aiTextureType type, const std::string & typeName) {
 	std::vector<Texture> textures;
 	for (auto i = 0u; i < materials->GetTextureCount(type); i++) {
 		aiString filename;
@@ -140,9 +152,22 @@ std::vector<Texture> Model::loadTexture(aiMaterial * materials, aiTextureType ty
 	return textures;
 }
 
-void Model::draw(const Shader & shader) const {
+void Scene::draw(const Shader & shader) const {
+	for (const auto & object : objects) {
+		object->draw(shader);
+	}
+}
+
+void Object::draw(const Shader & shader, const glm::mat4 & parentModel) const {
+	shader.use();
+	glm::mat4 model = glm::rotate(glm::scale(glm::translate(glm::mat4(1.0f), this->model.translate), this->model.scale),glm::radians(this->model.rotate.angle), this->model.rotate.axis) * parentModel;
+	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 	for (const auto & mesh : meshes) {
 		mesh.draw(shader);
+	}
+
+	for (const auto & child : children) {
+		child->draw(shader, model);
 	}
 }
 

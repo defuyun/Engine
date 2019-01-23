@@ -24,14 +24,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="tests\run.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\testTexture.cpp">
-      <Filter>Source Files\tests</Filter>
     </ClCompile>
     <ClCompile Include="tests\logger.cpp">
       <Filter>Source Files\tests</Filter>
@@ -39,38 +33,23 @@
     <ClCompile Include="tests\camera.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
-    <ClCompile Include="tests\testLighting.cpp">
+    <ClCompile Include="tests\robot.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
-    <ClCompile Include="tests\testModel.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\model.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\testMisc.cpp">
+    <ClCompile Include="tests\scene.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="shaders\outline.frag">
+    <None Include="shaders\robot.vert">
       <Filter>Resource Files\shaders</Filter>
     </None>
-    <None Include="shaders\object.vert">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="shaders\object.frag">
+    <None Include="shaders\robot.frag">
       <Filter>Resource Files\shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tests\tests.h">
-      <Filter>Header Files\tests</Filter>
-    </ClInclude>
-    <ClInclude Include="header.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="doge\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -80,10 +59,13 @@
     <ClInclude Include="tests\camera.h">
       <Filter>Header Files\tests</Filter>
     </ClInclude>
-    <ClInclude Include="tests\model.h">
+    <ClInclude Include="tests\shader.h">
       <Filter>Header Files\tests</Filter>
     </ClInclude>
-    <ClInclude Include="tests\shader.h">
+    <ClInclude Include="tests\robot.h">
+      <Filter>Header Files\tests</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\scene.h">
       <Filter>Header Files\tests</Filter>
     </ClInclude>
   </ItemGroup>

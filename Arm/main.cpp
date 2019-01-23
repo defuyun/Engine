@@ -1,7 +1,6 @@
-#include "tests/tests.h"
+#include "tests/robot.h"
 
 int main() {
 	run();
-	// tools::customGen();
 }
 

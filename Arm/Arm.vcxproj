@@ -126,27 +126,21 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="tests\camera.cpp" />
     <ClCompile Include="tests\logger.cpp" />
-    <ClCompile Include="tests\model.cpp" />
-    <ClCompile Include="tests\run.cpp" />
-    <ClCompile Include="tests\testLighting.cpp" />
-    <ClCompile Include="tests\testMisc.cpp" />
-    <ClCompile Include="tests\testModel.cpp" />
-    <ClCompile Include="tests\testTexture.cpp" />
+    <ClCompile Include="tests\scene.cpp" />
+    <ClCompile Include="tests\robot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="shaders\object.frag" />
-    <None Include="shaders\object.vert" />
-    <None Include="shaders\outline.frag" />
+    <None Include="shaders\robot.frag" />
+    <None Include="shaders\robot.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="doge\stb_image.h" />
-    <ClInclude Include="header.h" />
     <ClInclude Include="tests\camera.h" />
     <ClInclude Include="tests\logger.h" />
-    <ClInclude Include="tests\model.h" />
+    <ClInclude Include="tests\scene.h" />
+    <ClInclude Include="tests\robot.h" />
     <ClInclude Include="tests\shader.h" />
-    <ClInclude Include="tests\tests.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
