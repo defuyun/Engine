@@ -1,4 +1,5 @@
 #include "camera.h"
+#include <iostream>
 
 const glm::vec3 & Camera::getPos() const {
 	return this->pos;
@@ -17,6 +18,12 @@ void Camera::processKeyPress(CameraDirection dir, float delta) {
 		this->pos += glm::normalize(glm::cross(this->up, this->front)) * this->speed * delta;
 	else if (dir == CameraDirection::right)
 		this->pos -= glm::normalize(glm::cross(this->up, this->front)) * this->speed * delta;
+
+	// std::cout << "Cam Pos: [" << this->pos.x << ',' << this->pos.y <<  ',' << this->pos.z << "]\n";
+}
+
+void Camera::reset() {
+	this->firstMouse = true;
 }
 
 void Camera::processMouseMovement(double xpos, double ypos, float delta) {
@@ -38,6 +45,7 @@ void Camera::processMouseMovement(double xpos, double ypos, float delta) {
 	if (pitch > 89.0f)
 		pitch = 89.0f;
 		
+	// std::cout << this->yaw << ", " << this->pitch << "\n";
 	update();
 	
 	lastX = xpos;

@@ -15,12 +15,19 @@
 namespace TRobot {
 	void processInput(GLFWwindow *window);
 	void mouseCallback(GLFWwindow * window, double xpos, double ypos);
+	void mouseButtonCallback(GLFWwindow * window, int button, int action, int mod);
+	void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 	
 	bool keyPress[256] = { false };
 
 	float currentFrame = 0.0f;
 	float lastFrame = 0.0f;
 	float delta = 0.0f;
+
+	const int width = 1200;
+	const int height = 780;
+
+	GLFWwindow * window;
 
 	const float rotationBound[TOTAL_ARMS][2] = {
 		-5.0f, 45.0f,
@@ -29,8 +36,10 @@ namespace TRobot {
 		-40.0f, 5.0f
 	};
 
-	Camera * cam = nullptr;
-	Robot * robot = nullptr;
+	std::unique_ptr<Camera> cam;
+	std::shared_ptr<Robot> robot;
+
+	bool activateCursor = false;
 
 	struct Light {
 		Light(const glm::vec3 & diffuse, const glm::vec3 & specular, const glm::vec3 & ambient) : diffuse(diffuse), specular(specular), ambient(ambient) {}
@@ -65,10 +74,6 @@ namespace TRobot {
 		float innerCutOff;
 		float outerCutOff;
 	};
-}
-
-Robot::Robot(const std::shared_ptr<Object> & root) {
-	this->root = this->constructHierarchy(root);
 }
 
 std::string getNormalizeName(const std::string & name) {
@@ -140,6 +145,71 @@ std::shared_ptr<Object> Robot::constructHierarchy(const std::shared_ptr<Object> 
 	return base;
 }
 
+void Robot::init() {
+	using namespace TRobot;
+	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)(width) / height, 0.1f, 100.0f);
+	
+	TRobot::DirectionLight directionLight(glm::vec3(0.5f), glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(0.0f, -1.0f, -3.0f));
+	// setting constant shader uniforms for object
+	objectShader.use();
+	{
+		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
+		glUniform1f(glGetUniformLocation(objectShader.ID, "material.shininess"), 16);
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "material.diffuse"), 1, glm::value_ptr(glm::vec3(0.3f, 0.4f, 0.5f)));
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "material.specular"), 1, glm::value_ptr(glm::vec3(0.2f, 0.3f, 0.5f)));
+
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.diffuse"), 1, glm::value_ptr(directionLight.diffuse));
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.specular"), 1, glm::value_ptr(directionLight.specular));
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.ambient"), 1, glm::value_ptr(directionLight.ambient));
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.direction"), 1, glm::value_ptr(directionLight.direction));
+	}
+	wireShader.use();
+	{
+		glUniformMatrix4fv(glGetUniformLocation(wireShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+		glUniformMatrix4fv(glGetUniformLocation(wireShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
+	}
+}
+
+void Program::init() {
+	using namespace TRobot;
+
+	glm::vec3 camPos = glm::vec3(6.0f, 8.0f, 4.0f);
+	cam = std::make_unique<Camera>(camPos);
+
+	if (!glfwInit()) {
+		Logger->log("[ENG] Can't init glfw\n");
+	}
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	window = glfwCreateWindow(width,height, "texture", NULL, NULL);
+
+	if (!window) {
+		Logger->log("failed to create window\n");
+	}
+
+	glfwMakeContextCurrent(window);
+
+	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+	glfwSetInputMode(window, GLFW_CURSOR,GLFW_CURSOR_NORMAL);
+	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+	glfwSetMouseButtonCallback(window, mouseButtonCallback);
+	glfwSetCursorPosCallback(window, mouseCallback);
+
+	glewExperimental = GL_TRUE;
+	if (glewInit() != GLEW_OK) {
+		Logger->log("[ENG] Can't initialize glew\n");
+	}
+
+	glEnable(GL_DEPTH_TEST);
+
+	Scene object("resources/robot/robot.obj");
+	TRobot::robot = std::make_shared<Robot>(object.objects[0]);
+	this->robot = TRobot::robot;
+}
+
 void Robot::moveArm(float displacement) {
 	bool validMove = false;
 	for (int i = 0; i < TOTAL_ARMS; i++) {
@@ -158,7 +228,7 @@ void Robot::moveArm(float displacement) {
 	}
 }
 
-void Robot::rotateClutch(float angle, float speed) {
+void Robot::rotateClutch(float angle) {
 	bool validMove = false;
 	for (int i = 0; i < TOTAL_ARMS; i++) {
 		if (this->active[i]) {
@@ -234,104 +304,39 @@ bool Robot::sanityCheck(Operation op, int id, float value) {
 	return true;
 }
 
-void Robot::draw(const Shader & objShader, const Shader & wireShader) const {
-	this->root->draw(objShader);
+void Robot::draw() const {
+	this->root->draw(objectShader);
 	this->wire->draw(wireShader);
 }
 
-void run() {
+void Program::close() {
 	using namespace TRobot;
-	GLFWwindow * window = nullptr;
-	const int width = 1200;
-	const int height = 780;
+	glfwSetWindowShouldClose(window, true);
+}
 
-	const int frameBWidth = 100;
-	const int frameBHeight = 100;
+void Program::run() {
+	using namespace TRobot;
 
-	// initialize sector
-	{
-		if (!glfwInit()) {
-			Logger->log("[ENG] Can't init glfw\n");
-		}
-
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		window = glfwCreateWindow(width,height, "texture", NULL, NULL);
-
-		if (!window) {
-			Logger->log("failed to create window\n");
-		}
-
-		glfwMakeContextCurrent(window);
-
-		glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		glfwSetCursorPosCallback(window, mouseCallback);
-
-		glewExperimental = GL_TRUE;
-		if (glewInit() != GLEW_OK) {
-			Logger->log("[ENG] Can't initialize glew\n");
-		}
-
-		glEnable(GL_DEPTH_TEST);
-	}
-
-
-	glm::vec3 camPos = glm::vec3(0.0f, 5.0f, 7.0f);
-	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)(width) / height, 0.1f, 100.0f);
-	glm::mat4 view;
-
-	cam = new Camera(camPos);
-
-	Shader objectShader("shaders/robot.vert", "shaders/robot.frag");
-	Shader wireShader("shaders/robot.vert", "shaders/wire.frag");
-	
-	Scene object("resources/robot/robot.obj");
-
-	Robot temp(object.objects[0]);
-	robot = &temp;
-
-	DirectionLight directionLight(glm::vec3(0.5f), glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(0.0f, -1.0f, -3.0f));
-	// setting constant shader uniforms for object
-	objectShader.use();
-	{
-		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
-		glUniform1f(glGetUniformLocation(objectShader.ID, "material.shininess"), 16);
-		glUniform3fv(glGetUniformLocation(objectShader.ID, "material.diffuse"), 1, glm::value_ptr(glm::vec3(0.3f, 0.4f, 0.5f)));
-		glUniform3fv(glGetUniformLocation(objectShader.ID, "material.specular"), 1, glm::value_ptr(glm::vec3(0.2f, 0.3f, 0.5f)));
-
-		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.diffuse"), 1, glm::value_ptr(directionLight.diffuse));
-		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.specular"), 1, glm::value_ptr(directionLight.specular));
-		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.ambient"), 1, glm::value_ptr(directionLight.ambient));
-		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.direction"), 1, glm::value_ptr(directionLight.direction));
-	}
-	wireShader.use();
-	{
-		glUniformMatrix4fv(glGetUniformLocation(wireShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-		glUniformMatrix4fv(glGetUniformLocation(wireShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
-	}
 	lastFrame = (float)glfwGetTime();
 
 	while (!glfwWindowShouldClose(window)) {
 		currentFrame = (float)glfwGetTime();
 		delta = currentFrame - lastFrame;
 		processInput(window);
-		view = cam->getView();
+		glm::mat4 view = cam->getView();
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		objectShader.use();
+		robot->objectShader.use();
 
-		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniform3fv(glGetUniformLocation(objectShader.ID, "camPos"), 1, glm::value_ptr(cam->getPos()));
+		glUniformMatrix4fv(glGetUniformLocation(robot->objectShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniform3fv(glGetUniformLocation(robot->objectShader.ID, "camPos"), 1, glm::value_ptr(cam->getPos()));
 
-		wireShader.use();
-		glUniformMatrix4fv(glGetUniformLocation(wireShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		robot->wireShader.use();
+		glUniformMatrix4fv(glGetUniformLocation(robot->wireShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-		robot->draw(objectShader, wireShader);
+		robot->draw();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -343,26 +348,29 @@ void run() {
 
 void TRobot::processInput(GLFWwindow *window)
 {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
-
+	}
 	float delta = currentFrame - lastFrame;
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		cam->processKeyPress(CameraDirection::front, delta);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		cam->processKeyPress(CameraDirection::back, delta);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		cam->processKeyPress(CameraDirection::left, delta);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		cam->processKeyPress(CameraDirection::right, delta);
+	if (TRobot::activateCursor) {
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			cam->processKeyPress(CameraDirection::front, delta);
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			cam->processKeyPress(CameraDirection::back, delta);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			cam->processKeyPress(CameraDirection::left, delta);
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			cam->processKeyPress(CameraDirection::right, delta);
+	}
+
 	if (glfwGetKey(window, GLFW_KEY_KP_8) == GLFW_PRESS)
 		robot->moveArm(0.1f * delta);
 	if (glfwGetKey(window, GLFW_KEY_KP_5) == GLFW_PRESS)
 		robot->moveArm(-0.1f * delta);
 	if (glfwGetKey(window, GLFW_KEY_KP_6) == GLFW_PRESS)
-		robot->rotateClutch(10 * delta, 0.1 * delta);
+		robot->rotateClutch(10 * delta);
 	if (glfwGetKey(window, GLFW_KEY_KP_4) == GLFW_PRESS)
-		robot->rotateClutch(-10 * delta, -0.1 * delta);
+		robot->rotateClutch(-10 * delta);
 	if (glfwGetKey(window, GLFW_KEY_KP_7) == GLFW_PRESS)
 		robot->moveClutch(0.05f * delta);
 	if (glfwGetKey(window, GLFW_KEY_KP_9) == GLFW_PRESS)
@@ -397,5 +405,17 @@ void TRobot::processInput(GLFWwindow *window)
 }
 
 void TRobot::mouseCallback(GLFWwindow * window, double xpos, double ypos) {
-	cam->processMouseMovement(xpos, ypos, currentFrame - lastFrame);
+	if (activateCursor)
+		cam->processMouseMovement(xpos, ypos, currentFrame - lastFrame);
+}
+void TRobot::mouseButtonCallback(GLFWwindow * window, int button, int action, int mod) {
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+		!activateCursor ? glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED) : glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		activateCursor = !activateCursor;
+		cam->reset();
+	}
+}
+
+void TRobot::framebufferSizeCallback(GLFWwindow* window, int width, int height) {
+	glViewport(0, 0, width, height);
 }

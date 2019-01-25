@@ -1,6 +1,8 @@
 #include "tests/robot.h"
+#include <thread>
 
 int main() {
-	run();
+	Program program;
+	program.run();
 }
 

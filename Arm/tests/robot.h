@@ -3,6 +3,7 @@
 #include <glm\gtc\type_ptr.hpp>
 #include "scene.h"
 #include "shader.h"
+#include <functional>
 
 constexpr short TOTAL_ARMS = 4;
 
@@ -26,14 +27,31 @@ private:
 	
 	bool wireClutched[TOTAL_ARMS] = { false };
 	std::shared_ptr<Object> constructHierarchy(const std::shared_ptr<Object> & root);
+	void init();
 public:
-	Robot(const std::shared_ptr<Object> & object);
+	Shader objectShader, wireShader;
+	Robot(const std::shared_ptr<Object> & root): objectShader("shaders/robot.vert", "shaders/robot.frag"), wireShader("shaders/robot.vert", "shaders/wire.frag") {
+		this->root = this->constructHierarchy(root);
+		this->init();
+	}
 
 	void moveArm(float displacement);
-	void rotateClutch(float angle, float speed);
+	void rotateClutch(float angle);
 	void moveClutch(float displacement);
 	void toggleArm(int id);
-	void draw(const Shader & objshader, const Shader & wireShader) const;
+	void draw() const;
 };
 
-void run();
+class Program {
+private:
+	void init();
+public:
+	std::shared_ptr<Robot> robot;
+	Program() {
+		this->init();
+	}
+
+	void registerControl(const std::function<void()> & fn);
+	void run();
+	void close();
+};

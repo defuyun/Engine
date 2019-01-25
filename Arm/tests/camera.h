@@ -3,8 +3,8 @@
 #include<glm\gtc\type_ptr.hpp>
 #include<glm\gtc\matrix_transform.hpp>
 
-const float YAW = -90.0f;
-const float PITCH = -45.0f;
+const float YAW = -151.0f;
+const float PITCH = -43.0f;
 const float SPEED = 2.5f;
 const float SENSITIVITY = 25.0f;
 
@@ -39,6 +39,7 @@ public:
 
 	void processKeyPress(CameraDirection dir, float delta);
 	void processMouseMovement(double xpos, double ypos, float delta);
+	void reset();
 
 	const glm::vec3 & getPos() const;
 	const glm::vec3 & getFront() const;
