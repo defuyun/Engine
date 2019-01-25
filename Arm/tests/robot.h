@@ -18,16 +18,22 @@ private:
 	std::shared_ptr<Object> rotateUnit[TOTAL_ARMS];
 	Clutch clutchUnit[TOTAL_ARMS];
 
+	std::shared_ptr<Object> wire;
+
 	bool active[TOTAL_ARMS] = { false };
+	enum Operation {MOVE_ARM, ROTATE_CLUTCH, MOVE_CLUTCH, TOGGLE};
+	bool sanityCheck(Operation op, int id, float value);
+	
+	bool wireClutched[TOTAL_ARMS] = { false };
+	std::shared_ptr<Object> constructHierarchy(const std::shared_ptr<Object> & root);
 public:
 	Robot(const std::shared_ptr<Object> & object);
-	std::shared_ptr<Object> constructHierarchy(const std::shared_ptr<Object> & root);
 
 	void moveArm(float displacement);
-	void rotateClutch(float angle);
+	void rotateClutch(float angle, float speed);
 	void moveClutch(float displacement);
 	void toggleArm(int id);
-	void draw(const Shader & shader) const;
+	void draw(const Shader & objshader, const Shader & wireShader) const;
 };
 
 void run();

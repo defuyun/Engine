@@ -133,6 +133,8 @@
     <None Include="packages.config" />
     <None Include="shaders\robot.frag" />
     <None Include="shaders\robot.vert" />
+    <None Include="shaders\wire.frag" />
+    <None Include="shaders\wire.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="doge\stb_image.h" />

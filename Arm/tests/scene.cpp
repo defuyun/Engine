@@ -67,7 +67,7 @@ void Scene::loadFile() {
 void Scene::loadScene() {
 	Assimp::Importer importer;
 	
-	const auto * scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs);
+	const auto * scene = importer.ReadFile(filename, aiProcess_Triangulate);
 	
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -160,7 +160,7 @@ void Scene::draw(const Shader & shader) const {
 
 void Object::draw(const Shader & shader, const glm::mat4 & parentModel) const {
 	shader.use();
-	glm::mat4 model = glm::rotate(glm::scale(glm::translate(glm::mat4(1.0f), this->model.translate), this->model.scale),glm::radians(this->model.rotate.angle), this->model.rotate.axis) * parentModel;
+	glm::mat4 model = parentModel * glm::rotate(glm::scale(glm::translate(glm::mat4(1.0f), this->model.translate), this->model.scale), glm::radians(this->model.rotate.angle), this->model.rotate.axis);
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 	for (const auto & mesh : meshes) {
 		mesh.draw(shader);

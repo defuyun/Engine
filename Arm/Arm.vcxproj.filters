@@ -48,6 +48,12 @@
     <None Include="shaders\robot.frag">
       <Filter>Resource Files\shaders</Filter>
     </None>
+    <None Include="shaders\wire.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\wire.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="doge\stb_image.h">
