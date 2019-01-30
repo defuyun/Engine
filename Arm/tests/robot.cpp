@@ -171,44 +171,6 @@ void Robot::init() {
 	}
 }
 
-void Program::init() {
-	using namespace TRobot;
-
-	glm::vec3 camPos = glm::vec3(6.0f, 8.0f, 4.0f);
-	cam = std::make_unique<Camera>(camPos);
-
-	if (!glfwInit()) {
-		Logger->log("[ENG] Can't init glfw\n");
-	}
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	window = glfwCreateWindow(width,height, "texture", NULL, NULL);
-
-	if (!window) {
-		Logger->log("failed to create window\n");
-	}
-
-	glfwMakeContextCurrent(window);
-
-	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-	glfwSetInputMode(window, GLFW_CURSOR,GLFW_CURSOR_NORMAL);
-	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
-	glfwSetMouseButtonCallback(window, mouseButtonCallback);
-	glfwSetCursorPosCallback(window, mouseCallback);
-
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK) {
-		Logger->log("[ENG] Can't initialize glew\n");
-	}
-
-	glEnable(GL_DEPTH_TEST);
-
-	Scene object("resources/robot/robot.obj");
-	TRobot::robot = std::make_shared<Robot>(object.objects[0]);
-	this->robot = TRobot::robot;
-}
 
 void Robot::moveArm(float displacement) {
 	bool validMove = false;
@@ -314,10 +276,51 @@ void Program::close() {
 	glfwSetWindowShouldClose(window, true);
 }
 
+void Program::init() {
+	using namespace TRobot;
+
+	glm::vec3 camPos = glm::vec3(6.0f, 8.0f, 4.0f);
+	cam = std::make_unique<Camera>(camPos);
+
+	if (!glfwInit()) {
+		Logger->log("[ENG] Can't init glfw\n");
+	}
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	window = glfwCreateWindow(width,height, "texture", NULL, NULL);
+
+	if (!window) {
+		Logger->log("failed to create window\n");
+	}
+
+	glfwMakeContextCurrent(window);
+
+	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+	glfwSetInputMode(window, GLFW_CURSOR,GLFW_CURSOR_NORMAL);
+	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+	glfwSetMouseButtonCallback(window, mouseButtonCallback);
+	glfwSetCursorPosCallback(window, mouseCallback);
+
+	glewExperimental = GL_TRUE;
+	if (glewInit() != GLEW_OK) {
+		Logger->log("[ENG] Can't initialize glew\n");
+	}
+
+	glEnable(GL_DEPTH_TEST);
+
+	Scene object("resources/robot/robot.obj");
+	TRobot::robot = std::make_shared<Robot>(object.objects[0]);
+	this->robot = TRobot::robot;
+}
+
 void Program::run() {
 	using namespace TRobot;
 
 	lastFrame = (float)glfwGetTime();
+	const Shader & objectShader = robot->objectShader;
+	const Shader & wireShader = robot->wireShader;
 
 	while (!glfwWindowShouldClose(window)) {
 		currentFrame = (float)glfwGetTime();
@@ -328,13 +331,13 @@ void Program::run() {
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		robot->objectShader.use();
+		objectShader.use();
 
-		glUniformMatrix4fv(glGetUniformLocation(robot->objectShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniform3fv(glGetUniformLocation(robot->objectShader.ID, "camPos"), 1, glm::value_ptr(cam->getPos()));
+		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniform3fv(glGetUniformLocation(objectShader.ID, "camPos"), 1, glm::value_ptr(cam->getPos()));
 
-		robot->wireShader.use();
-		glUniformMatrix4fv(glGetUniformLocation(robot->wireShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		wireShader.use();
+		glUniformMatrix4fv(glGetUniformLocation(wireShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
 		robot->draw();
 
