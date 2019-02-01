@@ -95,9 +95,11 @@ void testMisc() {
 		}
 
 		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_STENCIL_TEST);
 	}
 
-	Shader objectShader("shaders/object.vert", "shaders/depth.frag");
+	Shader objectShader("shaders/object.vert", "shaders/object.frag");
+	Shader outlineShader("shaders/outline.vert", "shaders/outline.frag");
 
 	glm::vec3 camPos = glm::vec3(0.0f, 2.0f, -2.0f);
 	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)(800) / 640, 0.1f, 100.0f);
@@ -106,13 +108,17 @@ void testMisc() {
 	cam = new Camera(camPos);
 
 	DirectionLight directionLight(
-		glm::vec3(0.6f, 0.6f, 0.8f), // diffuse
-		glm::vec3(0.5f, 0.5f, 0.5f), // specular
-		glm::vec3(0.3f, 0.1f, 0.1f), // ambient
+		glm::vec3(0.3f, 0.3f, 0.5f), // diffuse
+		glm::vec3(0.2f, 0.2f, 0.5f), // specular
+		glm::vec3(0.2f, 0.2f, 0.5f), // ambient
 		glm::vec3(0.0f, -1.0f, -1.0f) // direction
 	);
 	
-	Model object("resources/box/box.vertices");
+	Model box("resources/box/box.vertices");
+	Model plane("resources/box/plane.vertices");
+	Model nanosuit("resources/nanosuit/nanosuit.obj");
+
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 	// setting constant shader uniforms for object
 	objectShader.use();
@@ -125,6 +131,11 @@ void testMisc() {
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.direction"), 1, glm::value_ptr(directionLight.direction));
 	}
 
+	outlineShader.use();
+	{
+		glUniformMatrix4fv(glGetUniformLocation(outlineShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
+	}
+
 	lastFrame = (float)glfwGetTime();
 
 	while (!glfwWindowShouldClose(window)) {
@@ -134,24 +145,49 @@ void testMisc() {
 		view = cam->getView();
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	
+		objectShader.use(); 
+		{
+			glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+			glUniform3fv(glGetUniformLocation(objectShader.ID, "camPos"), 1, glm::value_ptr(cam->getPos()));
+		}
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilMask(0xFF);
+
+		glm::mat4 model = glm::mat4(1.0f);
+
+		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		box.draw(objectShader);
+
+		glm::mat4 b1Pos = glm::translate(model, glm::vec3(3.0, 0.0f, 3.0f));
+		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(b1Pos));
+		box.draw(objectShader);
+	
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilMask(0x00);
 
 		objectShader.use();
+		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0,-0.5f,0.0f)), glm::vec3(50.0f,0.0f, 50.0f))));
+		glUniform1f(glGetUniformLocation(objectShader.ID, "material.shininess"), 2.0f);
+		plane.draw(objectShader);
 
-		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniform3fv(glGetUniformLocation(objectShader.ID, "camPos"), 1, glm::value_ptr(cam->getPos()));
-		
-		object.draw(objectShader);
+		glDisable(GL_DEPTH_TEST);
+		outlineShader.use();
+		{
+			glUniformMatrix4fv(glGetUniformLocation(outlineShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		}
 
-		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::translate(glm::mat4(1.0f), glm::vec3(1.0f,0.0f, 3.0f))));
-		object.draw(objectShader);
+		glm::mat4 b1PosScale = glm::scale(b1Pos, glm::vec3(1.1f, 1.1f, 1.1f));
+		glUniformMatrix4fv(glGetUniformLocation(outlineShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(b1PosScale));
+		box.draw(outlineShader);
 
-		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::translate(glm::mat4(1.0f), glm::vec3(1.0f,0.0f, 13.0f))));
-		object.draw(objectShader);
+		glm::mat4 modelScale = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.1f));
+		glUniformMatrix4fv(glGetUniformLocation(outlineShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelScale));
+		box.draw(outlineShader);
+		glEnable(GL_DEPTH_TEST);
 
-		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::translate(glm::mat4(1.0f), glm::vec3(1.0f,0.0f, 70.0f))));
-		object.draw(objectShader);
+		glStencilMask(0xFF);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

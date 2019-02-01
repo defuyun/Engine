@@ -66,6 +66,9 @@
     <None Include="shaders\depth.frag">
       <Filter>Resource Files\shaders</Filter>
     </None>
+    <None Include="shaders\outline.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tests\tests.h">
