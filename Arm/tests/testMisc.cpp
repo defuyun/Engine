@@ -97,50 +97,32 @@ void testMisc() {
 		glEnable(GL_DEPTH_TEST);
 	}
 
-	Shader objectShader("shaders/object.vert", "shaders/object.frag");
-	Shader outlineShader("shaders/object.vert", "shaders/outline.frag");
+	Shader objectShader("shaders/object.vert", "shaders/depth.frag");
 
-	glm::vec3 camPos = glm::vec3(0.0f, 1.0f, -1.0f);
+	glm::vec3 camPos = glm::vec3(0.0f, 2.0f, -2.0f);
 	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)(800) / 640, 0.1f, 100.0f);
 	glm::mat4 view;
 
 	cam = new Camera(camPos);
 
-	PointLight pointLight(glm::vec3(0.1f, 0.1f, 0.4f), glm::vec3(0.4f, 0.4f, 0.4f), glm::vec3(0.2f, 0.2f, 0.2f), 1.0f, 0.3f, 0.8f, glm::vec3());
-	DirectionLight directionLight(glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.0f, -1.0f, 0.0f));
-	SpotLight spotLight(glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(0.7f, 0.6f, 0.4f), glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, 0.1f, 0.1f, glm::vec3(), glm::vec3(), glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(30.0f)));
+	DirectionLight directionLight(
+		glm::vec3(0.6f, 0.6f, 0.8f), // diffuse
+		glm::vec3(0.5f, 0.5f, 0.5f), // specular
+		glm::vec3(0.3f, 0.1f, 0.1f), // ambient
+		glm::vec3(0.0f, -1.0f, -1.0f) // direction
+	);
 	
 	Model object("resources/box/box.vertices");
 
 	// setting constant shader uniforms for object
 	objectShader.use();
 	{
-		glm::mat4 model = glm::rotate(glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 3.0f)), glm::vec3(0.1, 0.1, 0.1)), glm::radians(180.0f), glm::vec3(0.0f,1.0f,.0f));
-		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
-
 		glUniform1f(glGetUniformLocation(objectShader.ID, "material.shininess"), 16.0f);
-
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.diffuse"), 1, glm::value_ptr(directionLight.diffuse));
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.specular"), 1, glm::value_ptr(directionLight.specular));
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.ambient"), 1, glm::value_ptr(directionLight.ambient));
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.direction"), 1, glm::value_ptr(directionLight.direction));
-
-		glUniform3fv(glGetUniformLocation(objectShader.ID, "spotLight.diffuse"), 1, glm::value_ptr(spotLight.diffuse));
-		glUniform3fv(glGetUniformLocation(objectShader.ID, "spotLight.specular"), 1, glm::value_ptr(spotLight.specular));
-		glUniform3fv(glGetUniformLocation(objectShader.ID, "spotLight.ambient"), 1, glm::value_ptr(spotLight.ambient));
-		glUniform1f(glGetUniformLocation(objectShader.ID, "spotLight.innerCutOff"), spotLight.innerCutOff);
-		glUniform1f(glGetUniformLocation(objectShader.ID, "spotLight.outerCutOff"), spotLight.outerCutOff);
-		glUniform1f(glGetUniformLocation(objectShader.ID, "spotLight.constant"), spotLight.constant);
-		glUniform1f(glGetUniformLocation(objectShader.ID, "spotLight.linear"), spotLight.linear);
-		glUniform1f(glGetUniformLocation(objectShader.ID, "spotLight.quadratic"), spotLight.quadratic);
-
-		//glUniform3fv(glGetUniformLocation(objectShader.ID, "pointLight.diffuse"), 1, glm::value_ptr(pointLight.diffuse));
-		//glUniform3fv(glGetUniformLocation(objectShader.ID, "pointLight.specular"), 1, glm::value_ptr(pointLight.specular));
-		//glUniform3fv(glGetUniformLocation(objectShader.ID, "pointLight.ambient"), 1, glm::value_ptr(pointLight.ambient));
-		//glUniform1f(glGetUniformLocation(objectShader.ID, "pointLight.constant"), pointLight.constant);
-		//glUniform1f(glGetUniformLocation(objectShader.ID, "pointLight.linear"), pointLight.linear);
-		//glUniform1f(glGetUniformLocation(objectShader.ID, "pointLight.quadratic"), pointLight.quadratic);
 	}
 
 	lastFrame = (float)glfwGetTime();
@@ -156,11 +138,19 @@ void testMisc() {
 
 		objectShader.use();
 
+		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
 		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "camPos"), 1, glm::value_ptr(cam->getPos()));
-		glUniform3fv(glGetUniformLocation(objectShader.ID, "spotLight.position"), 1, glm::value_ptr(cam->getPos()));
-		glUniform3fv(glGetUniformLocation(objectShader.ID, "spotLight.direction"), 1, glm::value_ptr(cam->getFront()));
 		
+		object.draw(objectShader);
+
+		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::translate(glm::mat4(1.0f), glm::vec3(1.0f,0.0f, 3.0f))));
+		object.draw(objectShader);
+
+		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::translate(glm::mat4(1.0f), glm::vec3(1.0f,0.0f, 13.0f))));
+		object.draw(objectShader);
+
+		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::translate(glm::mat4(1.0f), glm::vec3(1.0f,0.0f, 70.0f))));
 		object.draw(objectShader);
 
 		glfwSwapBuffers(window);
