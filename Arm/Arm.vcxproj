@@ -135,7 +135,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="shaders\blend.frag" />
     <None Include="shaders\depth.frag" />
+    <None Include="shaders\grass.frag" />
     <None Include="shaders\object.frag" />
     <None Include="shaders\object.vert" />
     <None Include="shaders\outline.frag" />

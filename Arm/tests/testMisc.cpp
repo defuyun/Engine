@@ -96,10 +96,14 @@ void testMisc() {
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_STENCIL_TEST);
+
 	}
 
 	Shader objectShader("shaders/object.vert", "shaders/object.frag");
+	Shader planeShader("shaders/object.vert", "shaders/object.frag");
 	Shader outlineShader("shaders/outline.vert", "shaders/outline.frag");
+	Shader grassShader("shaders/object.vert", "shaders/grass.frag");
+	Shader blendShader("shaders/object.vert", "shaders/blend.frag");
 
 	glm::vec3 camPos = glm::vec3(0.0f, 2.0f, -2.0f);
 	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)(800) / 640, 0.1f, 100.0f);
@@ -116,11 +120,24 @@ void testMisc() {
 	
 	Model box("resources/box/box.vertices");
 	Model plane("resources/box/plane.vertices");
-	Model nanosuit("resources/nanosuit/nanosuit.obj");
+	Model grass("resources/box/grass.vertices");
+	Model glass("resources/box/window.vertices");
 
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
+	
 	// setting constant shader uniforms for object
+	grassShader.use();
+	{
+		glUniformMatrix4fv(glGetUniformLocation(grassShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
+		glUniform1f(glGetUniformLocation(grassShader.ID, "material.shininess"), 16.0f);
+	}
+		
+	blendShader.use();
+	{
+		glUniformMatrix4fv(glGetUniformLocation(blendShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
+		glUniform1f(glGetUniformLocation(blendShader.ID, "material.shininess"), 16.0f);
+	}
+
 	objectShader.use();
 	{
 		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
@@ -129,6 +146,21 @@ void testMisc() {
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.specular"), 1, glm::value_ptr(directionLight.specular));
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.ambient"), 1, glm::value_ptr(directionLight.ambient));
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.direction"), 1, glm::value_ptr(directionLight.direction));
+	}
+
+	planeShader.use();
+	{
+		glm::mat4 model = glm::mat4(1.0f);
+		glm::mat4 planePos = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f));
+		glm::mat4 planeScale = glm::scale(planePos, glm::vec3(50.0f, 0.0f, 50.0f));
+
+		glUniformMatrix4fv(glGetUniformLocation(planeShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(planeScale));
+		glUniformMatrix4fv(glGetUniformLocation(planeShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
+		glUniform1f(glGetUniformLocation(planeShader.ID, "material.shininess"), 16.0f);
+		glUniform3fv(glGetUniformLocation(planeShader.ID, "directionLight.diffuse"), 1, glm::value_ptr(directionLight.diffuse));
+		glUniform3fv(glGetUniformLocation(planeShader.ID, "directionLight.specular"), 1, glm::value_ptr(directionLight.specular));
+		glUniform3fv(glGetUniformLocation(planeShader.ID, "directionLight.ambient"), 1, glm::value_ptr(directionLight.ambient));
+		glUniform3fv(glGetUniformLocation(planeShader.ID, "directionLight.direction"), 1, glm::value_ptr(directionLight.direction));
 	}
 
 	outlineShader.use();
@@ -146,46 +178,74 @@ void testMisc() {
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	
-		objectShader.use(); 
+
+		glStencilFunc(GL_ALWAYS, 3, 0xFF);
+		glStencilMask(0xFF);
+
+		glm::mat4 model = glm::mat4(1.0f);
+		glm::mat4 b1Pos = glm::translate(model, glm::vec3(3.0, 0.0f, 3.0f));
+		glm::mat4 grassPos = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -0.5f));
+		glm::mat4 glassPos = glm::translate(b1Pos, glm::vec3(0.0f, 0.0f, -0.501f));
+		grassShader.use();
+		{
+			glUniformMatrix4fv(glGetUniformLocation(grassShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+			glUniformMatrix4fv(glGetUniformLocation(grassShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(grassPos));
+		}	
+		grass.draw(grassShader);
+
+		glStencilFunc(GL_GEQUAL, 2, 0xFF);
+		glStencilMask(0xFF);
+
+
+		objectShader.use();
 		{
 			glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 			glUniform3fv(glGetUniformLocation(objectShader.ID, "camPos"), 1, glm::value_ptr(cam->getPos()));
 		}
-		glStencilFunc(GL_ALWAYS, 1, 0xFF);
-		glStencilMask(0xFF);
-
-		glm::mat4 model = glm::mat4(1.0f);
 
 		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		box.draw(objectShader);
 
-		glm::mat4 b1Pos = glm::translate(model, glm::vec3(3.0, 0.0f, 3.0f));
 		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(b1Pos));
 		box.draw(objectShader);
+		
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		blendShader.use();
+		{
+			glUniformMatrix4fv(glGetUniformLocation(blendShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+			glUniformMatrix4fv(glGetUniformLocation(blendShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glassPos));
+		}	
+		glass.draw(blendShader);
+		glDisable(GL_BLEND);
 	
-		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilFunc(GL_GEQUAL, 1, 0xFF);
 		glStencilMask(0x00);
 
-		objectShader.use();
-		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0,-0.5f,0.0f)), glm::vec3(50.0f,0.0f, 50.0f))));
-		glUniform1f(glGetUniformLocation(objectShader.ID, "material.shininess"), 2.0f);
-		plane.draw(objectShader);
-
-		glDisable(GL_DEPTH_TEST);
-		outlineShader.use();
+		planeShader.use();
 		{
-			glUniformMatrix4fv(glGetUniformLocation(outlineShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+			glUniformMatrix4fv(glGetUniformLocation(planeShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		}
+		plane.draw(planeShader);
+		
+#ifdef OUTLINE
+		{
+			glDisable(GL_DEPTH_TEST);
+			outlineShader.use();
+			{
+				glUniformMatrix4fv(glGetUniformLocation(outlineShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+			}
 
-		glm::mat4 b1PosScale = glm::scale(b1Pos, glm::vec3(1.1f, 1.1f, 1.1f));
-		glUniformMatrix4fv(glGetUniformLocation(outlineShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(b1PosScale));
-		box.draw(outlineShader);
+			glm::mat4 b1PosScale = glm::scale(b1Pos, glm::vec3(1.1f, 1.1f, 1.1f));
+			glUniformMatrix4fv(glGetUniformLocation(outlineShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(b1PosScale));
+			box.draw(outlineShader);
 
-		glm::mat4 modelScale = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.1f));
-		glUniformMatrix4fv(glGetUniformLocation(outlineShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelScale));
-		box.draw(outlineShader);
-		glEnable(GL_DEPTH_TEST);
+			glm::mat4 modelScale = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.1f));
+			glUniformMatrix4fv(glGetUniformLocation(outlineShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelScale));
+			box.draw(outlineShader);
+			glEnable(GL_DEPTH_TEST);
+		}
+#endif // OUTLINE
 
 		glStencilMask(0xFF);
 
