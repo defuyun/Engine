@@ -224,6 +224,10 @@ void testMisc() {
 			glUniform3fv(glGetUniformLocation(objectShader.ID, "camPos"), 1, glm::value_ptr(TMisc::cam->getPos()));
 		}
 
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTex);
+		glUniform1i(glGetUniformLocation(objectShader.ID, "cubemap"), 3);
+
 		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		box.draw(objectShader);
 
