@@ -67,3 +67,4 @@ private:
 };
 
 GLuint loadTextureFromFile(const std::string & path, const std::string & filename);
+GLuint loadCubeMapFromFile(const std::string & path, const std::vector<std::string> & files);

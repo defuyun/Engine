@@ -97,10 +97,71 @@ void testMisc() {
 		}
 
 		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
 	}
 
+	GLfloat skyboxVertices[] = {
+		// positions          
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f
+	};
+	
+	GLuint skyboxVAO, skyboxVBO;
+	glGenVertexArrays(1, &skyboxVAO);
+	glGenBuffers(1, &skyboxVBO);
+
+	glBindVertexArray(skyboxVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3, (void *)0);
+	glEnableVertexAttribArray(0);
+
+	glBindVertexArray(0);
+
+	GLuint cubemapTex = loadCubeMapFromFile("resources/box/skybox", { "right.jpg", "left.jpg", "top.jpg", "bottom.jpg", "front.jpg", "back.jpg" });
+
 	Shader objectShader("shaders/object.vert", "shaders/object.frag");
-	Shader planeShader("shaders/plane.vert", "shaders/plane.frag");
+	Shader cubemapShader("shaders/cubemap.vert", "shaders/cubemap.frag");
 
 	glm::vec3 camPos = glm::vec3(0.0f, 2.0f, -2.0f);
 	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)(WIN_WIDTH) / WIN_HEIGHT, 0.1f, 100.0f);
@@ -127,68 +188,10 @@ void testMisc() {
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.direction"), 1, glm::value_ptr(directionLight.direction));
 	}
 
-	GLuint fbo;
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-	GLuint fbTex, fbSten;
-	glGenTextures(1, &fbTex);
-	glBindTexture(GL_TEXTURE_2D, fbTex);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIN_WIDTH, WIN_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbTex, 0);
-
-#ifdef TEXTUREBUFFER
-	glGenTextures(1, &fbSten);
-	glBindTexture(GL_TEXTURE_2D, fbSten);
-
-	glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH24_STENCIL8, WIN_WIDTH, WIN_HEIGHT, 0, GL_DEPTH_STENCIL,GL_UNSIGNED_INT_24_8, NULL);
-	glFramebufferTexture2D(GL_FRAMEBUFFER,GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, fbSten, 0);
-#else
-	glGenRenderbuffers(1, &fbSten);
-	glBindRenderbuffer(GL_RENDERBUFFER, fbSten);
-
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIN_WIDTH, WIN_HEIGHT);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, fbSten);
-#endif
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		std::cout << "Error, framebuffer incomplete\n";
+	cubemapShader.use();
+	{
+		glUniformMatrix4fv(glGetUniformLocation(cubemapShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
 	}
-		
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	GLfloat plane[] = {
-		-1.0f, -1.0f, 0.0f, 0.0f,
-		1.0f, -1.0f, 1.0f, 0.0f,
-		-1.0f, 1.0f, 0.0f, 1.0f,
-		-1.0f, 1.0f, 0.0f, 1.0f,
-		1.0f, -1.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f
-	};
-
-	GLuint planeVBO, planeVAO;
-
-	glGenVertexArrays(1, &planeVAO);
-	glGenBuffers(1, &planeVBO);
-
-	glBindVertexArray(planeVAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(plane), plane, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4, (void *)0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4, (void *) (sizeof(GLfloat) * 2));
-	glEnableVertexAttribArray(1);
-
-	glBindVertexArray(0);
 
 	TMisc::lastFrame = (float)glfwGetTime();
 
@@ -201,9 +204,16 @@ void testMisc() {
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glBindVertexArray(skyboxVAO);
+		cubemapShader.use();
+		{
+			glUniformMatrix4fv(glGetUniformLocation(cubemapShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(glm::mat4(glm::mat3(view))));
+		}
+
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTex);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		glBindVertexArray(0);
 
 		glm::mat4 model = glm::mat4(1.0f);
 		glm::mat4 b1Pos = glm::translate(model, glm::vec3(3.0, 0.0f, 3.0f));
@@ -219,22 +229,6 @@ void testMisc() {
 
 		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(b1Pos));
 		box.draw(objectShader);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-#define FBO
-
-#ifdef FBO
-		planeShader.use();
-		glActiveTexture(GL_TEXTURE1);
-		GLuint loc = glGetUniformLocation(planeShader.ID, "tex");
-		glUniform1i(loc, (GLint)1);
-		glBindTexture(GL_TEXTURE_2D,fbTex);
-			
-		glBindVertexArray(planeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindVertexArray(0);
-		glActiveTexture(0);
-#endif // FBO
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

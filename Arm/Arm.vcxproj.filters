@@ -81,6 +81,12 @@
     <None Include="shaders\plane.frag">
       <Filter>Resource Files\shaders</Filter>
     </None>
+    <None Include="shaders\cubemap.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\cubemap.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tests\tests.h">
