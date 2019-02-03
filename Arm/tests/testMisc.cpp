@@ -65,8 +65,10 @@ namespace TMisc {
 
 
 void testMisc() {
-	using namespace TMisc;
 	GLFWwindow * window = nullptr;
+
+	const int WIN_WIDTH = 1024;
+	const int WIN_HEIGHT = 640;
 
 	// initialize sector
 	{
@@ -77,7 +79,7 @@ void testMisc() {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		window = glfwCreateWindow(800, 640, "texture", NULL, NULL);
+		window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "texture", NULL, NULL);
 
 		if (!window) {
 			Logger->log("failed to create window\n");
@@ -87,7 +89,7 @@ void testMisc() {
 
 		glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		glfwSetCursorPosCallback(window, mouseCallback);
+		glfwSetCursorPosCallback(window, TMisc::mouseCallback);
 
 		glewExperimental = GL_TRUE;
 		if (glewInit() != GLEW_OK) {
@@ -95,49 +97,26 @@ void testMisc() {
 		}
 
 		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_STENCIL_TEST);
-
 	}
 
 	Shader objectShader("shaders/object.vert", "shaders/object.frag");
-	Shader planeShader("shaders/object.vert", "shaders/object.frag");
-	Shader outlineShader("shaders/outline.vert", "shaders/outline.frag");
-	Shader grassShader("shaders/object.vert", "shaders/grass.frag");
-	Shader blendShader("shaders/object.vert", "shaders/blend.frag");
+	Shader planeShader("shaders/plane.vert", "shaders/plane.frag");
 
 	glm::vec3 camPos = glm::vec3(0.0f, 2.0f, -2.0f);
-	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)(800) / 640, 0.1f, 100.0f);
+	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)(WIN_WIDTH) / WIN_HEIGHT, 0.1f, 100.0f);
 	glm::mat4 view;
 
-	cam = new Camera(camPos);
+	TMisc::cam = new Camera(camPos);
 
-	DirectionLight directionLight(
+	TMisc::DirectionLight directionLight(
 		glm::vec3(0.3f, 0.3f, 0.5f), // diffuse
 		glm::vec3(0.2f, 0.2f, 0.5f), // specular
 		glm::vec3(0.2f, 0.2f, 0.5f), // ambient
 		glm::vec3(0.0f, -1.0f, -1.0f) // direction
 	);
-	
+
 	Model box("resources/box/box.vertices");
-	Model plane("resources/box/plane.vertices");
-	Model grass("resources/box/grass.vertices");
-	Model glass("resources/box/window.vertices");
-
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	
-	// setting constant shader uniforms for object
-	grassShader.use();
-	{
-		glUniformMatrix4fv(glGetUniformLocation(grassShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
-		glUniform1f(glGetUniformLocation(grassShader.ID, "material.shininess"), 16.0f);
-	}
-		
-	blendShader.use();
-	{
-		glUniformMatrix4fv(glGetUniformLocation(blendShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
-		glUniform1f(glGetUniformLocation(blendShader.ID, "material.shininess"), 16.0f);
-	}
-
 	objectShader.use();
 	{
 		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
@@ -148,59 +127,91 @@ void testMisc() {
 		glUniform3fv(glGetUniformLocation(objectShader.ID, "directionLight.direction"), 1, glm::value_ptr(directionLight.direction));
 	}
 
-	planeShader.use();
-	{
-		glm::mat4 model = glm::mat4(1.0f);
-		glm::mat4 planePos = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f));
-		glm::mat4 planeScale = glm::scale(planePos, glm::vec3(50.0f, 0.0f, 50.0f));
+	GLuint fbo;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-		glUniformMatrix4fv(glGetUniformLocation(planeShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(planeScale));
-		glUniformMatrix4fv(glGetUniformLocation(planeShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
-		glUniform1f(glGetUniformLocation(planeShader.ID, "material.shininess"), 16.0f);
-		glUniform3fv(glGetUniformLocation(planeShader.ID, "directionLight.diffuse"), 1, glm::value_ptr(directionLight.diffuse));
-		glUniform3fv(glGetUniformLocation(planeShader.ID, "directionLight.specular"), 1, glm::value_ptr(directionLight.specular));
-		glUniform3fv(glGetUniformLocation(planeShader.ID, "directionLight.ambient"), 1, glm::value_ptr(directionLight.ambient));
-		glUniform3fv(glGetUniformLocation(planeShader.ID, "directionLight.direction"), 1, glm::value_ptr(directionLight.direction));
+	GLuint fbTex, fbSten;
+	glGenTextures(1, &fbTex);
+	glBindTexture(GL_TEXTURE_2D, fbTex);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIN_WIDTH, WIN_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbTex, 0);
+
+#ifdef TEXTUREBUFFER
+	glGenTextures(1, &fbSten);
+	glBindTexture(GL_TEXTURE_2D, fbSten);
+
+	glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH24_STENCIL8, WIN_WIDTH, WIN_HEIGHT, 0, GL_DEPTH_STENCIL,GL_UNSIGNED_INT_24_8, NULL);
+	glFramebufferTexture2D(GL_FRAMEBUFFER,GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, fbSten, 0);
+#else
+	glGenRenderbuffers(1, &fbSten);
+	glBindRenderbuffer(GL_RENDERBUFFER, fbSten);
+
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIN_WIDTH, WIN_HEIGHT);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, fbSten);
+#endif
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		std::cout << "Error, framebuffer incomplete\n";
 	}
+		
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	outlineShader.use();
-	{
-		glUniformMatrix4fv(glGetUniformLocation(outlineShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(perspective));
-	}
+	GLfloat plane[] = {
+		-1.0f, -1.0f, 0.0f, 0.0f,
+		1.0f, -1.0f, 1.0f, 0.0f,
+		-1.0f, 1.0f, 0.0f, 1.0f,
+		-1.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, -1.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f
+	};
 
-	lastFrame = (float)glfwGetTime();
+	GLuint planeVBO, planeVAO;
+
+	glGenVertexArrays(1, &planeVAO);
+	glGenBuffers(1, &planeVBO);
+
+	glBindVertexArray(planeVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(plane), plane, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4, (void *)0);
+	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4, (void *) (sizeof(GLfloat) * 2));
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+
+	TMisc::lastFrame = (float)glfwGetTime();
 
 	while (!glfwWindowShouldClose(window)) {
-		currentFrame = (float)glfwGetTime();
+		TMisc::currentFrame = (float)glfwGetTime();
 
-		processInput(window);
-		view = cam->getView();
+		TMisc::processInput(window);
+		view = TMisc::cam->getView();
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glStencilFunc(GL_ALWAYS, 3, 0xFF);
-		glStencilMask(0xFF);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glm::mat4 model = glm::mat4(1.0f);
 		glm::mat4 b1Pos = glm::translate(model, glm::vec3(3.0, 0.0f, 3.0f));
-		glm::mat4 grassPos = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -0.5f));
-		glm::mat4 glassPos = glm::translate(b1Pos, glm::vec3(0.0f, 0.0f, -0.501f));
-		grassShader.use();
-		{
-			glUniformMatrix4fv(glGetUniformLocation(grassShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-			glUniformMatrix4fv(glGetUniformLocation(grassShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(grassPos));
-		}	
-		grass.draw(grassShader);
-
-		glStencilFunc(GL_GEQUAL, 2, 0xFF);
-		glStencilMask(0xFF);
-
 
 		objectShader.use();
 		{
 			glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-			glUniform3fv(glGetUniformLocation(objectShader.ID, "camPos"), 1, glm::value_ptr(cam->getPos()));
+			glUniform3fv(glGetUniformLocation(objectShader.ID, "camPos"), 1, glm::value_ptr(TMisc::cam->getPos()));
 		}
 
 		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
@@ -208,51 +219,27 @@ void testMisc() {
 
 		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(b1Pos));
 		box.draw(objectShader);
-		
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		blendShader.use();
-		{
-			glUniformMatrix4fv(glGetUniformLocation(blendShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-			glUniformMatrix4fv(glGetUniformLocation(blendShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glassPos));
-		}	
-		glass.draw(blendShader);
-		glDisable(GL_BLEND);
-	
-		glStencilFunc(GL_GEQUAL, 1, 0xFF);
-		glStencilMask(0x00);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+#define FBO
+
+#ifdef FBO
 		planeShader.use();
-		{
-			glUniformMatrix4fv(glGetUniformLocation(planeShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		}
-		plane.draw(planeShader);
-		
-#ifdef OUTLINE
-		{
-			glDisable(GL_DEPTH_TEST);
-			outlineShader.use();
-			{
-				glUniformMatrix4fv(glGetUniformLocation(outlineShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-			}
-
-			glm::mat4 b1PosScale = glm::scale(b1Pos, glm::vec3(1.1f, 1.1f, 1.1f));
-			glUniformMatrix4fv(glGetUniformLocation(outlineShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(b1PosScale));
-			box.draw(outlineShader);
-
-			glm::mat4 modelScale = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.1f));
-			glUniformMatrix4fv(glGetUniformLocation(outlineShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelScale));
-			box.draw(outlineShader);
-			glEnable(GL_DEPTH_TEST);
-		}
-#endif // OUTLINE
-
-		glStencilMask(0xFF);
+		glActiveTexture(GL_TEXTURE1);
+		GLuint loc = glGetUniformLocation(planeShader.ID, "tex");
+		glUniform1i(loc, (GLint)1);
+		glBindTexture(GL_TEXTURE_2D,fbTex);
+			
+		glBindVertexArray(planeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+		glActiveTexture(0);
+#endif // FBO
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
-		lastFrame = currentFrame;
+		TMisc::lastFrame = TMisc::currentFrame;
 	}
 
 	glfwTerminate();

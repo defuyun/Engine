@@ -65,3 +65,5 @@ private:
 	std::vector<Texture> loadTexture(aiMaterial * materials, aiTextureType type, const std::string & typeName);
 	GLuint loadTextureFromFile(const std::string & filename);
 };
+
+GLuint loadTextureFromFile(const std::string & path, const std::string & filename);

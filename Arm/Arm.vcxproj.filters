@@ -75,6 +75,12 @@
     <None Include="shaders\blend.frag">
       <Filter>Resource Files\shaders</Filter>
     </None>
+    <None Include="shaders\plane.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\plane.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tests\tests.h">

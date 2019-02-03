@@ -6,8 +6,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-GLuint loadTextureFromFile(const std::string & path, const std::string & filename);
-
 void Model::load() {
 	if (postfix == "vertices") {
 		loadFile();
