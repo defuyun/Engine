@@ -146,6 +146,18 @@ void Model::draw(const Shader & shader) const {
 	}
 }
 
+void Model::drawInstance(const Shader & shader, int count) const {
+	for (const auto & mesh : meshes) {
+		mesh.drawInstance(shader, count);
+	}
+}
+
+void Model::instanceTranslation(GLuint ibo) const {
+	for (const auto & mesh : meshes) {
+		mesh.instanceTranslation(ibo);
+	}
+}
+
 void Mesh::init() {
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo);
@@ -170,8 +182,27 @@ void Mesh::init() {
 	glBindVertexArray(0);
 }
 
-void Mesh::draw(const Shader & shader) const {
-	
+void Mesh::instanceTranslation(GLuint ibo) const {
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, ibo);
+
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) sizeof(glm::vec4));
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) (2 * sizeof(glm::vec4)));
+	glEnableVertexAttribArray(5);
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) (3 * sizeof(glm::vec4)));
+	glEnableVertexAttribArray(6);
+
+	glVertexAttribDivisor(3, 1);
+	glVertexAttribDivisor(4, 1);
+	glVertexAttribDivisor(5, 1);
+	glVertexAttribDivisor(6, 1);
+	glBindVertexArray(0);
+}
+
+void Mesh::prepareDraw(const Shader & shader) const {
 	shader.use();
 
 	int diffuseCount = 0;
@@ -193,9 +224,19 @@ void Mesh::draw(const Shader & shader) const {
 
 		glBindTexture(GL_TEXTURE_2D, tex.id);
 	}
-
+}
+void Mesh::draw(const Shader & shader) const {
+	this->prepareDraw(shader);
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+	glActiveTexture(0);
+}
+
+void Mesh::drawInstance(const Shader & shader, int count) const {
+	this->prepareDraw(shader);
+	glBindVertexArray(vao);
+	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, 0, count);
 	glBindVertexArray(0);
 	glActiveTexture(0);
 }

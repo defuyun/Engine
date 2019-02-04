@@ -76,7 +76,7 @@ void testMisc() {
 	Shader normalShader("shaders/normal.vert", "shaders/outline.frag", "shaders/normal.geom");
 	Shader highLightShader("shaders/highlight.vert", "shaders/highlight.frag", "shaders/highlight.geom");
 
-	glm::vec3 camPos = glm::vec3(0.0f, 2.0f, -2.0f);
+	glm::vec3 camPos = glm::vec3(0.0f, 10.0f, -2.0f);
 	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)(800) / 640, 0.1f, 100.0f);
 	glm::mat4 view;
 
@@ -112,19 +112,29 @@ void testMisc() {
 
 	objectShader.use();
 	{
-		objectShader.setMat4("model", glm::mat4(1.0));
 		glUniform1f(glGetUniformLocation(objectShader.ID, "material.shininess"), 16.0f);
 	}
 
-	normalShader.use();
-	{
-		normalShader.setMat4("model", glm::mat4(1.0));
+	const int xMax = 10, yMax = 10;
+
+	std::vector<glm::mat4> translation(xMax * yMax);
+	
+	float start_x = -(5.0 * xMax) * 0.5,  start_z = 3.0f;
+
+	for (int i = 0; i < xMax; i++) {
+		for (int j = 0; j < yMax; j++) {
+			float new_x = start_x + 5.0 * i;
+			float new_z = start_z + 5.0 * j;
+			translation[i * 10 + j] = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(new_x, 0.0f, new_z)), glm::vec3(0.5f, 0.5f, 0.5f));
+		}
 	}
 
-	highLightShader.use();
-	{
-		highLightShader.setMat4("model", glm::mat4(1.0));
-	}
+	GLuint instanceOffSetBuffer;
+	glGenBuffers(1, &instanceOffSetBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, instanceOffSetBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * translation.size(), &translation[0], GL_STATIC_DRAW);
+	
+	nanosuit.instanceTranslation(instanceOffSetBuffer);
 
 	lastFrame = (float)glfwGetTime();
 
@@ -141,9 +151,7 @@ void testMisc() {
 		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 			
-		nanosuit.draw(objectShader);
-		nanosuit.draw(normalShader);
-		nanosuit.draw(highLightShader);
+		nanosuit.drawInstance(objectShader, xMax * yMax);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
