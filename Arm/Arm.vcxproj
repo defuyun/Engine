@@ -137,7 +137,13 @@
     <None Include="packages.config" />
     <None Include="shaders\blend.frag" />
     <None Include="shaders\depth.frag" />
+    <None Include="shaders\explode.geom" />
     <None Include="shaders\grass.frag" />
+    <None Include="shaders\highlight.frag" />
+    <None Include="shaders\highlight.vert" />
+    <None Include="shaders\highlight.geom" />
+    <None Include="shaders\normal.geom" />
+    <None Include="shaders\normal.vert" />
     <None Include="shaders\object.frag" />
     <None Include="shaders\object.vert" />
     <None Include="shaders\outline.frag" />

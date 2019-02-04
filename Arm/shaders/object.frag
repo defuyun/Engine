@@ -46,5 +46,4 @@ vec3 calcDirectionLight(DirectionLight directionLight) {
 }
 void main() {
 	fragColor = vec4(calcDirectionLight(directionLight), 1.0f);
-	// fragColor = texture(material.diffuse0, vs_in.texCoord);
 }

@@ -75,6 +75,24 @@
     <None Include="shaders\blend.frag">
       <Filter>Resource Files\shaders</Filter>
     </None>
+    <None Include="shaders\explode.geom">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\normal.geom">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\normal.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\highlight.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\highlight.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\highlight.geom">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tests\tests.h">

@@ -73,7 +73,8 @@ void testMisc() {
 	}
 
 	Shader objectShader("shaders/object.vert", "shaders/object.frag");
-	Shader planeShader("shaders/object.vert", "shaders/object.frag");
+	Shader normalShader("shaders/normal.vert", "shaders/outline.frag", "shaders/normal.geom");
+	Shader highLightShader("shaders/highlight.vert", "shaders/highlight.frag", "shaders/highlight.geom");
 
 	glm::vec3 camPos = glm::vec3(0.0f, 2.0f, -2.0f);
 	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)(800) / 640, 0.1f, 100.0f);
@@ -88,8 +89,7 @@ void testMisc() {
 		glm::vec3(0.0f, -1.0f, -1.0f) // direction
 	);
 	
-	Model box("resources/box/box.vertices");
-	Model plane("resources/box/plane.vertices");
+	Model nanosuit("resources/nanosuit/nanosuit.obj");
 
 	GLuint ubo;
 	glGenBuffers(1, &ubo);
@@ -105,26 +105,25 @@ void testMisc() {
 	GLuint lightUBO;
 	glGenBuffers(1, &lightUBO);
 	glBindBuffer(GL_UNIFORM_BUFFER, lightUBO);
-	glBufferData(GL_UNIFORM_BUFFER, 4 * sizeof(glm::vec3), NULL, GL_DYNAMIC_DRAW);
-
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3) * 4, &directionLight);
+	glBufferData(GL_UNIFORM_BUFFER, 4 * sizeof(glm::vec3), &directionLight, GL_STATIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	glBindBufferRange(GL_UNIFORM_BUFFER, 2, lightUBO, 0, 4 * sizeof(glm::vec3));
 
 	objectShader.use();
 	{
+		objectShader.setMat4("model", glm::mat4(1.0));
 		glUniform1f(glGetUniformLocation(objectShader.ID, "material.shininess"), 16.0f);
 	}
 
-	planeShader.use();
+	normalShader.use();
 	{
-		glm::mat4 model = glm::mat4(1.0f);
-		glm::mat4 planePos = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f));
-		glm::mat4 planeScale = glm::scale(planePos, glm::vec3(50.0f, 0.0f, 50.0f));
+		normalShader.setMat4("model", glm::mat4(1.0));
+	}
 
-		glUniformMatrix4fv(glGetUniformLocation(planeShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(planeScale));
-		glUniform1f(glGetUniformLocation(planeShader.ID, "material.shininess"), 16.0f);
+	highLightShader.use();
+	{
+		highLightShader.setMat4("model", glm::mat4(1.0));
 	}
 
 	lastFrame = (float)glfwGetTime();
@@ -141,22 +140,10 @@ void testMisc() {
 		glBindBuffer(GL_UNIFORM_BUFFER, ubo);
 		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-		glm::mat4 model = glm::mat4(1.0f);
-		glm::mat4 b1Pos = glm::translate(model, glm::vec3(3.0, 0.0f, 3.0f));
-
-		objectShader.use();
-		{
-			glUniform3fv(glGetUniformLocation(objectShader.ID, "camPos"), 1, glm::value_ptr(cam->getPos()));
-		}
-
-		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		box.draw(objectShader);
-
-		glUniformMatrix4fv(glGetUniformLocation(objectShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(b1Pos));
-		box.draw(objectShader);
-
-		plane.draw(planeShader);
+			
+		nanosuit.draw(objectShader);
+		nanosuit.draw(normalShader);
+		nanosuit.draw(highLightShader);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
