@@ -42,6 +42,10 @@ namespace TMisc {
 void testMisc() {
 	using namespace TMisc;
 	GLFWwindow * window = nullptr;
+	
+	const int WIN_WIDTH = 1280;
+	const int WIN_HEIGHT = 720;
+
 
 	// initialize sector
 	{
@@ -52,7 +56,7 @@ void testMisc() {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		window = glfwCreateWindow(800, 640, "texture", NULL, NULL);
+		window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "texture", NULL, NULL);
 
 		if (!window) {
 			Logger->log("failed to create window\n");
@@ -76,8 +80,8 @@ void testMisc() {
 	Shader normalShader("shaders/normal.vert", "shaders/outline.frag", "shaders/normal.geom");
 	Shader highLightShader("shaders/highlight.vert", "shaders/highlight.frag", "shaders/highlight.geom");
 
-	glm::vec3 camPos = glm::vec3(0.0f, 10.0f, -2.0f);
-	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)(800) / 640, 0.1f, 100.0f);
+	glm::vec3 camPos = glm::vec3(0.0f, 5.0f, -2.0f);
+	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)(WIN_WIDTH) / WIN_HEIGHT, 0.1f, 100.0f);
 	glm::mat4 view;
 
 	cam = new Camera(camPos);
@@ -89,17 +93,14 @@ void testMisc() {
 		glm::vec3(0.0f, -1.0f, -1.0f) // direction
 	);
 	
-	Model nanosuit("resources/nanosuit/nanosuit.obj");
+	Model box("resources/box/box.vertices");
 
 	GLuint ubo;
 	glGenBuffers(1, &ubo);
 	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
 	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
-
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(perspective));
-
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
 	glBindBufferRange(GL_UNIFORM_BUFFER, 1, ubo, 0, 2 * sizeof(glm::mat4));
 
 	GLuint lightUBO;
@@ -112,29 +113,10 @@ void testMisc() {
 
 	objectShader.use();
 	{
+		objectShader.setMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 4.0f)));
 		glUniform1f(glGetUniformLocation(objectShader.ID, "material.shininess"), 16.0f);
 	}
 
-	const int xMax = 10, yMax = 10;
-
-	std::vector<glm::mat4> translation(xMax * yMax);
-	
-	float start_x = -(5.0 * xMax) * 0.5,  start_z = 3.0f;
-
-	for (int i = 0; i < xMax; i++) {
-		for (int j = 0; j < yMax; j++) {
-			float new_x = start_x + 5.0 * i;
-			float new_z = start_z + 5.0 * j;
-			translation[i * 10 + j] = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(new_x, 0.0f, new_z)), glm::vec3(0.5f, 0.5f, 0.5f));
-		}
-	}
-
-	GLuint instanceOffSetBuffer;
-	glGenBuffers(1, &instanceOffSetBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, instanceOffSetBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * translation.size(), &translation[0], GL_STATIC_DRAW);
-	
-	nanosuit.instanceTranslation(instanceOffSetBuffer);
 
 	lastFrame = (float)glfwGetTime();
 
@@ -151,7 +133,7 @@ void testMisc() {
 		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 			
-		nanosuit.drawInstance(objectShader, xMax * yMax);
+		box.draw(objectShader);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
