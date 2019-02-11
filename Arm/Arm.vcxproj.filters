@@ -93,6 +93,18 @@
     <None Include="shaders\highlight.geom">
       <Filter>Resource Files\shaders</Filter>
     </None>
+    <None Include="shaders\shadow.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\shadow.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\texture.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\texture.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tests\tests.h">

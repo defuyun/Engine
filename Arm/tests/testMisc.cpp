@@ -20,6 +20,10 @@ namespace TMisc {
 
 	Camera * cam = nullptr;
 
+	GLuint frameTexId = 0;
+
+	void renderFrameTexture();
+
 	struct Light {
 		Light(const glm::vec3 & diffuse, const glm::vec3 & specular, const glm::vec3 & ambient) : diffuse(diffuse), specular(specular), ambient(ambient) {}
 
@@ -36,8 +40,18 @@ namespace TMisc {
 		glm::vec3 direction;
 		float padding4;
 	};
-}
 
+	GLfloat vertices[] = {
+	-1.0f, 1.0f, 0.0f, 1.0f,
+	1.0f, 1.0f, 1.0f, 1.0f,
+	1.0f, -1.0f, 1.0f, 0.0f,
+	-1.0f, -1.0f, 0.0f, 0.0f
+	};
+
+	GLuint elements[] = {
+		0, 1, 2, 2, 3, 0
+	};
+}
 
 void testMisc() {
 	using namespace TMisc;
@@ -45,7 +59,6 @@ void testMisc() {
 	
 	const int WIN_WIDTH = 1280;
 	const int WIN_HEIGHT = 720;
-
 
 	// initialize sector
 	{
@@ -77,8 +90,9 @@ void testMisc() {
 	}
 
 	Shader objectShader("shaders/object.vert", "shaders/object.frag");
-	Shader normalShader("shaders/normal.vert", "shaders/outline.frag", "shaders/normal.geom");
-	Shader highLightShader("shaders/highlight.vert", "shaders/highlight.frag", "shaders/highlight.geom");
+	Shader shadowShader("shaders/shadow.vert", "shaders/shadow.frag");
+	Shader textureShader("shaders/texture.vert", "shaders/texture.frag");
+	Shader normalShader("shaders/normal.vert", "shaders/highlight.frag", "shaders/normal.geom");
 
 	glm::vec3 camPos = glm::vec3(0.0f, 5.0f, -2.0f);
 	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)(WIN_WIDTH) / WIN_HEIGHT, 0.1f, 100.0f);
@@ -86,14 +100,49 @@ void testMisc() {
 
 	cam = new Camera(camPos);
 
+	glm::vec3 lightDir = glm::vec3(-1.0f, -1.0f, -1.0f);
+
 	DirectionLight directionLight(
-		glm::vec3(0.3f, 0.3f, 0.5f), // diffuse
+		glm::vec3(0.8f, 0.8f, 0.8f), // diffuse
 		glm::vec3(0.2f, 0.2f, 0.5f), // specular
 		glm::vec3(0.2f, 0.2f, 0.5f), // ambient
-		glm::vec3(0.0f, -1.0f, -1.0f) // direction
+		lightDir
 	);
+
+	glm::vec3 lightPos = glm::vec3(0.0f) - 10.0f * lightDir;
+
+	glm::vec3 right = glm::cross(lightDir, glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::vec3 up = glm::cross(right, lightDir);
+
+	glm::mat4 shadowView = glm::lookAt(lightPos, lightDir + lightPos, up);
+	glm::mat4 shadowProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 50.0f);
 	
 	Model box("resources/box/box.vertices");
+	Model plane("resources/box/plane.vertices");
+
+	GLuint shadowFBO;
+	glGenFramebuffers(1, &shadowFBO);
+	
+	const int SHADOW_WIDTH = 1280;
+	const int SHADOW_HEIGHT = 1280;
+
+	GLuint shadowTex;
+	glGenTextures(1, &shadowTex);
+	glBindTexture(GL_TEXTURE_2D, shadowTex);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowTex, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	GLuint ubo;
 	glGenBuffers(1, &ubo);
@@ -106,17 +155,35 @@ void testMisc() {
 	GLuint lightUBO;
 	glGenBuffers(1, &lightUBO);
 	glBindBuffer(GL_UNIFORM_BUFFER, lightUBO);
-	glBufferData(GL_UNIFORM_BUFFER, 4 * sizeof(glm::vec3), &directionLight, GL_STATIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(DirectionLight), &directionLight, GL_STATIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	glBindBufferRange(GL_UNIFORM_BUFFER, 2, lightUBO, 0, 4 * sizeof(glm::vec3));
+	glBindBufferRange(GL_UNIFORM_BUFFER, 2, lightUBO, 0,sizeof(DirectionLight));
 
 	objectShader.use();
 	{
-		objectShader.setMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 4.0f)));
+		objectShader.setVec3("lightPos", lightPos);
 		glUniform1f(glGetUniformLocation(objectShader.ID, "material.shininess"), 16.0f);
 	}
 
+	shadowShader.use(); {
+		shadowShader.setMat4("projection", shadowProj);
+		shadowShader.setMat4("view", shadowView);
+	}
+
+	auto render = [&box, &plane](const Shader & shader) {
+		shader.use();
+		shader.setMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 3.0f, 5.0f)));
+		box.draw(shader);
+
+		shader.use();
+		shader.setMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, .5f, 4.0f)));
+		box.draw(shader);
+
+		shader.use();
+		shader.setMat4("model", glm::mat4(1.0f));
+		plane.draw(shader);
+	};
 
 	lastFrame = (float)glfwGetTime();
 
@@ -124,16 +191,30 @@ void testMisc() {
 		currentFrame = (float)glfwGetTime();
 
 		processInput(window);
-		view = cam->getView();
 
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		render(shadowShader);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
+		glViewport(0, 0, WIN_WIDTH, WIN_HEIGHT);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
+		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(cam->getView()));
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
-			
-		box.draw(objectShader);
+
+		objectShader.use();
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_2D, shadowTex);
+		objectShader.setInt("depthMap", 5);
+		objectShader.setMat4("lightMatrix", shadowProj * shadowView);
+		render(objectShader);
+
+		normalShader.use();
+		render(normalShader);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -142,6 +223,37 @@ void testMisc() {
 	}
 
 	glfwTerminate();
+}
+
+
+void TMisc::renderFrameTexture() {
+	if (frameTexId == 0) {
+		glGenVertexArrays(1, &frameTexId);
+
+		GLuint vbo, ebo;
+		glGenBuffers(1, &vbo);
+		glGenBuffers(1, &ebo);
+
+		glBindVertexArray(frameTexId);
+		
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(TMisc::vertices), vertices, GL_STATIC_DRAW);
+
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void *)0);
+		glEnableVertexAttribArray(0);
+
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void *)(2 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(1);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(TMisc::elements), elements, GL_STATIC_DRAW);
+
+		glBindVertexArray(0);
+	}
+
+	glBindVertexArray(frameTexId);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }
 
 void TMisc::processInput(GLFWwindow *window)

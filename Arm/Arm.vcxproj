@@ -148,6 +148,10 @@
     <None Include="shaders\object.vert" />
     <None Include="shaders\outline.frag" />
     <None Include="shaders\outline.vert" />
+    <None Include="shaders\shadow.frag" />
+    <None Include="shaders\shadow.vert" />
+    <None Include="shaders\texture.frag" />
+    <None Include="shaders\texture.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="doge\stb_image.h" />

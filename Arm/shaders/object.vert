@@ -8,6 +8,7 @@ out VS_OUT {
 	out vec3 normal;
 	out vec3 fragPos;
 	out vec2 texCoord;
+	out vec4 fragLightPos;
 } vs_out;
 
 layout (std140, binding = 1) uniform Matrices {
@@ -16,10 +17,12 @@ layout (std140, binding = 1) uniform Matrices {
 };
 
 uniform mat4 model;
+uniform mat4 lightMatrix;
 
 void main() {
 	gl_Position = projection * view * model * vec4(aPos, 1.0);
 	vs_out.fragPos = vec3(model * vec4(aPos, 1.0));
 	vs_out.normal = mat3(transpose(inverse(model))) * aNormal;
 	vs_out.texCoord = aTexCoord;
+	vs_out.fragLightPos = lightMatrix * vec4(vs_out.fragPos, 1.0f);
 }

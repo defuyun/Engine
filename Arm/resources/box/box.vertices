@@ -73,5 +73,5 @@ indices
 34
 35
 textures
-rock.jpg diffuse
-rock.jpg specular
+brickwall.jpg diffuse
+brickwall.jpg specular
