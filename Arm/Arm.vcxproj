@@ -126,6 +126,7 @@
     <ClCompile Include="app.cpp" />
     <ClCompile Include="components\camera.cpp" />
     <ClCompile Include="components\engine.cpp" />
+    <ClCompile Include="components\light.cpp" />
     <ClCompile Include="components\model.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -138,6 +139,7 @@
     <ClInclude Include="app.h" />
     <ClInclude Include="components\camera.h" />
     <ClInclude Include="components\engine.h" />
+    <ClInclude Include="components\light.h" />
     <ClInclude Include="components\model.h" />
     <ClInclude Include="components\shader.h" />
     <ClInclude Include="doge\stb_image.h" />
