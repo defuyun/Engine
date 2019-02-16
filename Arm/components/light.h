@@ -73,6 +73,18 @@ public:
 
 	GLuint createLightUBO(const std::vector<Light *>  & lights);
 
+	// type : the type of light, DIRECTIONAL, POINT, SPOT
+	// index : the index of the light in type, an example better explains it
+	//		say we have 4 lights, 1 direction, 1 point and 2 spots
+	//		say we want to modify the 2nd spot light, first we pick a type, which is SPOT
+	//		now once we know the type the index of the fist spot light is 0, and the second is 1
+	//		we want to modify the 2nd spot light therefore our index in this case is 1
+	//		similarly if we want to modify the first direction light
+	//		we set type to DIRECTIONAL
+	//		then our index = 0, we selected the first directional light
+	// offset : the offset of the field we want to modify in the struct
+	// data : the actual data
+
 	template<typename T>
 	void updateLightParameter(int type, int index, int offset, T data) {
 		int position = 0;
