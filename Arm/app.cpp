@@ -47,6 +47,7 @@ void run() {
 
 		engine->renderQuad();
 
+		glfwSwapBuffers(engine->window);
 		engine->lastFrame = engine->currentFrame;
 	}
 

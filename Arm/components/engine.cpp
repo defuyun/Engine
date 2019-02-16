@@ -63,14 +63,14 @@ void Engine::processMousePos(GLFWwindow * window) {
 void Engine::renderQuad() {
 	if (quadVAO == 0) {
 		GLfloat vertices[] = {
-			-1.0f, 1.0f, 0.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, -1.0f, 1.0f, 0.0f,
-			-1.0f, -1.0f, 0.0f, 0.0f
+			-1.0f, 1.0f, 0.0f, 0.0f,
+			1.0f, 1.0f, 1.0f, 0.0f,
+			1.0f, -1.0f, 1.0f, 1.0f,
+			-1.0f, -1.0f, 0.0f, 1.0f
 		};
 
 		GLuint elements[] = {
-			0, 1, 2, 2, 3, 0
+			2, 3, 0, 0, 1 ,2
 		};
 
 		glGenVertexArrays(1, &quadVAO);
