@@ -66,6 +66,4 @@ void Camera::update() {
 	this->front = glm::normalize(this->front);
 	glm::vec3 right = glm::normalize(glm::cross(this->front, glm::vec3(0.0f, 1.0f, 0.0f)));
 	this->up = glm::normalize(glm::cross(right, this->front));
-
-	// std::cout << "Cam Info: (" << this->pos.x << "," << this->pos.y << "," << this->pos.z << "), (" << this->pitch << ", " << this->yaw << ")\n";
 }

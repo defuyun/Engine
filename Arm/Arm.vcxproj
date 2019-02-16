@@ -123,44 +123,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="app.cpp" />
+    <ClCompile Include="components\camera.cpp" />
+    <ClCompile Include="components\engine.cpp" />
+    <ClCompile Include="components\model.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="tests\camera.cpp" />
-    <ClCompile Include="tests\logger.cpp" />
-    <ClCompile Include="tests\model.cpp" />
-    <ClCompile Include="tests\run.cpp" />
-    <ClCompile Include="tests\testLighting.cpp" />
-    <ClCompile Include="tests\testMisc.cpp" />
-    <ClCompile Include="tests\testModel.cpp" />
-    <ClCompile Include="tests\testTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="shaders\blend.frag" />
-    <None Include="shaders\depth.frag" />
-    <None Include="shaders\explode.geom" />
-    <None Include="shaders\grass.frag" />
-    <None Include="shaders\highlight.frag" />
-    <None Include="shaders\highlight.vert" />
-    <None Include="shaders\highlight.geom" />
-    <None Include="shaders\normal.geom" />
-    <None Include="shaders\normal.vert" />
-    <None Include="shaders\object.frag" />
-    <None Include="shaders\object.vert" />
-    <None Include="shaders\outline.frag" />
-    <None Include="shaders\outline.vert" />
-    <None Include="shaders\shadow.frag" />
-    <None Include="shaders\shadow.vert" />
-    <None Include="shaders\texture.frag" />
-    <None Include="shaders\texture.vert" />
+    <None Include="shaders\quad.frag" />
+    <None Include="shaders\quad.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="app.h" />
+    <ClInclude Include="components\camera.h" />
+    <ClInclude Include="components\engine.h" />
+    <ClInclude Include="components\model.h" />
+    <ClInclude Include="components\shader.h" />
     <ClInclude Include="doge\stb_image.h" />
     <ClInclude Include="header.h" />
-    <ClInclude Include="tests\camera.h" />
-    <ClInclude Include="tests\logger.h" />
-    <ClInclude Include="tests\model.h" />
-    <ClInclude Include="tests\shader.h" />
-    <ClInclude Include="tests\tests.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

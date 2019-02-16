@@ -13,120 +13,63 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\tests">
-      <UniqueIdentifier>{9fb6db65-04b4-4f03-98fe-4509c4c8386c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\tests">
-      <UniqueIdentifier>{2f793dac-9ff8-4eff-845a-ec3098ca21b6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\shaders">
       <UniqueIdentifier>{5b83b8cc-b4cc-41c5-8a00-0dee0e8c91ac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\components">
+      <UniqueIdentifier>{53161fe0-0f0e-42a2-943a-0f7f530d7bb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\components">
+      <UniqueIdentifier>{5c62b7f8-14bc-43e7-8f41-593e6cb6384a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="tests\run.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\testTexture.cpp">
-      <Filter>Source Files\tests</Filter>
+    <ClCompile Include="components\camera.cpp">
+      <Filter>Source Files\components</Filter>
     </ClCompile>
-    <ClCompile Include="tests\logger.cpp">
-      <Filter>Source Files\tests</Filter>
+    <ClCompile Include="components\model.cpp">
+      <Filter>Source Files\components</Filter>
     </ClCompile>
-    <ClCompile Include="tests\camera.cpp">
-      <Filter>Source Files\tests</Filter>
+    <ClCompile Include="app.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\testLighting.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\testModel.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\model.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\testMisc.cpp">
-      <Filter>Source Files\tests</Filter>
+    <ClCompile Include="components\engine.cpp">
+      <Filter>Source Files\components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="shaders\outline.frag">
+    <None Include="shaders\quad.vert">
       <Filter>Resource Files\shaders</Filter>
     </None>
-    <None Include="shaders\object.vert">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="shaders\object.frag">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="shaders\depth.frag">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="shaders\outline.vert">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="shaders\grass.frag">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="shaders\blend.frag">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="shaders\explode.geom">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="shaders\normal.geom">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="shaders\normal.vert">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="shaders\highlight.frag">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="shaders\highlight.vert">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="shaders\highlight.geom">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="shaders\shadow.vert">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="shaders\shadow.frag">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="shaders\texture.frag">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="shaders\texture.vert">
+    <None Include="shaders\quad.frag">
       <Filter>Resource Files\shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tests\tests.h">
-      <Filter>Header Files\tests</Filter>
-    </ClInclude>
     <ClInclude Include="header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="doge\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tests\logger.h">
-      <Filter>Header Files\tests</Filter>
+    <ClInclude Include="components\camera.h">
+      <Filter>Header Files\components</Filter>
     </ClInclude>
-    <ClInclude Include="tests\camera.h">
-      <Filter>Header Files\tests</Filter>
+    <ClInclude Include="components\model.h">
+      <Filter>Header Files\components</Filter>
     </ClInclude>
-    <ClInclude Include="tests\model.h">
-      <Filter>Header Files\tests</Filter>
+    <ClInclude Include="components\shader.h">
+      <Filter>Header Files\components</Filter>
     </ClInclude>
-    <ClInclude Include="tests\shader.h">
-      <Filter>Header Files\tests</Filter>
+    <ClInclude Include="app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="components\engine.h">
+      <Filter>Header Files\components</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

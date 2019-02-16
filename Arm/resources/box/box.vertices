@@ -75,3 +75,4 @@ indices
 textures
 brickwall.jpg diffuse
 brickwall.jpg specular
+brickwall_normal.jpg normal

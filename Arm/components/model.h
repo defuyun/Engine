@@ -12,6 +12,8 @@
 
 #include "shader.h"
 
+GLuint loadTextureFromFile(const std::string & path, const std::string & filename);
+
 struct Texture {
 	GLuint id;
 	std::string type;

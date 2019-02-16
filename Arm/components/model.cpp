@@ -1,5 +1,4 @@
 #include "model.h"
-#include "logger.h"
 #include "stb_image.h"
 
 #include <assimp/Importer.hpp>
@@ -68,7 +67,7 @@ void Model::loadModel() {
 	
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
-		Logger->log(importer.GetErrorString());
+		std::cout << importer.GetErrorString();
 		return;
 	}
 
@@ -207,6 +206,7 @@ void Mesh::prepareDraw(const Shader & shader) const {
 
 	int diffuseCount = 0;
 	int specularCount = 0;
+	int normalCount = 0;
 
 	for (size_t i = 0; i < textures.size(); i++) {
 		glActiveTexture(GL_TEXTURE0 + (GLenum)i);
@@ -217,6 +217,9 @@ void Mesh::prepareDraw(const Shader & shader) const {
 		}
 		else if (tex.type == "specular") {
 			number = std::to_string(specularCount++);
+		}
+		else if (tex.type == "normal") {
+			number = std::to_string(normalCount++);
 		}
 
 		GLuint loc = glGetUniformLocation(shader.ID, ("material." + tex.type + number).c_str());
@@ -250,7 +253,7 @@ GLuint loadTextureFromFile(const std::string & path, const std::string & filenam
 	auto data = stbi_load((path + '/' + filename).c_str(), &width, &height, &nrChannel,0);
 
 	if (!data) {
-		Logger->log("Failed to load texture" + path + '/' + filename);
+		std::cout << "Failed to load texture" + path + '/' + filename << '\n';
 		return -1;
 	}
 

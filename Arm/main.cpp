@@ -1,7 +1,6 @@
-#include "tests/tests.h"
+#include "app.h"
 
 int main() {
 	run();
-	// tools::customGen();
 }
 
