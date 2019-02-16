@@ -68,11 +68,12 @@ void run() {
 	lights.push_back(&directionLight);
 	lights.push_back(&pointLight);
 	lights.push_back(&spotLight);
+	lights.push_back(&spotLight);
 
 	lightEngine->createLightUBO(lights);
+	lightEngine->updateLightParameter(SPOT, 1, offsetof(SpotLight, ambient), glm::vec3(0.4, 0.6, 0.7));
 
 	Shader quadShader("shaders/quad.vert", "shaders/quad.frag");
-	GLuint quadTexId = loadTextureFromFile("resources/box", "grass.png");
 
 	engine->lastFrame = (float)glfwGetTime();
 	while (!glfwWindowShouldClose(engine->window)) {
@@ -83,10 +84,6 @@ void run() {
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		
 		quadShader.use();
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, quadTexId);
-		glUniform1i(glGetUniformLocation(quadShader.ID, "quadTex"), (GLint)1);
-
 		engine->renderQuad();
 
 		glfwSwapBuffers(engine->window);

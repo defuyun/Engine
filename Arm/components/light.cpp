@@ -19,10 +19,13 @@ GLuint LightEngine::createLightUBO(const std::vector<Light *> & lights) {
 		switch (light->type) {
 		case DIRECTIONAL:
 			directionLightsCpy.push_back(*((DirectionLight *)light));
+			break;
 		case POINT:
 			pointLightsCpy.push_back(*((PointLight *)light));
+			break;
 		case SPOT:
 			spotLightsCpy.push_back(*((SpotLight *)light));
+			break;
 		}
 	}
 	
@@ -36,11 +39,11 @@ GLuint LightEngine::createLightUBO(const std::vector<Light *> & lights) {
 		std::cout << "[LIGHT] lighting information exceeded 16kb, there might be implication of resulting from this\n";
 	}
 
-	glBufferData(GL_UNIFORM_BUFFER, totalSize, NULL, GL_DYNAMIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, totalSize, NULL, GL_STATIC_DRAW);
 
 	int dLightIndex = 0;
 	int pLightIndex = directionLightCount * sizeof(DirectionLight);
-	int sLightIndex = pLightIndex + pointLightCount * sizeof(SpotLight);
+	int sLightIndex = pLightIndex + pointLightCount * sizeof(PointLight);
 
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, directionLightCount * sizeof(DirectionLight), &directionLightsCpy[0]);
 	glBufferSubData(GL_UNIFORM_BUFFER, pLightIndex, pointLightCount * sizeof(PointLight), &pointLightsCpy[0]);
@@ -48,7 +51,6 @@ GLuint LightEngine::createLightUBO(const std::vector<Light *> & lights) {
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	glBindBufferRange(GL_UNIFORM_BUFFER, DIRECTIONAL, ubo, dLightIndex, directionLightCount * sizeof(DirectionLight));
-	glBindBufferRange(GL_UNIFORM_BUFFER, POINT, ubo, pLightIndex, pointLightCount * sizeof(PointLight));
-	glBindBufferRange(GL_UNIFORM_BUFFER, SPOT, ubo, dLightIndex, spotLightCount * sizeof(SpotLight));
+	glBindBufferBase(GL_UNIFORM_BUFFER, LIGHT_BINDING, ubo);
+	return ubo;
 }
