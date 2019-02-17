@@ -132,6 +132,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="shaders\object.frag" />
+    <None Include="shaders\object.vert" />
     <None Include="shaders\quad.frag" />
     <None Include="shaders\quad.vert" />
   </ItemGroup>

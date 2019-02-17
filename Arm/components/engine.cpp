@@ -1,6 +1,31 @@
 #include "engine.h"
 #include <iostream>
 
+void Engine::createMatrixUBO() {
+	glGenBuffers(1, &matrixUBO);
+	glBindBuffer(GL_UNIFORM_BUFFER, matrixUBO);
+	
+	int width, height;
+	glfwGetWindowSize(window, &width, &height);
+
+	glm::mat4 projection = glm::perspective(45.0f, (float)width / height, 0.1f, 75.0f);
+	glm::mat4 view = cam->getView();
+
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
+
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glBindBufferBase(GL_UNIFORM_BUFFER, MATRIX_BINDING, matrixUBO);
+}
+
+void Engine::updateView() {
+	glBindBuffer(GL_UNIFORM_BUFFER, matrixUBO);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(cam->getView()));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
 void Engine::init(int width, int height) {
 	if (!glfwInit()) {
 		std::cout << "[ENG] Can't init glfw\n";

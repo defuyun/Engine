@@ -29,9 +29,9 @@ GLuint LightEngine::createLightUBO(const std::vector<Light *> & lights) {
 		}
 	}
 	
-	directionLightCount = directionLightsCpy.size();
-	pointLightCount = pointLightsCpy.size();
-	spotLightCount = spotLightsCpy.size();
+	directionLightCount = (int)directionLightsCpy.size();
+	pointLightCount = (int)pointLightsCpy.size();
+	spotLightCount = (int)spotLightsCpy.size();
 
 	totalSize = directionLightCount * sizeof(DirectionLight) + pointLightCount * sizeof(PointLight) + spotLightCount * sizeof(SpotLight);
 
@@ -39,7 +39,7 @@ GLuint LightEngine::createLightUBO(const std::vector<Light *> & lights) {
 		std::cout << "[LIGHT] lighting information exceeded 16kb, there might be implication of resulting from this\n";
 	}
 
-	glBufferData(GL_UNIFORM_BUFFER, totalSize, NULL, GL_STATIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, totalSize, NULL, GL_DYNAMIC_DRAW);
 
 	int dLightIndex = 0;
 	int pLightIndex = directionLightCount * sizeof(DirectionLight);

@@ -18,7 +18,7 @@ void run() {
 	Engine e;
 	Engine * engine = &e;
 	
-	glm::vec3 camPos = glm::vec3(0.0f, 5.0f, -2.0f);
+	glm::vec3 camPos = glm::vec3(0.0f, 4.0f, -4.0f);
 	Camera c(camPos);
 	Camera * cam = &c;
 
@@ -58,7 +58,7 @@ void run() {
 		0.2f,
 		0.3f,
 		0.5f,
-		vec3(0.0f, 0.0f, -1.0f), // direction,
+		vec3(0.0f, 0.0f, 0.0f), // direction,
 		30.0f,
 		45.0f
 	);
@@ -68,23 +68,33 @@ void run() {
 	lights.push_back(&directionLight);
 	lights.push_back(&pointLight);
 	lights.push_back(&spotLight);
-	lights.push_back(&spotLight);
+
+	Shader objectShader("shaders/object.vert", "shaders/object.frag");
+	
+	objectShader.use(); {
+		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.2, 0.2, 0.2));
+		glm::mat4 rotate = glm::rotate(scale, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		objectShader.setMat4("model", rotate);
+	}
+
+	Model nanosuit("resources/nanosuit/nanosuit.obj");
 
 	lightEngine->createLightUBO(lights);
-	lightEngine->updateLightParameter(SPOT, 1, offsetof(SpotLight, ambient), glm::vec3(0.4, 0.6, 0.7));
-
-	Shader quadShader("shaders/quad.vert", "shaders/quad.frag");
+	engine->createMatrixUBO();
 
 	engine->lastFrame = (float)glfwGetTime();
 	while (!glfwWindowShouldClose(engine->window)) {
 		engine->currentFrame = (float)glfwGetTime();
 		engine->pollEvent();
 
+		engine->updateView();
+		lightEngine->updateLightParameter(SPOT, 0, offsetof(SpotLight, position), cam->getPos());
+		lightEngine->updateLightParameter(SPOT, 0, offsetof(SpotLight, direction), (cam->getFront() - cam->getPos()));
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		
-		quadShader.use();
-		engine->renderQuad();
+		nanosuit.draw(objectShader);
 
 		glfwSwapBuffers(engine->window);
 		engine->lastFrame = engine->currentFrame;
