@@ -11,18 +11,30 @@ void Engine::createMatrixUBO() {
 	glm::mat4 projection = glm::perspective(45.0f, (float)width / height, 0.1f, 75.0f);
 	glm::mat4 view = cam->getView();
 
-	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + sizeof(glm::vec3), NULL, GL_DYNAMIC_DRAW);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+	glGenBuffers(1, &camPosUBO);
+	glBindBuffer(GL_UNIFORM_BUFFER, camPosUBO);
+
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec3), NULL, GL_DYNAMIC_DRAW);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3), glm::value_ptr(cam->getPos()));
+
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
 	glBindBufferBase(GL_UNIFORM_BUFFER, MATRIX_BINDING, matrixUBO);
+	glBindBufferBase(GL_UNIFORM_BUFFER, CAMERAPOS_BINDING, camPosUBO);
 }
 
 void Engine::updateView() {
 	glBindBuffer(GL_UNIFORM_BUFFER, matrixUBO);
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(cam->getView()));
+
+	glBindBuffer(GL_UNIFORM_BUFFER, camPosUBO);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3), glm::value_ptr(cam->getPos()));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
@@ -74,6 +86,15 @@ void Engine::processInput(GLFWwindow *window) {
 		cam->processKeyPress(CameraDirection::left, delta);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		cam->processKeyPress(CameraDirection::right, delta);
+
+	if (keyPress['N'] && glfwGetKey(window, GLFW_KEY_N) == GLFW_RELEASE) {
+		keyPress['N'] = false;
+		displayNormal = !displayNormal;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
+		keyPress['N'] = true;
+	}
 }
 
 void Engine::processMousePos(GLFWwindow * window) {

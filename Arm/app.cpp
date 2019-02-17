@@ -37,7 +37,7 @@ void run() {
 		vec3(0.2,0.3,0.3),  // ambient
 		vec3(0.2,0.3,0.3), // diffuse
 		vec3(0.5,0.5,0.5), // specular
-		vec3(0.0f,-1.0f,-1.0f) // direction
+		vec3(0.0f,-1.0f,1.0f) // direction
 	);
 
 	PointLight pointLight(POINT,
@@ -52,15 +52,15 @@ void run() {
 
 	SpotLight spotLight(SPOT,
 		vec3(0.2,0.3,0.3),  // ambient
-		vec3(0.2,0.3,0.3), // diffuse
-		vec3(0.5,0.5,0.5), // specular
+		vec3(0.6,0.6,0.6), // diffuse
+		vec3(0.7,0.7,0.7), // specular
 		vec3(0.0f,0.0f, 0.0f), // position
 		0.2f,
-		0.3f,
-		0.5f,
+		0.7f,
+		0.9f,
 		vec3(0.0f, 0.0f, 0.0f), // direction,
-		30.0f,
-		45.0f
+		glm::cos(glm::radians(30.0f)),
+		glm::cos(glm::radians(45.0f))
 	);
 
 	std::vector<Light *> lights;
@@ -70,17 +70,28 @@ void run() {
 	lights.push_back(&spotLight);
 
 	Shader objectShader("shaders/object.vert", "shaders/object.frag");
-	
-	objectShader.use(); {
-		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.2, 0.2, 0.2));
-		glm::mat4 rotate = glm::rotate(scale, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		objectShader.setMat4("model", rotate);
-	}
+	Shader normalShader("shaders/normal.vert", "shaders/normal.frag", "shaders/normal.geom");
 
 	Model nanosuit("resources/nanosuit/nanosuit.obj");
+	Model plane("resources/box/plane.vertices");
 
 	lightEngine->createLightUBO(lights);
 	engine->createMatrixUBO();
+
+	auto render = [&nanosuit, &plane](const Shader & shader) {
+		shader.use();
+		shader.setFloat("material.shininess", 16.0f);
+		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.2, 0.2, 0.2));
+		glm::mat4 rotate = glm::rotate(scale, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		shader.setMat4("model", rotate);
+		shader.setFloat("scale", 0.05);
+		nanosuit.draw(shader);
+
+		shader.setFloat("material.shininess", 1.0f);
+		shader.setMat4("model", glm::mat4(1.0f));
+		shader.setFloat("scale", 1.0f);
+		plane.draw(shader);
+	};
 
 	engine->lastFrame = (float)glfwGetTime();
 	while (!glfwWindowShouldClose(engine->window)) {
@@ -89,12 +100,14 @@ void run() {
 
 		engine->updateView();
 		lightEngine->updateLightParameter(SPOT, 0, offsetof(SpotLight, position), cam->getPos());
-		lightEngine->updateLightParameter(SPOT, 0, offsetof(SpotLight, direction), (cam->getFront() - cam->getPos()));
+		lightEngine->updateLightParameter(SPOT, 0, offsetof(SpotLight, direction), cam->getFront());
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		
-		nanosuit.draw(objectShader);
+		render(objectShader);
+		if (engine->displayNormal)
+			render(normalShader);
 
 		glfwSwapBuffers(engine->window);
 		engine->lastFrame = engine->currentFrame;

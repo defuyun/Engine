@@ -109,7 +109,7 @@ public:
 		position += index * structSize + offset;
 
 		glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-		glBufferSubData(GL_UNIFORM_BUFFER, position, sizeof(T), &data);
+		glBufferSubData(GL_UNIFORM_BUFFER, position, sizeof(T), glm::value_ptr(data));
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	}
 };

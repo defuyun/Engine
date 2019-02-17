@@ -57,6 +57,15 @@
     <None Include="shaders\object.frag">
       <Filter>Resource Files\shaders</Filter>
     </None>
+    <None Include="shaders\normal.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\normal.geom">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\normal.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header.h">

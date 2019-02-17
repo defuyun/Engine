@@ -6,6 +6,7 @@
 #include <GLFW\glfw3.h>
 
 const int MATRIX_BINDING = 1;
+const int CAMERAPOS_BINDING = 5;
 
 class Engine {
 public:
@@ -23,9 +24,14 @@ public:
 	void createMatrixUBO();
 	void updateView();
 
+	bool displayNormal = false;
 private:
 	GLuint quadVAO = 0;
 	GLuint matrixUBO = 0;
+	GLuint camPosUBO = 0;
+
+	bool keyPress[256] = { false };
+
 	void processInput(GLFWwindow *window);
 	void processMousePos(GLFWwindow * window);
 };
