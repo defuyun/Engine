@@ -104,7 +104,7 @@ vec3 calculateSpotLight(SpotLight light, vec3 normal) {
 
 	float angleBetween = max(dot(lightDir, fragDir), 0);
 	float intensity = max((angleBetween - light.cutOffOuter)/(light.cutOffInner - light.cutOffOuter), 0.0);
-	float attenuation = getAttenuation(light.kc, light.kl, light.kq, length(fragDir));
+	float attenuation = getAttenuation(light.kc, light.kl, light.kq, length(light.position - fs_in.fragPos));
 
 	float diffuseFactor = getDiffuseFactor(-lightDir, normal);
 	float specularFactor = getSpecularFactor(-lightDir, camPos - fs_in.fragPos, normal);

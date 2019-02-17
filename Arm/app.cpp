@@ -55,9 +55,9 @@ void run() {
 		vec3(0.6,0.6,0.6), // diffuse
 		vec3(0.7,0.7,0.7), // specular
 		vec3(0.0f,0.0f, 0.0f), // position
+		0.3f,
+		0.1f,
 		0.2f,
-		0.7f,
-		0.9f,
 		vec3(0.0f, 0.0f, 0.0f), // direction,
 		glm::cos(glm::radians(30.0f)),
 		glm::cos(glm::radians(45.0f))
