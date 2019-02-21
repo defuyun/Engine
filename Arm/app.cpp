@@ -132,10 +132,17 @@ void run() {
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glm::mat4 shadowProjection = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / SHADOW_HEIGHT, 0.1f, 10.0f);
+	float shadowFar = 15.0f;
+	glm::mat4 shadowProjection = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / SHADOW_HEIGHT, 0.1f, shadowFar);
 	
 	shadowShader.use();
 	shadowShader.setMat4("shadowProjection", shadowProjection);
+	shadowShader.setFloat("near", 0.1f);
+	shadowShader.setFloat("far", shadowFar);
+
+	objectShader.use();
+	objectShader.setFloat("lightNear", 0.1f);
+	objectShader.setFloat("lightFar", shadowFar);
 
 	glm::vec3 shadowDirections[6] = {
 		glm::vec3(1.0f, 0.0f, 0.0f),
@@ -177,6 +184,7 @@ void run() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shadowShader.use();
+		shadowShader.setVec3("lightPos", lightPos);
 
 		for (int i = 0; i < 6; ++i)
 			shadowShader.setMat4("shadowView[" + std::to_string(i) + ']', glm::lookAt(lightPos, lightPos + shadowDirections[i], shadowUpDirections[i]));
@@ -189,11 +197,14 @@ void run() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-		glActiveTexture(GL_TEXTURE1);
+		glActiveTexture(GL_TEXTURE5);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, depthMap);
-		skyboxShader.use();
-		skyboxShader.setInt("skybox", (GLint)1);
-		engine->renderCube();
+
+		objectShader.use();
+		objectShader.setInt("depthMap", (GLint)5);
+		render(objectShader);
+		if (engine->displayNormal)
+			render(normalShader);
 	
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
