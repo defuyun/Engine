@@ -59,6 +59,8 @@ in VS_OUT {
 	vec2 texCoord;
 } fs_in;
 
+uniform bool blinn;
+
 // light direction in reverse incident direction : from fragPos to lightPos
 float getDiffuseFactor(vec3 lightDirection, vec3 normal) {
 	return max(dot(normalize(lightDirection), normalize(normal)), 0);
@@ -67,8 +69,17 @@ float getDiffuseFactor(vec3 lightDirection, vec3 normal) {
 // light direction in reverse incident direction
 // cam direction from fragment to camera position
 float getSpecularFactor(vec3 lightDirection, vec3 camDirection, vec3 normal) {
-	vec3 reflectedLight = normalize(reflect(normalize(-lightDirection), normalize(normal)));
-	return pow(max(dot(normalize(camDirection), reflectedLight), 0), material.shininess);
+	float spec = 0;
+
+	if (blinn) {
+		vec3 halfway = normalize(normalize(lightDirection) + normalize(camDirection));
+		spec = max(dot(normalize(normal), halfway), 0);
+	} else {
+		vec3 reflectedLight = normalize(reflect(normalize(-lightDirection), normalize(normal)));
+		spec = max(dot(normalize(camDirection), reflectedLight), 0); 
+	}
+
+	return pow(spec, material.shininess);
 }
 
 float getAttenuation(float kc, float kl, float kq, float dist) {
@@ -113,5 +124,7 @@ vec3 calculateSpotLight(SpotLight light, vec3 normal) {
 }
 
 void main() {
-	fragColor = vec4(calculateSpotLight(spotLight, fs_in.normal), 1.0f);
+//	fragColor = vec4(calculateSpotLight(spotLight, fs_in.normal), 1.0f);
+//	fragColor = vec4(calculateDirectionLight(directionLight, fs_in.normal), 1.0f);
+	fragColor = vec4(calculatePointLight(pointLight, fs_in.normal) + calculateDirectionLight(directionLight, fs_in.normal), 1.0f);
 }

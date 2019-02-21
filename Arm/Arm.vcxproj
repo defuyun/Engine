@@ -132,6 +132,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="shaders\shadow.frag" />
+    <None Include="shaders\shadow.geom" />
+    <None Include="shaders\shadow.vert" />
     <None Include="shaders\normal.frag" />
     <None Include="shaders\normal.geom" />
     <None Include="shaders\normal.vert" />
@@ -139,6 +142,8 @@
     <None Include="shaders\object.vert" />
     <None Include="shaders\quad.frag" />
     <None Include="shaders\quad.vert" />
+    <None Include="shaders\skybox.frag" />
+    <None Include="shaders\skybox.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.h" />

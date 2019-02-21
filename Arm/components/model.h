@@ -45,6 +45,8 @@ private:
 
 class Model {
 public:
+	static bool useGamma;
+
 	Model(const std::string & filename) :
 		path(filename.substr(0, filename.find_last_of('/'))),
 		postfix(filename.substr(filename.find_last_of('.') + 1, filename.size())), 

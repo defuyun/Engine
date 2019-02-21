@@ -7,6 +7,8 @@
 
 GLuint loadTextureFromFile(const std::string & path, const std::string & filename);
 
+bool Model::useGamma = false;
+
 void Model::load() {
 	if (postfix == "vertices") {
 		loadFile();
@@ -256,9 +258,23 @@ GLuint loadTextureFromFile(const std::string & path, const std::string & filenam
 		std::cout << "Failed to load texture" + path + '/' + filename << '\n';
 		return -1;
 	}
+	
+	GLenum format = -1;
+	switch (nrChannel) {
+	case 1:
+		format = GL_RED;
+		break;
+	case 3:
+		format = Model::useGamma ? GL_SRGB : GL_RGB;
+		break;
+	case 4:
+		format = Model::useGamma ? GL_SRGB_ALPHA : GL_RGBA;
+		break;
+	default:
+		format = GL_RGB;
+	}
 
-	GLenum format = nrChannel == 1 ? GL_RED : nrChannel == 3 ? GL_RGB : GL_RGBA;
-	GLint param = format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT;
+	GLint param = (format == GL_RGBA || format == GL_SRGB_ALPHA)  ? GL_CLAMP_TO_EDGE : GL_REPEAT;
 
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, param);
