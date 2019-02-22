@@ -41,7 +41,6 @@ struct Material {
 	float shininess;
 };
 
-uniform Material material;
 
 layout (std140, binding = 4) uniform LightBlock {
 	DirectionLight directionLight;
@@ -59,20 +58,38 @@ in VS_OUT {
 	vec2 texCoord;
 } fs_in;
 
+uniform Material material;
 uniform bool blinn;
 
-uniform samplerCube depthMap;
+uniform samplerCube shadowMap;
 uniform float lightNear;
 uniform float lightFar;
 
+float shadowSamples = 20;
+
+vec3 sampleOffsetDirections[20] = vec3[]
+(
+   vec3( 1,  1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1,  1,  1), 
+   vec3( 1,  1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1,  1, -1),
+   vec3( 1,  1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1,  1,  0),
+   vec3( 1,  0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1,  0, -1),
+   vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
+);
+
 float calculateLightShadow(vec3 lightPos, vec3 fragPos, vec3 normal) {
 	vec3 lightDir = normalize(fragPos - lightPos);
-	float currentDepth = length(fragPos - lightPos) / (lightFar - lightNear);
+	float bias = max(0.005 * (1.0 - dot(normal, -lightDir)), 0.0005);
+	float diskRadius = 0.005f;
 
-	float bias = max(0.05 * (1.0 - dot(normal, -lightDir)), 0.005);  
-	float depth = texture(depthMap, lightDir).r + bias;
+	float shadows = 0.0f;
 
-	return depth > currentDepth ? 1.0f : 0.0f;
+	for (int i = 0; i < 20; ++i) {
+		float currentDepth = length(fragPos - lightPos) / (lightFar - lightNear);
+		float depth = texture(shadowMap, lightDir + diskRadius * sampleOffsetDirections[i]).r + bias;
+		shadows  += depth > currentDepth ? 1.0f : 0.0f;
+	}
+
+	return shadows / shadowSamples;
 }
 
 // light direction in reverse incident direction : from fragPos to lightPos

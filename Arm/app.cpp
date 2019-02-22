@@ -74,25 +74,29 @@ void run() {
 	Shader objectShader("shaders/object.vert", "shaders/object.frag");
 	Shader quadShader("shaders/quad.vert", "shaders/quad.frag");
 	Shader normalShader("shaders/normal.vert", "shaders/normal.frag", "shaders/normal.geom");
+	Shader skyboxShader("shaders/skybox.vert", "shaders/shadowskybox.frag");
 	Shader shadowShader("shaders/shadow.vert", "shaders/shadow.frag", "shaders/shadow.geom");
-	Shader skyboxShader("shaders/skybox.vert", "shaders/skybox.frag");
 
 	Model nanosuit("resources/nanosuit/nanosuit.obj");
+	Model box("resources/box/box.vertices");
 	Model plane("resources/box/plane.vertices");
 	Model light("resources/sphere/sphere.obj");
 
 	lightEngine->createLightUBO(lights);
 	engine->createMatrixUBO();
 	engine->createSceneFBO();
+	engine->createShadowSkyboxFBO();
 
 	glm::vec3 lightPos = pointLight.position;
 
-	auto render = [&nanosuit, &plane, &light, &lightPos, engine](const Shader & shader) {
+	auto render = [&nanosuit, &plane, &light, &box, &lightPos, engine](const Shader & shader) {
 		shader.use();
 		shader.setBool("blinn", engine->useBlinn);
 
-		float blinnNormalizer = 1 + (int)engine->useBlinn;
+		float blinnNormalizer = 1 + (float)engine->useBlinn;
 
+		if (engine->renderingShadow)
+			glCullFace(GL_FRONT);
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.2, 0.2, 0.2));
 		glm::mat4 rotate = glm::rotate(scale, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		shader.setMat4("model", rotate);
@@ -100,67 +104,26 @@ void run() {
 		shader.setFloat("scale", 0.05f);
 		nanosuit.draw(shader);
 
-		shader.setMat4("model", glm::mat4(1.0f));
-		shader.setFloat("material.shininess", 1.0f * blinnNormalizer);
+		shader.setMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 1.0f, 0.0f)));
+		shader.setFloat("material.shininess", 64.0f * blinnNormalizer);
 		shader.setFloat("scale", 1.0f);
-		plane.draw(shader);
+		box.draw(shader);
+		glCullFace(GL_BACK);
 
 		shader.setMat4("model", glm::scale(glm::translate(glm::mat4(1.0f), lightPos), glm::vec3(0.2f,0.2f,0.2f)));
 		shader.setFloat("material.shininess", 32.0f * blinnNormalizer);
 		shader.setFloat("scale", 0.05f);
 		light.draw(shader);
+
+		shader.setMat4("model", glm::mat4(1.0f));
+		shader.setFloat("material.shininess", 1.0f * blinnNormalizer);
+		shader.setFloat("scale", 1.0f);
+		plane.draw(shader);
 	};
-
-	const int SHADOW_WIDTH = 1280, SHADOW_HEIGHT = 1280;
-	GLuint depthMap, depthFBO;
-	glGenTextures(1, &depthMap);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, depthMap);
-
-	for (int i = 0; i < 6; ++i)
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	glGenFramebuffers(1, &depthFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, depthFBO);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	float shadowFar = 15.0f;
-	glm::mat4 shadowProjection = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / SHADOW_HEIGHT, 0.1f, shadowFar);
-	
-	shadowShader.use();
-	shadowShader.setMat4("shadowProjection", shadowProjection);
-	shadowShader.setFloat("near", 0.1f);
-	shadowShader.setFloat("far", shadowFar);
 
 	objectShader.use();
-	objectShader.setFloat("lightNear", 0.1f);
-	objectShader.setFloat("lightFar", shadowFar);
-
-	glm::vec3 shadowDirections[6] = {
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(-1.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f),
-		glm::vec3(0.0f, -1.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, 1.0f),
-		glm::vec3(0.0f, 0.0f, -1.0f),
-	};
-
-	glm::vec3 shadowUpDirections[6] = {
-		glm::vec3(0.0f, -1.0f, 0.0f),
-		glm::vec3(0.0f, -1.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, 1.0f),
-		glm::vec3(0.0f, 0.0f, -1.0f),
-		glm::vec3(0.0f, -1.0f, 0.0f),
-		glm::vec3(0.0f, -1.0f, 0.0f),
-	};
+	objectShader.setFloat("lightNear", engine->SHADOW_NEAR);
+	objectShader.setFloat("lightFar", engine->SHADOW_FAR);
 
 	engine->lastFrame = (float)glfwGetTime();
 	while (!glfwWindowShouldClose(engine->window)) {
@@ -179,46 +142,30 @@ void run() {
 		lightEngine->updateLightParameter(SPOT, 0, offsetof(SpotLight, direction), cam->getFront());
 		lightEngine->updateLightParameter(POINT, 0, offsetof(PointLight, position), lightPos);
 
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthFBO);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		engine->createShadowMap(lightPos, shadowShader, render);
 
-		shadowShader.use();
-		shadowShader.setVec3("lightPos", lightPos);
+		engine->renderToFrame(engine->shadowSkyboxFBO, [&skyboxShader, engine]() {
+			engine->beginRender(engine->shadowSkyboxFBO);
+			engine->bindShadowMap(skyboxShader);
+			engine->renderCube();
+			engine->endRender();
+		});
 
-		for (int i = 0; i < 6; ++i)
-			shadowShader.setMat4("shadowView[" + std::to_string(i) + ']', glm::lookAt(lightPos, lightPos + shadowDirections[i], shadowUpDirections[i]));
+		engine->renderToFrame(engine->sceneFBO, [&objectShader, &normalShader, &render, engine]() {
+			engine->beginRender(engine->sceneFBO);
+			engine->bindShadowMap(objectShader);
 
-		render(shadowShader);
+			render(objectShader);
+			if (engine->displayNormal)
+				render(normalShader);
 
-		glViewport(0, 0, WIN_WIDTH, WIN_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, engine->sceneFBO);
+			engine->endRender();
+		});
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-
-		glActiveTexture(GL_TEXTURE5);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, depthMap);
-
-		objectShader.use();
-		objectShader.setInt("depthMap", (GLint)5);
-		render(objectShader);
-		if (engine->displayNormal)
-			render(normalShader);
-	
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, engine->sceneTexture);
-		quadShader.use();
-		quadShader.setInt("tex", (GLint)1);
-		quadShader.setBool("gamma", Model::useGamma);
-
-		engine->renderQuad();
-		glActiveTexture(GL_TEXTURE0);
+		engine->beginRender(0);
+		engine->renderFrameToScreen(engine->sceneTexture, glm::mat4(1.0f), quadShader);
+		engine->renderFrameToScreen(engine->shadowSkyboxTexture, glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.5f,0.5f, 0.0f)), glm::vec3(0.4,0.4,0.4)), quadShader);
+		engine->endRender();
 
 		glfwSwapBuffers(engine->window);
 		engine->lastFrame = engine->currentFrame;

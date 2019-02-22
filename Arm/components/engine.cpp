@@ -2,6 +2,140 @@
 #include "model.h"
 #include <iostream>
 
+
+void Engine::bindShadowMap(const Shader & shader) const {
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, shadowMap);
+	shader.use();
+	shader.setInt(shadowMapLocation, GLint(5));
+}
+
+void Engine::renderToFrame(GLuint fbo, const std::function<void()> & render) const {
+	render();
+}
+
+void Engine::beginRender(GLuint fbo) const {
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+}
+
+void Engine::endRender() const {
+	glActiveTexture(0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Engine::renderFrameToScreen(GLuint textureId, const glm::mat4 & model, const Shader & quadShader) {
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	quadShader.use();
+	quadShader.setInt("tex", (GLint)1);
+	quadShader.setBool("gamma", Model::useGamma);
+	quadShader.setMat4("model", model);
+	renderQuad();
+}
+
+void Engine::createShadowMap(const glm::vec3 & lightPos, const Shader & shadowShader, const std::function<void(const Shader &)> & render) {
+	if (shadowMapFBO == 0) {
+		initShadowMap(shadowShader);
+	}
+
+	glm::vec3 shadowDirections[6] = {
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(-1.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f),
+		glm::vec3(0.0f, -1.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 1.0f),
+		glm::vec3(0.0f, 0.0f, -1.0f),
+	};
+
+	glm::vec3 shadowUpDirections[6] = {
+		glm::vec3(0.0f, -1.0f, 0.0f),
+		glm::vec3(0.0f, -1.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 1.0f),
+		glm::vec3(0.0f, 0.0f, -1.0f),
+		glm::vec3(0.0f, -1.0f, 0.0f),
+		glm::vec3(0.0f, -1.0f, 0.0f),
+	};
+
+	int width, height;
+	glfwGetWindowSize(window, &width, &height);
+
+	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	shadowShader.use();
+	shadowShader.setVec3("lightPos", lightPos);
+
+	for (int i = 0; i < 6; ++i)
+		shadowShader.setMat4("shadowView[" + std::to_string(i) + ']', glm::lookAt(lightPos, lightPos + shadowDirections[i], shadowUpDirections[i]));
+
+	renderingShadow = true;
+	render(shadowShader);
+	renderingShadow = false;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, width, height);
+}
+
+void Engine::initShadowMap(const Shader & shadowShader) {
+	glm::mat4 shadowProjection = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, SHADOW_NEAR, SHADOW_FAR);
+
+	glGenTextures(1, &shadowMap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, shadowMap);
+
+	for (int i = 0; i < 6; ++i)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+	glGenFramebuffers(1, &shadowMapFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadowMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
+	 shadowShader.use();
+	 shadowShader.setMat4("shadowProjection", shadowProjection);
+	 shadowShader.setFloat("near", SHADOW_NEAR);
+	 shadowShader.setFloat("far", SHADOW_FAR);
+}
+
+void Engine::createFBO(int width, int height, GLuint * fbo, GLuint * texture) {
+	GLuint depthStencil;
+
+	glGenFramebuffers(1, fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, *fbo);
+
+	glGenTextures(1, texture);
+	glBindTexture(GL_TEXTURE_2D, *texture);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *texture, 0);
+
+	glGenRenderbuffers(1, &depthStencil);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthStencil);
+
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthStencil);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		std::cout << "framebuffer incomplete\n";
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void Engine::createSceneFBO() {
 	if (sceneFBO != 0) {
 		glDeleteFramebuffers(1, &sceneFBO);
@@ -9,29 +143,17 @@ void Engine::createSceneFBO() {
 
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
+	createFBO(width, height, &sceneFBO, &sceneTexture);
+}
 
-	glGenFramebuffers(1, &sceneFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, sceneFBO);
-
-	glGenTextures(1, &sceneTexture);
-	glBindTexture(GL_TEXTURE_2D, sceneTexture);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, sceneTexture, 0);
-
-	glGenRenderbuffers(1, &scenceDepthStencil);
-	glBindRenderbuffer(GL_RENDERBUFFER, scenceDepthStencil);
-
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, scenceDepthStencil);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		std::cout << "framebuffer incomplete\n";
+void Engine::createShadowSkyboxFBO() {
+	if (shadowSkyboxFBO != 0) {
+		glDeleteFramebuffers(1, &shadowSkyboxFBO);
 	}
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	int width, height;
+	glfwGetWindowSize(window, &width, &height);
+	createFBO(width, height, &shadowSkyboxFBO, &shadowSkyboxTexture);
 }
 
 void Engine::createMatrixUBO() {
