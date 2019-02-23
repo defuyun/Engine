@@ -31,8 +31,11 @@ void Engine::renderFrameToScreen(GLuint textureId, const glm::mat4 & model, cons
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	quadShader.use();
 	quadShader.setInt("tex", (GLint)1);
-	quadShader.setBool("gamma", Model::useGamma);
+	quadShader.setBool("useGamma", Model::useGamma);
 	quadShader.setMat4("model", model);
+
+	quadShader.setBool("useHDR", useHDR);
+	quadShader.setFloat("exposure", exposure);
 	renderQuad();
 }
 
@@ -119,7 +122,7 @@ void Engine::createFBO(int width, int height, GLuint * fbo, GLuint * texture) {
 	glGenTextures(1, texture);
 	glBindTexture(GL_TEXTURE_2D, *texture);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *texture, 0);
@@ -246,6 +249,16 @@ void Engine::processInput(GLFWwindow *window) {
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		cam->processKeyPress(CameraDirection::right, delta);
 
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS && heightScale < 0.1)
+		heightScale += 0.001;
+	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS && heightScale > 0.005)
+		heightScale -= 0.001;
+
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && exposure < 10.0f)
+		exposure += 0.01;
+	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS && exposure > 0.01)
+		exposure -= 0.01;
+
 	if (keyPress['N'] && glfwGetKey(window, GLFW_KEY_N) == GLFW_RELEASE) {
 		keyPress['N'] = false;
 		displayNormal = !displayNormal;
@@ -264,6 +277,11 @@ void Engine::processInput(GLFWwindow *window) {
 	if (keyPress['G'] && glfwGetKey(window, GLFW_KEY_G) == GLFW_RELEASE) {
 		keyPress['G'] = false;
 		Model::useGamma = !Model::useGamma;
+	}
+
+	if (keyPress['H'] && glfwGetKey(window, GLFW_KEY_H) == GLFW_RELEASE) {
+		keyPress['H'] = false;
+		useDepthMap = !useDepthMap;
 	}
 
 	if (keyPress['Q'] && glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE) {
@@ -288,6 +306,10 @@ void Engine::processInput(GLFWwindow *window) {
 
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
 		keyPress['Q'] = true;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS) {
+		keyPress['H'] = true;
 	}
 }
 

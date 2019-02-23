@@ -16,7 +16,7 @@ layout (std140, binding = 5) uniform CamPosBlock {
 };
 
 uniform mat4 model;
-uniform vec3 lightPos;
+uniform vec3 lightDir;
 
 out VS_OUT {
 	vec3 fragPos;
@@ -26,7 +26,7 @@ out VS_OUT {
 
 	vec3 fragTangentPos;
 	vec3 camTangentPos;
-	vec3 lightTangentPos;
+	vec3 lightTangentDir;
 
 	mat3 tbn;
 } vs_out;
@@ -48,7 +48,7 @@ void main() {
 
 	vs_out.fragTangentPos = tbn * vs_out.fragPos;
 	vs_out.camTangentPos = tbn * vs_out.camPos;
-	vs_out.lightTangentPos = tbn * lightPos;
+	vs_out.lightTangentDir = tbn * lightDir;
 
 	vs_out.tbn = tbn;
 

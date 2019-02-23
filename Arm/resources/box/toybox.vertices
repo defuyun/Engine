@@ -1,0 +1,17 @@
+vertices
+-1.0 0.0 -1.0 0.0 1.0 0.0  0.0 0.0
+1.0 0.0 -1.0  0.0 1.0 0.0  0.0 1.0
+1.0 0.0 1.0  0.0 1.0 0.0   1.0 1.0
+-1.0 0.0  1.0  0.0 1.0 0.0   1.0 0.0
+indices
+0
+2
+1
+2
+0
+3
+textures
+wood.png diffuse
+wood.png specular
+toy_box_normal.png normal
+toy_box_disp.png normal

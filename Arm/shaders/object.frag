@@ -10,31 +10,6 @@ struct DirectionLight {
 	vec3 direction;
 };
 
-struct PointLight {
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
-	int type;
-	vec3 position;
-	float kc;
-	float kl;
-	float kq;
-};
-
-struct SpotLight {
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
-	int type;
-	vec3 position;
-	float kc;
-	float kl;
-	float kq;
-	vec3 direction;
-	float cutOffInner;
-	float cutOffOuter;
-};
-
 struct Material {
 	sampler2D diffuse0;
 	sampler2D specular0;
@@ -45,10 +20,7 @@ struct Material {
 
 layout (std140, binding = 4) uniform LightBlock {
 	DirectionLight directionLight;
-	PointLight pointLight;
-	SpotLight spotLight;
 };
-
 
 in VS_OUT {
 	vec3 fragPos;
@@ -58,45 +30,17 @@ in VS_OUT {
 
 	vec3 fragTangentPos;
 	vec3 camTangentPos;
-	vec3 lightTangentPos;
+	vec3 lightTangentDir;
 
 	mat3 tbn;
 } fs_in;
 
 uniform Material material;
-uniform bool blinn;
+uniform bool useBlinn;
 uniform bool useNormalMap;
+uniform bool useDepthMap;
 
-uniform samplerCube shadowMap;
-uniform float lightNear;
-uniform float lightFar;
-
-float shadowSamples = 20;
-
-vec3 sampleOffsetDirections[20] = vec3[]
-(
-   vec3( 1,  1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1,  1,  1), 
-   vec3( 1,  1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1,  1, -1),
-   vec3( 1,  1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1,  1,  0),
-   vec3( 1,  0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1,  0, -1),
-   vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
-);
-
-float calculateLightShadow(vec3 lightPos, vec3 fragPos, vec3 normal) {
-	vec3 lightDir = normalize(fragPos - lightPos);
-	float diskRadius = 0.005f;
-
-	float bias = max(0.005 * (1 - dot(-lightDir, normal)), 0.0005);
-	float shadows = 0.0f;
-
-	for (int i = 0; i < 20; ++i) {
-		float currentDepth = length(fragPos - lightPos) / (lightFar - lightNear);
-		float depth = texture(shadowMap, lightDir + diskRadius * sampleOffsetDirections[i]).r + bias;
-		shadows  += depth > currentDepth ? 0.0f : 1.0f;
-	}
-
-	return shadows / shadowSamples;
-}
+uniform float heightScale;
 
 // light direction in reverse incident direction : from fragPos to lightPos
 float getDiffuseFactor(vec3 lightDirection, vec3 normal) {
@@ -106,76 +50,80 @@ float getDiffuseFactor(vec3 lightDirection, vec3 normal) {
 // light direction in reverse incident direction
 // cam direction from fragment to camera position
 float getSpecularFactor(vec3 lightDirection, vec3 camDirection, vec3 normal) {
-	float spec = 0;
-
-	if (blinn) {
-		vec3 halfway = normalize(normalize(lightDirection) + normalize(camDirection));
-		spec = max(dot(normalize(normal), halfway), 0);
-	} else {
-		vec3 reflectedLight = normalize(reflect(normalize(-lightDirection), normalize(normal)));
-		spec = max(dot(normalize(camDirection), reflectedLight), 0); 
-	}
-
+	vec3 halfway = normalize(normalize(lightDirection) + normalize(camDirection));
+	float spec = max(dot(normalize(normal), halfway), 0);
 	return pow(spec, material.shininess);
 }
 
-float getAttenuation(float kc, float kl, float kq, float dist) {
-	return 1.0 / (kc + kl * dist + kq * dist);
+vec3 getColor(sampler2D textureId, vec2 texCoord) {
+	return texture(textureId, texCoord).rgb;
 }
 
-vec3 calculateLightColor(vec3 diffuse, vec3 specular, vec3 ambient, vec3 lightPos, vec2 texCoord) {
-	float shadow = calculateLightShadow(lightPos, fs_in.fragPos, fs_in.normal);
+vec2 getParallexTexCoord(sampler2D heightMap, vec2 texCoord, vec3 camDirection) {
+	float numLayers = 32;
+	float layerDepth = 1 / numLayers;
 
-	vec3 diffuseColor = diffuse * texture(material.diffuse0, texCoord).rgb; 
-	vec3 specularColor = specular * texture(material.specular0, texCoord).rgb;
-	vec3 ambientColor = ambient * texture(material.diffuse0, texCoord).rgb; 
+	vec3 ncam = normalize(camDirection);
+	vec2 tangent = ncam.xy / ncam.z * heightScale;
 
-	return  (1.0 - shadow) * (diffuseColor + specularColor) + ambientColor;
-}
-
-vec3 calculateDirectionLight(DirectionLight light, vec3 normal) {
-	float diffuseFactor = getDiffuseFactor(-light.direction, normal);
-	float specularFactor = getSpecularFactor(-light.direction, fs_in.camPos - fs_in.fragPos, normal);
-
-	vec3 estimatePos = vec3(0.0f, 0.0f, 0.0f) - 5.0 * normalize(light.direction);
-	return calculateLightColor(diffuseFactor * light.diffuse, specularFactor * light.specular, light.ambient, estimatePos, fs_in.texCoord);
-} 
-
-vec3 calculateSpotLight(SpotLight light, vec3 normal) {
-	vec3 lightDir = normalize(light.direction);
-	vec3 fragDir = normalize(fs_in.fragPos - light.position);
-
-	float angleBetween = max(dot(lightDir, fragDir), 0);
-	float intensity = max((angleBetween - light.cutOffOuter)/(light.cutOffInner - light.cutOffOuter), 0.0);
-	float attenuation = getAttenuation(light.kc, light.kl, light.kq, length(light.position - fs_in.fragPos));
-
-	float diffuseFactor = getDiffuseFactor(-lightDir, normal);
-	float specularFactor = getSpecularFactor(-lightDir, fs_in.camPos - fs_in.fragPos, normal);
-
-	return calculateLightColor(diffuseFactor * light.diffuse, specularFactor * light.specular, light.ambient, light.position, fs_in.texCoord) * attenuation * intensity;
-}
-
-vec3 calculatePointLight(PointLight light, vec3 lightPos, vec3 fragPos, vec3 camPos, vec3 normal) {
-	vec3 lightDir = lightPos - fragPos; 
-	float diffuseFactor = getDiffuseFactor(lightDir, normal);
-	float specularFactor = getSpecularFactor(lightDir, camPos - fragPos, normal);
+	vec2 perLayerTangent = tangent / numLayers;
 	
-	float attenuation = getAttenuation(light.kc, light.kl, light.kq, length(light.position - fs_in.fragPos));
-	float shadow = calculateLightShadow(lightPos, fs_in.fragPos, fs_in.normal);
+	float currentLayerDepth = 0.0f;
+	vec2 currentTexCoord = texCoord;
 
-	vec2 viewDir = normalize(fragPos - camPos).xy;
-	float height = texture(material.normal1, fs_in.texCoord).r;
+	float currentHeightMap = texture(heightMap, currentTexCoord).r;
 
-	vec2 newCoord = fs_in.texCoord - height * viewDir * 0.001;
+	while(currentLayerDepth < currentHeightMap) {
+		currentLayerDepth += layerDepth;
+		currentTexCoord -= perLayerTangent;
+		currentHeightMap = texture(heightMap, currentTexCoord).r;
+	}
 
-	return calculateLightColor(diffuseFactor * light.diffuse, specularFactor * light.specular, light.ambient, light.position, newCoord) * attenuation;
+	return currentTexCoord;
+
+	vec2 prevCoord = currentTexCoord + perLayerTangent;
+	float prevHeightMap = texture(heightMap, prevCoord).r;
+	float prevLayerDepth = currentLayerDepth - layerDepth;
+	
+	float d1 = currentLayerDepth - currentHeightMap;
+	float d2 = prevHeightMap - prevLayerDepth;
+
+	float weight = d2 / (d1 + d2);
+
+	return weight * prevCoord + (1 - weight) * currentTexCoord;
 }
 
 void main() {
-	if (useNormalMap) { 
-		vec3 normal = normalize((texture(material.normal0, fs_in.texCoord).rgb * 2) - 1);
-		fragColor = vec4(calculatePointLight(pointLight, fs_in.lightTangentPos, fs_in.fragTangentPos, fs_in.camTangentPos, normal), 1.0f);
+	
+	vec3 normal, lightDirection, camDirection;
+	vec2 texCoord;
+
+	if (useNormalMap) {
+		lightDirection = fs_in.lightTangentDir;
+		camDirection = fs_in.camTangentPos - fs_in.fragTangentPos;
 	} else {
-		fragColor = vec4(calculatePointLight(pointLight, pointLight.position, fs_in.fragPos, fs_in.camPos, fs_in.normal), 1.0f);
+		lightDirection = -directionLight.direction;
+		camDirection = fs_in.camPos - fs_in.fragPos;
 	}
+
+	if (useDepthMap) {
+		texCoord = getParallexTexCoord(material.normal1, fs_in.texCoord, camDirection);
+	} else {
+		texCoord = fs_in.texCoord;
+	}
+
+	if (useNormalMap) {
+		normal = normalize((texture(material.normal0, texCoord).rgb * 2) - 1);
+	} else {
+		normal = fs_in.normal;
+	}
+
+	float diffuse = getDiffuseFactor(lightDirection, normal);
+	float specular = getSpecularFactor(lightDirection, camDirection, normal);
+
+	vec3 d = directionLight.diffuse * diffuse * getColor(material.diffuse0, texCoord);
+	vec3 s = directionLight.specular * specular * getColor(material.specular0, texCoord);
+	vec3 a = directionLight.ambient * getColor(material.diffuse0, texCoord);
+
+	fragColor = vec4(d + s + a, 1.0f);
 }

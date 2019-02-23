@@ -45,9 +45,14 @@ GLuint LightEngine::createLightUBO(const std::vector<Light *> & lights) {
 	int pLightIndex = directionLightCount * sizeof(DirectionLight);
 	int sLightIndex = pLightIndex + pointLightCount * sizeof(PointLight);
 
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, directionLightCount * sizeof(DirectionLight), &directionLightsCpy[0]);
-	glBufferSubData(GL_UNIFORM_BUFFER, pLightIndex, pointLightCount * sizeof(PointLight), &pointLightsCpy[0]);
-	glBufferSubData(GL_UNIFORM_BUFFER, sLightIndex, spotLightCount * sizeof(SpotLight), &spotLightsCpy[0]);
+	if (directionLightCount > 0)
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, directionLightCount * sizeof(DirectionLight), &directionLightsCpy[0]);
+	
+	if (pointLightCount > 0)
+		glBufferSubData(GL_UNIFORM_BUFFER, pLightIndex, pointLightCount * sizeof(PointLight), &pointLightsCpy[0]);
+	
+	if (spotLightCount > 0)
+		glBufferSubData(GL_UNIFORM_BUFFER, sLightIndex, spotLightCount * sizeof(SpotLight), &spotLightsCpy[0]);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 

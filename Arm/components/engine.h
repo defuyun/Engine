@@ -41,8 +41,6 @@ public:
 	void bindShadowMap(const Shader & shader) const;
 	
 	void renderFrameToScreen(GLuint textureId, const glm::mat4 & model,const Shader & quadShader);
-	void renderSceneToFrame(const Shader & objectShader, const std::function<void()> & render);
-
 	void renderToFrame(GLuint fbo, const std::function<void()> & render) const;
 
 	void beginRender(GLuint fbo) const;
@@ -51,6 +49,11 @@ public:
 	bool displayNormal = false;
 	bool useNormalMap = true;
 	bool useBlinn = true;
+	bool useDepthMap = true;
+	bool useHDR = true;
+
+	float exposure = 0.1;
+	float heightScale = 0.005;
 
 	bool renderingShadow = false;
 
