@@ -13,3 +13,4 @@ indices
 textures
 timg.jpg diffuse
 timg.jpg specular
+timg_normal.jpg normal

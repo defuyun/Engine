@@ -8,6 +8,7 @@ void Engine::bindShadowMap(const Shader & shader) const {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, shadowMap);
 	shader.use();
 	shader.setInt(shadowMapLocation, GLint(5));
+	glActiveTexture(0);
 }
 
 void Engine::renderToFrame(GLuint fbo, const std::function<void()> & render) const {
@@ -220,7 +221,6 @@ void Engine::init(int width, int height) {
 	if (glewInit() != GLEW_OK) {
 		std::cout << "[ENG] Can't initialize glew\n";
 	}
-
 }	
 
 void Engine::pollEvent() {
@@ -251,6 +251,11 @@ void Engine::processInput(GLFWwindow *window) {
 		displayNormal = !displayNormal;
 	}
 
+	if (keyPress['M'] && glfwGetKey(window, GLFW_KEY_M) == GLFW_RELEASE) {
+		keyPress['M'] = false;
+		useNormalMap = !useNormalMap;
+	}
+
 	if (keyPress['B'] && glfwGetKey(window, GLFW_KEY_B) == GLFW_RELEASE) {
 		keyPress['B'] = false;
 		useBlinn = !useBlinn;
@@ -267,6 +272,10 @@ void Engine::processInput(GLFWwindow *window) {
 
 	if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
 		keyPress['N'] = true;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) {
+		keyPress['M'] = true;
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {

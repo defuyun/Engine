@@ -5,7 +5,10 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <iostream>
+
 GLuint loadTextureFromFile(const std::string & path, const std::string & filename);
+void calculateTangentSpace(Vertex & v0, Vertex & v1, Vertex & v2);
 
 bool Model::useGamma = false;
 
@@ -59,6 +62,14 @@ void Model::loadFile() {
 		}
 	}
 
+	for (int i = 0; i < indice.size(); i += 3) {
+		Vertex & v0 = vertex[indice[i]];
+		Vertex & v1 = vertex[indice[i + 1]];
+		Vertex & v2 = vertex[indice[i + 2]];
+	
+		calculateTangentSpace(v0, v1, v2);
+	}
+
 	this->meshes.push_back(Mesh(vertex,indice,texture));
 }
 
@@ -73,31 +84,34 @@ void Model::loadModel() {
 		return;
 	}
 
-	processNode(scene->mRootNode, scene);
+	processNode(scene->mRootNode, scene, scene->mRootNode->mTransformation);
 }
 
-void Model::processNode(aiNode * node, const aiScene * scene) {
+void Model::processNode(aiNode * node, const aiScene * scene, aiMatrix4x4 transform) {
 	for (auto i = 0u; i < node->mNumMeshes; i++) {
 		auto mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(processMesh(mesh, scene));
+		meshes.push_back(processMesh(mesh, scene, transform));
 	}
 
 	for (auto i = 0u; i < node->mNumChildren; i++) {
-		processNode(node->mChildren[i], scene);
+		processNode(node->mChildren[i], scene, transform * node->mChildren[i]->mTransformation);
 	}
 }
 
-Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene) {
-	std::vector<Vertex> vertex;
+Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene, aiMatrix4x4 transform) {
+	std::vector<Vertex> vertices;
 	for (auto i = 0u; i < mesh->mNumVertices; i++) {
-		glm::vec3 position{ mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z };
-		glm::vec3 normal{ mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z };
+		auto vertex = transform * mesh->mVertices[i];
+		auto aNormal = (aiMatrix3x3(transform).Inverse()).Transpose() * mesh->mNormals[i];
+
+		glm::vec3 position{ vertex.x, vertex.y, vertex.z };
+		glm::vec3 normal{ aNormal.x, aNormal.y, aNormal.z };
 		glm::vec2 texCoord;
 		if (mesh->mTextureCoords[0]) {
 			texCoord.x = (mesh->mTextureCoords)[0][i].x;
 			texCoord.y = (mesh->mTextureCoords)[0][i].y;
 		}
-		vertex.push_back({ position, normal, texCoord });
+		vertices.push_back({ position, normal, texCoord });
 	}
 
 	std::vector<GLuint> indices;
@@ -108,6 +122,14 @@ Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene) {
 		}
 	}
 
+	for (int i = 0; i < indices.size(); i += 3) {
+		Vertex & v0 = vertices[indices[i]];
+		Vertex & v1 = vertices[indices[i + 1]];
+		Vertex & v2 = vertices[indices[i + 2]];
+
+		calculateTangentSpace(v0, v1, v2);
+	}
+
 	std::vector<Texture> textures;
 	auto materials = scene->mMaterials[mesh->mMaterialIndex];
 	
@@ -115,8 +137,10 @@ Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene) {
 	textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
 	auto specularTextures = loadTexture(materials, aiTextureType_SPECULAR, "specular");
 	textures.insert(textures.end(),specularTextures.begin(),specularTextures.end());
+	auto normalMapTextures = loadTexture(materials, postfix == "obj" ? aiTextureType_HEIGHT : aiTextureType_NORMALS, "normal");
+	textures.insert(textures.end(),normalMapTextures.begin(),normalMapTextures.end());
 	
-	return Mesh{ vertex, indices, textures };
+	return Mesh{ vertices, indices, textures };
 }
 
 GLuint Model::loadTextureFromFile(const std::string & filename) {
@@ -177,6 +201,12 @@ void Mesh::init() {
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, texCoord));
 	glEnableVertexAttribArray(2);
 
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, tangent));
+	glEnableVertexAttribArray(3);
+
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, bitangent));
+	glEnableVertexAttribArray(4);
+	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), &indices[0], GL_STATIC_DRAW);
 
@@ -246,6 +276,46 @@ void Mesh::drawInstance(const Shader & shader, int count) const {
 	glActiveTexture(0);
 }
 
+std::ofstream & toString(std::ofstream & file, const glm::vec3 & vec) {
+	file << vec.x << " " << vec.y << " " << vec.z;
+	return file;
+}
+
+std::ofstream & toString(std::ofstream & file, const glm::vec2 & vec) {
+	file << vec.x << " " << vec.y;
+	return file;
+}
+
+void Model::out(const std::string & filename) const{
+	std::ofstream file;
+	file.open(filename);
+
+	std::vector<Vertex> totalVertex;
+	std::vector<GLuint> totalIndices;
+
+	for (auto & mesh : meshes) {
+		totalVertex.insert(totalVertex.end(), mesh.vertices.begin(), mesh.vertices.end());
+		totalIndices.insert(totalIndices.end(), mesh.indices.begin(), mesh.indices.end());
+	}
+
+	file << "vertices\n";
+	for (auto & vertex : totalVertex) {
+		toString(file, vertex.pos);
+		file << " ";
+		toString(file, vertex.normal);
+		file << " ";
+		toString(file, vertex.texCoord);
+		file << "\n";
+	}
+
+	file << "indices\n";
+	for (auto indice : totalIndices) {
+		file << indice << '\n';
+	}
+
+	file.close();
+}
+
 GLuint loadTextureFromFile(const std::string & path, const std::string & filename) {
 	GLuint textureId;
 	glGenTextures(1, &textureId);
@@ -255,7 +325,7 @@ GLuint loadTextureFromFile(const std::string & path, const std::string & filenam
 	auto data = stbi_load((path + '/' + filename).c_str(), &width, &height, &nrChannel,0);
 
 	if (!data) {
-		std::cout << "Failed to load texture" + path + '/' + filename << '\n';
+		std::cout << "Failed to load texture " + path + '/' + filename << '\n';
 		return -1;
 	}
 	
@@ -287,4 +357,39 @@ GLuint loadTextureFromFile(const std::string & path, const std::string & filenam
 
 	stbi_image_free(data);
 	return textureId;
+}
+#define USE_TEX_FOR_TANGENT
+void calculateTangentSpace(Vertex & v0, Vertex & v1, Vertex & v2) {
+
+#ifdef  USE_TEX_FOR_TANGENT
+	float deltaU_0 = (v2.texCoord - v0.texCoord)[0];
+	float deltaV_0 = (v2.texCoord - v0.texCoord)[1];
+
+	float deltaU_1 = (v1.texCoord - v0.texCoord)[0];
+	float deltaV_1 = (v1.texCoord - v0.texCoord)[1];
+
+	glm::vec3 e0 = v2.pos - v0.pos;
+	glm::vec3 e1 = v1.pos - v0.pos;
+
+	glm::mat2 iuv = glm::inverse(glm::transpose(glm::mat2(glm::vec2(deltaU_0, deltaV_0), glm::vec2(deltaU_1, deltaV_1))));
+	glm::mat3x2 E = glm::transpose(glm::mat2x3(e0, e1));
+
+	glm::mat2x3 tb = glm::transpose(iuv * E);
+
+	glm::vec3 tangent = glm::normalize(tb[0]);
+	glm::vec3 bitangent = glm::normalize(tb[1]);
+	
+	v0.tangent = v1.tangent = v2.tangent = tangent;
+	v0.bitangent = v1.bitangent = v2.bitangent = bitangent;
+#else
+	glm::vec3 tangent = glm::normalize(v2.pos - v0.pos);
+	glm::vec3 normal = glm::normalize(v0.normal);
+
+	tangent = glm::normalize(tangent - glm::dot(tangent, normal) * normal);
+
+	glm::vec3 bitangent = glm::normalize(glm::cross(tangent, normal));
+
+	v0.tangent = v1.tangent = v2.tangent = tangent;
+	v0.bitangent = v1.bitangent = v2.bitangent = bitangent;
+#endif
 }

@@ -49,6 +49,7 @@ public:
 	void endRender() const;
 
 	bool displayNormal = false;
+	bool useNormalMap = true;
 	bool useBlinn = true;
 
 	bool renderingShadow = false;

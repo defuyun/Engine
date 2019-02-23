@@ -46,7 +46,7 @@ void run() {
 		vec3(0.4,0.5,0.5),  // ambient
 		vec3(0.7,0.7,0.7), // diffuse
 		vec3(0.5,0.5,0.5), // specular
-		vec3(2.0f,3.0f, 2.0f), // position
+		vec3(6.0f,4.0f, 6.0f), // position
 		0.1f,
 		0.1f,
 		0.1f
@@ -77,11 +77,11 @@ void run() {
 	Shader skyboxShader("shaders/skybox.vert", "shaders/shadowskybox.frag");
 	Shader shadowShader("shaders/shadow.vert", "shaders/shadow.frag", "shaders/shadow.geom");
 
-	Model nanosuit("resources/nanosuit/nanosuit.obj");
 	Model box("resources/box/box.vertices");
 	Model plane("resources/box/plane.vertices");
 	Model light("resources/sphere/sphere.obj");
-
+	Model cottage("resources/cottage/vertices/cottage.vertices");
+	
 	lightEngine->createLightUBO(lights);
 	engine->createMatrixUBO();
 	engine->createSceneFBO();
@@ -89,7 +89,7 @@ void run() {
 
 	glm::vec3 lightPos = pointLight.position;
 
-	auto render = [&nanosuit, &plane, &light, &box, &lightPos, engine](const Shader & shader) {
+	auto render = [&cottage, &plane, &light, &box, &lightPos, engine](const Shader & shader) {
 		shader.use();
 		shader.setBool("blinn", engine->useBlinn);
 
@@ -97,14 +97,12 @@ void run() {
 
 		if (engine->renderingShadow)
 			glCullFace(GL_FRONT);
-		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.2, 0.2, 0.2));
-		glm::mat4 rotate = glm::rotate(scale, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		shader.setMat4("model", rotate);
-		shader.setFloat("material.shininess", 16.0f * blinnNormalizer);
+		shader.setMat4("model", glm::scale(glm::mat4(1.0f), glm::vec3(0.5,0.5,0.5)));
+		shader.setFloat("material.shininess", 4.0f * blinnNormalizer);
 		shader.setFloat("scale", 0.05f);
-		nanosuit.draw(shader);
+		cottage.draw(shader);
 
-		shader.setMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 1.0f, 0.0f)));
+		shader.setMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, -5.0f)));
 		shader.setFloat("material.shininess", 64.0f * blinnNormalizer);
 		shader.setFloat("scale", 1.0f);
 		box.draw(shader);
@@ -151,9 +149,12 @@ void run() {
 			engine->endRender();
 		});
 
-		engine->renderToFrame(engine->sceneFBO, [&objectShader, &normalShader, &render, engine]() {
+		engine->renderToFrame(engine->sceneFBO, [&lightPos, &objectShader, &normalShader, &render, engine]() {
 			engine->beginRender(engine->sceneFBO);
 			engine->bindShadowMap(objectShader);
+			objectShader.use();
+			objectShader.setVec3("lightPos", lightPos);
+			objectShader.setBool("useNormalMap", engine->useNormalMap);
 
 			render(objectShader);
 			if (engine->displayNormal)

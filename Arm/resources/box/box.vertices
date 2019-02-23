@@ -76,3 +76,4 @@ textures
 brickwall.jpg diffuse
 brickwall.jpg specular
 brickwall_normal.jpg normal
+brickwall_depth.png normal

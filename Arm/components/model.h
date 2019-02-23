@@ -58,7 +58,21 @@ public:
 
 	void instanceTranslation(GLuint ibo) const;
 	void draw(const Shader & shader) const;
-	void drawInstance(const Shader & shader, int count) const;  private: std::string postfix; std::string path; std::string filename; std::unordered_map<std::string, GLuint> loadedTexture; std::vector<Mesh> meshes;  void load(); void loadModel(); void loadFile();  void processNode(aiNode * node, const aiScene * scene); Mesh processMesh(aiMesh * mesh, const aiScene * scene); 
+	void drawInstance(const Shader & shader, int count) const; 
+
+	void out(const std::string & filename) const;
+
+private:
+	std::string postfix; 
+	std::string path; 
+	std::string filename; 
+	std::unordered_map<std::string, GLuint> loadedTexture;
+	std::vector<Mesh> meshes; 
+	void load();
+	void loadModel();
+	void loadFile(); 
+	void processNode(aiNode * node, const aiScene * scene, aiMatrix4x4 transform);
+	Mesh processMesh(aiMesh * mesh, const aiScene * scene, aiMatrix4x4 transform); 
 	std::vector<Texture> loadTexture(aiMaterial * materials, aiTextureType type, const std::string & typeName);
 	GLuint loadTextureFromFile(const std::string & filename);
 };
