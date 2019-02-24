@@ -39,7 +39,6 @@ uniform Material material;
 uniform bool useBlinn;
 uniform bool useNormalMap;
 uniform bool useDepthMap;
-
 uniform float heightScale;
 
 // light direction in reverse incident direction : from fragPos to lightPos

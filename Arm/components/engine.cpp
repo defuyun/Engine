@@ -12,7 +12,9 @@ void Engine::bindShadowMap(const Shader & shader) const {
 }
 
 void Engine::renderToFrame(GLuint fbo, const std::function<void()> & render) const {
+	beginRender(fbo);
 	render();
+	endRender();
 }
 
 void Engine::beginRender(GLuint fbo) const {
@@ -26,11 +28,44 @@ void Engine::endRender() const {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Engine::renderFrameToScreen(GLuint textureId, const glm::mat4 & model, const Shader & quadShader) {
+void Engine::renderFrameToScreen(GLuint textureId, FrameOrient orient, const Shader & quadShader) {
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	quadShader.use();
 	quadShader.setInt("tex", (GLint)1);
+
+	glm::mat4 model(1.0f);
+
+	switch (orient.pos)
+	{
+	case SCREEN_POS::TOP_LEFT:
+		model = glm::translate(model, glm::vec3(-0.5f, 0.5f, 0.0f));
+		break;
+	case SCREEN_POS::TOP_RIGHT:
+		model = glm::translate(model, glm::vec3(0.5f, 0.5f, 0.0f));
+		break;
+	case SCREEN_POS::BOTTOM_LEFT:
+		model = glm::translate(model, glm::vec3(-0.5f, -0.5f, 0.0f));
+		break;
+	case SCREEN_POS::BOTTOM_RIGHT:
+		model = glm::translate(model, glm::vec3(0.5f, -0.5f, 0.0f));
+		break;
+	default:
+		break;
+	}
+
+	switch (orient.size)
+	{
+	case SCREEN_SIZE::S:
+		model = glm::scale(model, glm::vec3(0.2, 0.2, 0.0));
+		break;
+	case SCREEN_SIZE::M:
+		model = glm::scale(model, glm::vec3(0.5, 0.5, 0.0));
+		break;
+	default:
+		break;
+	}
+
 	quadShader.setBool("useGamma", Model::useGamma);
 	quadShader.setMat4("model", model);
 
@@ -140,6 +175,54 @@ void Engine::createFBO(int width, int height, GLuint * fbo, GLuint * texture) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void createTexture(GLuint * textureId, int width, int height, GLint internalFormat, GLint format, GLenum type) {
+	glGenTextures(1, textureId);
+	glBindTexture(GL_TEXTURE_2D, *textureId);
+	
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Engine::createGBuffer() {
+	if (gbufferFBO != 0) {
+		glDeleteFramebuffers(1, &gbufferFBO);
+	}
+
+	int width, height;
+	GLuint depthStencil;
+
+	glfwGetWindowSize(window, &width, &height);
+	
+	glGenFramebuffers(1, &gbufferFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, gbufferFBO);
+
+	createTexture(&gPosTexture, width, height, GL_RGBA16F, GL_RGB, GL_FLOAT);
+	createTexture(&gNormalTexture, width, height, GL_RGBA16F, GL_RGB, GL_FLOAT);
+	createTexture(&gAlbedoSpecTexture, width, height, GL_RGBA16F, GL_RGBA, GL_UNSIGNED_BYTE);
+	
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormalTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpecTexture, 0);
+	
+	GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+	glDrawBuffers(3, attachments);
+
+	glGenRenderbuffers(1, &depthStencil);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthStencil);
+
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthStencil);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		std::cout << "gbuffer framebuffer incomplete\n";
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void Engine::createSceneFBO() {
 	if (sceneFBO != 0) {
 		glDeleteFramebuffers(1, &sceneFBO);
@@ -148,6 +231,35 @@ void Engine::createSceneFBO() {
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
 	createFBO(width, height, &sceneFBO, &sceneTexture);
+}
+
+void Engine::bindGBuffer(const Shader & shader) const {
+	shader.use();
+
+	glActiveTexture(GL_TEXTURE0 + GPOS_BIND);
+	glBindTexture(GL_TEXTURE_2D, gPosTexture);
+	shader.setInt("gPos", GLint(GPOS_BIND));
+
+	glActiveTexture(GL_TEXTURE0 + GNORMAL_BIND);
+	glBindTexture(GL_TEXTURE_2D, gNormalTexture);
+	shader.setInt("gNormal", GLint(GNORMAL_BIND));
+
+	glActiveTexture(GL_TEXTURE0 + GALBEDOSPEC_BIND);
+	glBindTexture(GL_TEXTURE_2D, gAlbedoSpecTexture);
+	shader.setInt("gAlbedoSpec", GLint(GALBEDOSPEC_BIND));
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Engine::createDefferedFBO() {
+	if (defferedFBO != 0) {
+		glDeleteFramebuffers(1, &defferedFBO);
+	}
+
+	int width, height;
+	glfwGetWindowSize(window, &width, &height);
+	createFBO(width, height, &defferedFBO, &defferedTexture);
 }
 
 void Engine::createShadowSkyboxFBO() {
@@ -250,14 +362,14 @@ void Engine::processInput(GLFWwindow *window) {
 		cam->processKeyPress(CameraDirection::right, delta);
 
 	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS && heightScale < 0.1)
-		heightScale += 0.001;
+		heightScale += 0.001f;
 	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS && heightScale > 0.005)
-		heightScale -= 0.001;
+		heightScale -= 0.001f;
 
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && exposure < 10.0f)
-		exposure += 0.01;
+		exposure += 0.01f;
 	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS && exposure > 0.01)
-		exposure -= 0.01;
+		exposure -= 0.01f;
 
 	if (keyPress['N'] && glfwGetKey(window, GLFW_KEY_N) == GLFW_RELEASE) {
 		keyPress['N'] = false;

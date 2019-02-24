@@ -132,6 +132,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="shaders\deferred.frag" />
+    <None Include="shaders\deferred.vert" />
+    <None Include="shaders\gbuffer.frag" />
     <None Include="shaders\shadow.frag" />
     <None Include="shaders\shadow.geom" />
     <None Include="shaders\shadow.vert" />
@@ -139,7 +142,7 @@
     <None Include="shaders\normal.geom" />
     <None Include="shaders\normal.vert" />
     <None Include="shaders\object.frag" />
-    <None Include="shaders\object.vert" />
+    <None Include="shaders\gbuffer.vert" />
     <None Include="shaders\quad.frag" />
     <None Include="shaders\quad.vert" />
     <None Include="shaders\shadowskybox.frag" />

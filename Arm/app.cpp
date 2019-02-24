@@ -22,9 +22,6 @@ void run() {
 	Camera c(camPos);
 	Camera * cam = &c;
 
-	LightEngine lc;
-	LightEngine * lightEngine = &lc;
-
 	engine->cam = cam;
 
 	const int WIN_WIDTH = 1280;
@@ -35,58 +32,47 @@ void run() {
 	glEnable(GL_CULL_FACE);
 	glDepthFunc(GL_LEQUAL);
 
-	DirectionLight directionLight(DIRECTIONAL, 
-		vec3(0.2,0.3,0.3),  // ambient
-		vec3(50.0f,50.3f,50.3f), // diffuse
-		vec3(0.2,0.2,0.2), // specular
-		vec3(0.0f,-1.0f,1.0f) // direction
-	);
-
-	std::vector<Light *> lights;
-	lights.push_back(&directionLight);
-
-	Shader objectShader("shaders/object.vert", "shaders/object.frag");
+	Shader gbufferShader("shaders/gbuffer.vert", "shaders/gbuffer.frag");
 	Shader quadShader("shaders/quad.vert", "shaders/quad.frag");
-	Shader normalShader("shaders/normal.vert", "shaders/normal.frag", "shaders/normal.geom");
+	Shader defferedShader("shaders/deferred.vert", "shaders/deferred.frag");
 
 	Model box("resources/box/box.vertices");
 	Model plane("resources/box/plane.vertices");
-	Model cottage("resources/cottage/vertices/cottage.vertices");
-	
-	lightEngine->createLightUBO(lights);
+	Model well("resources/well/collada/well_blender.dae");
+
+	LightEngine l({
+		SimpleLight(glm::vec3(5.0f, 1.0f, -5.0f), glm::vec3(10.0f, 10.0f, 10.0f)),
+		SimpleLight(glm::vec3(-5.0f, 1.0f, 5.0f), glm::vec3(10.0f, 10.0f, 10.0f)),
+		SimpleLight(glm::vec3(-5.0f, 1.0f, -5.0f), glm::vec3(10.0f, 10.0f, 10.0f)),
+		SimpleLight(glm::vec3(5.0f, 1.0f, 5.0f), glm::vec3(10.0f, 10.0f, 10.0f)),
+		SimpleLight(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(10.0f, 10.0f, 10.0f)),
+	});
+
+	LightEngine * lights = &l;
+
 	engine->createMatrixUBO();
 	engine->createSceneFBO();
+	engine->createGBuffer();
+	engine->createDefferedFBO();
 
-	auto render = [&cottage, &plane, &box, engine](const Shader & shader) {
+	auto render = [&well, &plane, &box, engine](const Shader & shader) {
 		shader.use();
-		shader.setBool("useBlinn", engine->useBlinn);
-		shader.setBool("useNormalMap", engine->useNormalMap);
-		shader.setBool("useDepthMap", engine->useDepthMap);
-		shader.setFloat("heightScale", engine->heightScale);
-
 		float blinnNormalizer = 1 + (float)engine->useBlinn;
 
-		if (engine->renderingShadow)
-			glCullFace(GL_FRONT);
-		shader.setMat4("model", glm::scale(glm::mat4(1.0f), glm::vec3(0.5,0.5,0.5)));
-		shader.setFloat("material.shininess", 4.0f * blinnNormalizer);
+		glDisable(GL_CULL_FACE);
+		shader.setMat4("model", glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.3f, 0.0f)), glm::vec3(0.2,0.2,0.2)));
 		shader.setFloat("scale", 0.05f);
-		cottage.draw(shader);
+		well.draw(shader);
+		glEnable(GL_CULL_FACE);
 
 		shader.setMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, -5.0f)));
-		shader.setFloat("material.shininess", 64.0f * blinnNormalizer);
 		shader.setFloat("scale", 1.0f);
 		box.draw(shader);
-		glCullFace(GL_BACK);
 
 		shader.setMat4("model", glm::mat4(1.0f));
-		shader.setFloat("material.shininess", 1.0f * blinnNormalizer);
 		shader.setFloat("scale", 1.0f);
 		plane.draw(shader);
 	};
-
-	objectShader.use();
-	objectShader.setVec3("lightDir",-directionLight.direction);
 
 	engine->lastFrame = (float)glfwGetTime();
 	while (!glfwWindowShouldClose(engine->window)) {
@@ -95,18 +81,17 @@ void run() {
 
 		engine->updateView();
 
-		engine->renderToFrame(engine->sceneFBO, [&objectShader, &normalShader, &render, engine]() {
-			engine->beginRender(engine->sceneFBO);
+		engine->renderToFrame(engine->gbufferFBO, [&gbufferShader, &render, engine]() {
+			render(gbufferShader);
+		});
 
-			render(objectShader);
-			if (engine->displayNormal)
-				render(normalShader);
-
-			engine->endRender();
+		engine->renderToFrame(engine->defferedFBO, [&defferedShader, engine]() {
+			engine->bindGBuffer(defferedShader);
+			engine->renderQuad();
 		});
 
 		engine->beginRender(0);
-		engine->renderFrameToScreen(engine->sceneTexture, glm::mat4(1.0f), quadShader);
+		engine->renderFrameToScreen(engine->defferedTexture, FrameOrient{ SCREEN_POS::CENTER, SCREEN_SIZE::L}, quadShader);
 		engine->endRender();
 
 		glfwSwapBuffers(engine->window);

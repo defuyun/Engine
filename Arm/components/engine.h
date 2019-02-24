@@ -10,6 +10,19 @@
 const int MATRIX_BINDING = 1;
 const int CAMERAPOS_BINDING = 5;
 
+enum SCREEN_POS {
+	TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER
+};
+
+enum SCREEN_SIZE {
+	S, M, L
+};
+
+struct FrameOrient {
+	SCREEN_POS pos;
+	SCREEN_SIZE size;
+};
+
 class Engine {
 public:
 	void renderQuad();
@@ -30,17 +43,28 @@ public:
 	GLuint shadowMapFBO = 0;
 	GLuint shadowMap = 0;
 
+	GLuint gbufferFBO = 0;
+	GLuint gPosTexture = 0;
+	GLuint gNormalTexture = 0;
+	GLuint gAlbedoSpecTexture = 0;
+
+	GLuint defferedFBO = 0;
+	GLuint defferedTexture = 0;
+
 	void init(int width, int height);
 	void pollEvent();
 
 	void createMatrixUBO();
 	void updateView();
 	void createSceneFBO();
+	void createGBuffer();
 	void createShadowSkyboxFBO();
+	void createDefferedFBO();
+	void bindGBuffer(const Shader & shader) const;
 	void createShadowMap(const glm::vec3 & lightPos, const Shader & shadowShader, const std::function<void(const Shader &)> & render);
 	void bindShadowMap(const Shader & shader) const;
 	
-	void renderFrameToScreen(GLuint textureId, const glm::mat4 & model,const Shader & quadShader);
+	void renderFrameToScreen(GLuint textureId, FrameOrient orient,const Shader & quadShader);
 	void renderToFrame(GLuint fbo, const std::function<void()> & render) const;
 
 	void beginRender(GLuint fbo) const;
@@ -52,8 +76,8 @@ public:
 	bool useDepthMap = true;
 	bool useHDR = true;
 
-	float exposure = 0.1;
-	float heightScale = 0.005;
+	float exposure = 0.1f;
+	float heightScale = 0.005f;
 
 	bool renderingShadow = false;
 
@@ -66,6 +90,12 @@ private:
 	GLuint cubeVAO = 0;
 	GLuint matrixUBO = 0;
 	GLuint camPosUBO = 0;
+
+	const int SHADOWMAP_BIND = 5;
+
+	const int GPOS_BIND = 7;
+	const int GNORMAL_BIND = 8;
+	const int GALBEDOSPEC_BIND = 9;
 
 	const int SHADOW_WIDTH = 1280;
 	const int SHADOW_HEIGHT = 1280;

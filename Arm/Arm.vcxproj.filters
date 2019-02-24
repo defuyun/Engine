@@ -51,9 +51,6 @@
     <None Include="shaders\quad.frag">
       <Filter>Resource Files\shaders</Filter>
     </None>
-    <None Include="shaders\object.vert">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
     <None Include="shaders\object.frag">
       <Filter>Resource Files\shaders</Filter>
     </None>
@@ -79,6 +76,18 @@
       <Filter>Resource Files\shaders</Filter>
     </None>
     <None Include="shaders\shadowskybox.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\gbuffer.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\gbuffer.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\deferred.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\deferred.frag">
       <Filter>Resource Files\shaders</Filter>
     </None>
   </ItemGroup>
