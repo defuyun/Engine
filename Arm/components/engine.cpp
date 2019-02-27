@@ -233,6 +233,19 @@ void Engine::createSceneFBO() {
 	createFBO(width, height, &sceneFBO, &sceneTexture);
 }
 
+void Engine::bindGBufferDepth(GLuint fbo) const {
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, gbufferFBO);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+
+	int width, height;
+	glfwGetWindowSize(window, &width, &height);
+
+	glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_LINEAR);
+	glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_STENCIL_BUFFER_BIT, GL_LINEAR);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void Engine::bindGBuffer(const Shader & shader) const {
 	shader.use();
 

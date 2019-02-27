@@ -61,6 +61,7 @@ public:
 	void createShadowSkyboxFBO();
 	void createDefferedFBO();
 	void bindGBuffer(const Shader & shader) const;
+	void bindGBufferDepth(GLuint fbo) const;
 	void createShadowMap(const glm::vec3 & lightPos, const Shader & shadowShader, const std::function<void(const Shader &)> & render);
 	void bindShadowMap(const Shader & shader) const;
 	

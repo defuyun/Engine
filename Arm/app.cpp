@@ -88,6 +88,7 @@ void run() {
 		engine->renderToFrame(engine->defferedFBO, [&defferedShader, engine]() {
 			engine->bindGBuffer(defferedShader);
 			engine->renderQuad();
+			engine->bindGBufferDepth(engine->defferedFBO);
 		});
 
 		engine->beginRender(0);
